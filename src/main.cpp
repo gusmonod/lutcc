@@ -20,17 +20,20 @@ int main(int argc, const char * argv[]) {
 
     if (SUCCESS != get_options_map(argc, argv, &vm)) return ARG_ERROR;
 
-    std::ifstream file;
-    file.open(vm["lutin-file"].as<string>());
-
-    string formatted;
-    format_whitespace(file, &formatted);
-
-    Tokenizer t(formatted);
+    Tokenizer *t = nullptr;
     TokenType type;
-    while (t.has_next()) {
-        cout << t.top(&type) << " (" << type << ')' << endl;
-        t.shift();
+
+    if (vm.count("lutin-file")) {
+        std::ifstream file;
+        file.open(vm["lutin-file"].as<string>());
+        t = new Tokenizer(file);
+    } else {
+        t = new Tokenizer(std::cin);
+    }
+
+    while (t->has_next()) {
+        cout << t->top(&type) << " (" << type << ')' << endl;
+        t->shift();
     }
 
     return SUCCESS;

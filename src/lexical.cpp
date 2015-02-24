@@ -9,22 +9,6 @@ using std::string;
 using std::cout;
 using std::endl;
 
-void format_whitespace(std::istream & input, std::string * out) {
-    std::stringstream output;
-    string token;
-    while (input >> token) {
-        boost::regex kw("const|var|ecrire|lire");
-
-        if (regex_match(token, kw)) {
-            output << token << ' ';
-        } else {
-            output << token;
-        }
-    }
-
-    *out = output.str();
-}
-
 const int Tokenizer::BUFFER_SIZE = 10;
 
 // Keywords regular expressions
@@ -38,26 +22,40 @@ const boost::regex Tokenizer::operatorr("^(\\+|-|\\*|/|;|=).*");
 const boost::regex Tokenizer::id("^([a-zA-Z][a-zA-Z0-9_-]*).*");
 const boost::regex Tokenizer::number("^([0-9]+).*");
 
+string Tokenizer::ws_format(std::istream & input) {
+    std::stringstream output;
+    string token;
+    while (input >> token) {
+        boost::regex kw(".*(const|var|ecrire|lire)");
+
+        if (regex_match(token, kw)) {
+            output << token << ' ';
+        } else {
+            output << token;
+        }
+    }
+
+    return output.str();
+}
+
 Tokenizer::Tokenizer(const string & inString)
-    : /*m_input(nullptr),*/ m_current_token("") {
-    int size = inString.size() + 1;
+    : m_current_token("") {
+    init(inString);
+}
+
+Tokenizer::Tokenizer(std::istream & inStream)
+    : m_current_token("") {
+    init(Tokenizer::ws_format(inStream));
+}
+
+void Tokenizer::init(const string & inString) {
+    size_t size = inString.size() + 1;
     char *buffer = new char[size];
     std::strncpy(buffer, inString.c_str(), size);
 
     m_line = buffer;
     m_pos_in_line = buffer;
 }
-
-/*
-Tokenizer::Tokenizer(std::istream & inStream)
-    : m_input(inStream), m_current_token("") {
-    char *buffer = new char[Tokenizer::BUFFER_SIZE];
-    m_input.getline(buffer, Tokenizer::BUFFER_SIZE);
-
-    m_line = buffer;
-    m_pos_in_line = buffer;
-}
-*/
 
 Tokenizer::~Tokenizer() {
     delete m_line;
@@ -94,8 +92,8 @@ string Tokenizer::top(TokenType *type) {
     if (ERROR != *type) {
         m_current_token = matches[1];
     } else {
-        // No match -> error or EOL
-        m_current_token = "";
+        // No match -> error or EOL, extracting pb char
+        m_current_token = *m_pos_in_line;
     }
 
     return m_current_token;

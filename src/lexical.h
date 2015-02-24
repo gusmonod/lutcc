@@ -17,12 +17,10 @@ enum TokenType {
     NUMBER
 };
 
-void format_whitespace(std::istream & input, std::string * out);
-
-// Tokenizes a Lutin program string. Note: the string **must** be ws-formatted
+// Tokenizes a Lutin program string. Note: the string **must** be ws_formatted
 // Sample usage:
 //    std::string lutin_program;
-//    format_whitespace(std::cin, &lutin_program);
+//    Tokenizer::ws_format(std::cin, &lutin_program);
 //    TokenType type;
 //    while (t.has_next()) {
 //        cout << t.top(&type) << ' ' << type;
@@ -30,12 +28,15 @@ void format_whitespace(std::istream & input, std::string * out);
 //    }
 class Tokenizer {
  public:
+    // Removes all unnecessary whitespace
+    static std::string ws_format(std::istream & input);
+
     // Allocates a buffer holding the program in memory
     // Note: the program **must be** ws_formatted
     explicit Tokenizer(const std::string & inString);
 
     // Gets a reference to a stream for streaming evaluation
-//    explicit Tokenizer(std::istream & inStream);
+    explicit Tokenizer(std::istream & inStream);
 
     // Frees the buffer
     ~Tokenizer();
@@ -53,7 +54,6 @@ class Tokenizer {
     const char *m_line;
     const char *m_pos_in_line;
 
-//    std::istream m_input;
     std::string m_current_token;
 
     static const int BUFFER_SIZE;
@@ -68,6 +68,8 @@ class Tokenizer {
     // Operands regular expressions
     static const boost::regex id;
     static const boost::regex number;
+
+    void init(const std::string & inString);
 };
 
 #endif  // SRC_LEXICAL_H_
