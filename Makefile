@@ -12,7 +12,7 @@ CC_FLAGS=-g -Wall -W -Wextra
 LD=g++
 LD_FLAGS=-g
 
-LIBS=-lboost_regex-mt
+LIBS=-lboost_regex-mt -lboost_program_options
 LIB_PATH=-L/usr/local/lib
 
 INC=
