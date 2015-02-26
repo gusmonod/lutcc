@@ -1,4 +1,4 @@
-# Copyright (c) 2015 Gustave Monod
+# Copyright (c) 2015 FAT-GYFT, MIT License
 # All rights reserved
 
 SRC=$(wildcard *.cpp */*.cpp */*/*.cpp)
