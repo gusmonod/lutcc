@@ -19,8 +19,9 @@ int get_options_map(int argc, const char * argv[],
         std::stringstream desc;
         desc << "Lutin analyzer and executer" << endl
              << "---------------------------" << endl << endl
-             << "Usage: " << argv[0] << " <lutin-file> [options]" << endl
-             << "Allowed options";
+             << "Usage: " << argv[0] << " [LUTIN-FILE] [options]" << endl
+             << "(if no LUTIN-FILE specified, reads from stdin)" << endl
+             << endl << "Allowed options";
 
         po::options_description visible_opts(desc.str());
         visible_opts.add_options()
@@ -51,7 +52,7 @@ int get_options_map(int argc, const char * argv[],
             // --help option
             if (vm->count("help")) {
                 cout << visible_opts;
-                return SUCCESS;
+                std::exit(SUCCESS);
             }
         } catch(po::error& e) {
             cerr << "ERROR: " << e.what() << endl << endl;
