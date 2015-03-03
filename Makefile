@@ -1,7 +1,7 @@
 # Copyright (c) 2015 FAT-GYFT, MIT License
 # All rights reserved
 
-SRC=$(wildcard *.cpp */*.cpp */*/*.cpp)
+SRC=$(wildcard src/*.cpp src/*/*.cpp src/*/*/*.cpp)
 O_FILES=$(SRC:.cpp=.o)
 
 PROG=bin/lutcc
