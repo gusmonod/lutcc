@@ -13,3 +13,6 @@ lib/
 
 # IDE projects
 *.xcodeproj/
+
+# Temp files
+*~

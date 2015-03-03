@@ -7,12 +7,12 @@ O_FILES=$(SRC:.cpp=.o)
 PROG=bin/lutcc
 
 CC=g++
-CC_FLAGS=-g -Wall -W -Wextra
+CC_FLAGS=-g -Wall -W -Wextra -std=c++11
 
 LD=g++
 LD_FLAGS=-g
 
-LIBS=-lboost_regex-mt -lboost_program_options
+LIBS=-lboost_regex -lboost_program_options
 LIB_PATH=-L/usr/local/lib
 
 INC=
