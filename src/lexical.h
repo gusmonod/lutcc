@@ -8,14 +8,6 @@
 
 #include "boost/regex.hpp"
 
-enum TokenType {
-    ERROR,
-    KEYWORD,
-    OPERATOR,
-    ID,
-    NUMBER
-};
-
 // Tokenizes a Lutin program string. Note: the string **must** be ws_formatted
 // Sample usage:
 //    std::string lutin_program;

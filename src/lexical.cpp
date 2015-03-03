@@ -64,7 +64,7 @@ void Tokenizer::shift() {
         if (m_inputStream.eof() && !m_inputStream.good()) break;
         m_inputStream.clear();
 
-        // Replaces whitespaces with a single ' ', and trims
+        // Replaces whitespaces with a single ' '
         m_buffer += regex_replace(string(tmp), boost::regex("[\\r\\n\\t ]+"),
                 " ", format_literal);
     }
