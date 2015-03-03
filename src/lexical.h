@@ -5,7 +5,6 @@
 
 #include <iostream>
 #include <string>
-#include <cstring>
 
 #include "boost/regex.hpp"
 
@@ -29,7 +28,8 @@ enum TokenType {
 class Tokenizer {
  public:
     // Sets the input source to be a stream
-    explicit Tokenizer(std::istream & inStream);
+    // If shift is set, it will automatically shift once upon construction
+    explicit Tokenizer(std::istream * inStream, bool shift = true);
 
     // Returns true if there is something else to read with next(&type)
     bool has_next() const;
@@ -47,6 +47,8 @@ class Tokenizer {
     std::string    m_currentType;
     std::string    m_currentToken;
 
+    bool           m_shifted;
+
     static const size_t BUFFER_SIZE;
 
     // Keywords regular expressions
@@ -60,7 +62,7 @@ class Tokenizer {
     static const boost::regex id;
     static const boost::regex number;
 
-    void init();
+    void analyze();
 };
 
 #endif  // SRC_LEXICAL_H_

@@ -25,13 +25,9 @@ int main(int argc, const char * argv[]) {
     if (vm.count("lutin-file")) {
         std::ifstream file;
         file.open(vm["lutin-file"].as<string>());
-        string s;
-        while(file >> s) cout << s << endl;
-        t = new Tokenizer(file);
+        t = new Tokenizer(&file);
     } else {
-        string s;
-        while(std::cin >> s) cout << s << endl;
-        t = new Tokenizer(std::cin);
+        t = new Tokenizer(&std::cin);
     }
 
     while (t->has_next()) {

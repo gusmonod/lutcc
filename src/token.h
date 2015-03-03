@@ -3,18 +3,11 @@
 #ifndef SRC_TOKEN_H_
 #define SRC_TOKEN_H_
 
-#include <iostream>
-#include <string>
-#include <cstring>
-
-#include "boost/regex.hpp"
-
 class Token {
  public:
     Token();
 
- private:	
-  
+ private:
 };
 
 class SimpleOperator : Token {
@@ -22,7 +15,6 @@ class SimpleOperator : Token {
     SimpleOperator();
 
  private:
-
 };
 
 class Keyword : Token {
@@ -30,8 +22,6 @@ class Keyword : Token {
     Keyword();
 
  private:
-
 };
-
 
 #endif  // SRC_TOKEN_H_

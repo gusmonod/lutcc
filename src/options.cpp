@@ -1,10 +1,12 @@
 // Copyright (c) 2015 FAT-GYFT, MIT License
 
+#include "./options.h"
+
 #include <iostream>
 #include <string>
 #include <sstream>
 
-#include "./options.h"
+#include "boost/program_options.hpp"
 
 using std::cout;
 using std::cerr;
@@ -21,7 +23,7 @@ int get_options_map(int argc, const char * argv[],
              << "---------------------------" << endl << endl
              << "Usage: " << argv[0] << " [LUTIN-FILE] [options]" << endl
              << "(if no LUTIN-FILE specified, reads from stdin)" << endl
-             << endl << "Allowed options";
+             << "Allowed options";
 
         po::options_description visible_opts(desc.str());
         visible_opts.add_options()

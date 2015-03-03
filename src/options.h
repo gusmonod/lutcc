@@ -4,6 +4,7 @@
 #define SRC_OPTIONS_H_
 
 #include "./constants.h"
+
 #include "boost/program_options.hpp"
 
 int get_options_map(int argc, const char * argv[],
