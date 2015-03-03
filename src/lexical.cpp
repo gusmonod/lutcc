@@ -15,7 +15,7 @@ using std::endl;
 const size_t Tokenizer::BUFFER_SIZE = 10;
 
 // Keywords regular expressions
-const boost::regex Tokenizer::keyword("^(const|var|ecrire|lire).*");
+const boost::regex Tokenizer::keyword("^(const |var |ecrire |lire ).*");
 
 // Operator regular expressions
 const boost::regex Tokenizer::affect("^(:=).*");
@@ -68,6 +68,7 @@ string Tokenizer::top() {
     if (regex_match(m_buffer.c_str(), matches, Tokenizer::keyword)) {
         m_currentType = "keyword";
         m_currentToken = matches[1];
+        m_currentToken = m_currentToken.substr(0, m_currentToken.size() - 1);
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::affect)) {
         m_currentType = "affect";
         m_currentToken = matches[1];
@@ -128,7 +129,7 @@ void Tokenizer::shift() {
     m_buffer = m_buffer.substr(m_currentToken.size());
 
     // If there are spaces after the token, removes them from the buffer
-    boost::algorithm::trim(m_buffer);
+    boost::algorithm::trim_left(m_buffer);
 
     // Increases the buffer size until it hits Tokenizer::BUFFER_SIZE or EOF
     while (m_buffer.size() < Tokenizer::BUFFER_SIZE) {
