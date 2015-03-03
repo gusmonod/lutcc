@@ -1,0 +1,41 @@
+[State|String name | Virtual Transition(Automaton a. Token t)]
+[Token]
+[Tokenizer|Token Shift()]
+
+[Automaton|start()]->1[Tokenizer],
+[Automaton]-statesStack *>[State],
+[Automaton]-tokensStack * >[Token]
+
+[Token]^-[SimpleOperator]
+[Token]^-[Expr|double eval(Variables)]
+[Token]^-[Keyword]
+[Expr]^-[Variable]
+[Expr]^-[Number]
+
+[Expr]^-[BinExpr]
+[BinExpr]^-[MultExpr]
+[BinExpr]^-[AddExpr]
+[BinExpr]^-[SubExpr]
+[BinExpr]^-[DivExpr]
+[BinExpr]-left>[Expr]
+[BinExpr]-right>[Expr]
+
+
+[Instruction]^-[Assignment]
+[Instruction]^-[Read]
+[Instruction]^-[Write]
+
+[Write]-1>[Expr]
+[Read]-1>[Variable]
+[Assignment]-1>[Variable]
+[Assignment]-1>[Expr]
+
+
+[Declaration]^-[VarDeclaration]
+[Declaration]^-[ConstDeclaration]
+
+[Token]^-[Declaration]
+[Token]^-[Instruction]
+
+[Program]-*>[Declaration]
+[Program]-*>[Instruction]
