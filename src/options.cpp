@@ -13,7 +13,7 @@ using std::cerr;
 using std::string;
 using std::endl;
 
-int get_options_map(int argc, const char * argv[],
+void get_options_map(int argc, const char * argv[],
             boost::program_options::variables_map *vm) {
     namespace po = boost::program_options;
 
@@ -21,7 +21,7 @@ int get_options_map(int argc, const char * argv[],
         std::stringstream desc;
         desc << "Lutin analyzer and executer" << endl
              << "---------------------------" << endl << endl
-             << "Usage: " << argv[0] << " [lutin-file] [options]" << endl
+             << "Usage: " << argv[0] << " <lutin-file> [options]" << endl
              << "(if no lutin-file is specified, reads from stdin)" << endl
              << "Allowed options";
 
@@ -29,9 +29,9 @@ int get_options_map(int argc, const char * argv[],
         visible_opts.add_options()
             ("help,h", ": Prints this help")
             ("print,p", ": Prints the internal representation")
-            ("analyze,a", ": Static analysis outputs error to stderr")
+            ("analyze,a", ": Analyzes code and outputs error to stderr")
             ("exec,e", ": Executes the given Lutin program")
-            ("optim,o", ": Transforms the program by simplifying it");
+            ("optim,o", ": Optimizes the program by simplifying it");
 
         po::positional_options_description pos_opts;
         pos_opts.add("lutin-file", -1);
@@ -39,7 +39,7 @@ int get_options_map(int argc, const char * argv[],
         // Hidden options, will be allowed but not shown in help
         po::options_description hidden_opts("Hidden options");
         hidden_opts.add_options()
-            ("lutin-file", po::value<string>(),
+            ("lutin-file", po::value<string>()->required(),
                     ": Sets the input lutin file to analyze");
 
         try {
@@ -54,18 +54,16 @@ int get_options_map(int argc, const char * argv[],
             // --help option
             if (vm->count("help")) {
                 cout << visible_opts;
-                std::exit(SUCCESS);
+                std::exit(EXIT_FAILURE);
             }
         } catch(po::error& e) {
             cerr << "ERROR: " << e.what() << endl << endl;
             cerr << visible_opts;
-            return ARG_ERROR;
+            std::exit(EXIT_FAILURE);
         }
     } catch(std::exception& e) {
         cerr << "Unhandled Exception reached the top of main: "
         << e.what() << ", application will now exit" << endl;
-        return ARG_ERROR;
+        std::exit(EXIT_FAILURE);
     }
-
-    return SUCCESS;
 }

@@ -7,7 +7,6 @@
 
 #include "boost/program_options.hpp"
 
-#include "./constants.h"
 #include "./options.h"
 #include "./lexical.h"
 
@@ -18,28 +17,21 @@ using std::endl;
 int main(int argc, const char * argv[]) {
     boost::program_options::variables_map vm;
 
-    if (SUCCESS != get_options_map(argc, argv, &vm)) return ARG_ERROR;
+    get_options_map(argc, argv, &vm);
 
-    Tokenizer *t = nullptr;
-    std::ifstream *file = nullptr;
-
-    if (vm.count("lutin-file")) {
-        file = new std::ifstream;
-        file->open(vm["lutin-file"].as<string>());
-        t = new Tokenizer(file);
-    } else {
-        t = new Tokenizer(&std::cin);
+    std::ifstream file;
+    file.open(vm["lutin-file"].as<string>());
+    if (!file) {
+        std::cerr << "Could not open " << vm["lutin-file"].as<string>();
+        std::exit(EXIT_FAILURE);
     }
 
-    while (t->has_next()) {
-        cout << t->top() << endl;
-        t->shift();
+    Tokenizer t(&file);
+
+    while (t.has_next()) {
+        cout << t.top() << endl;
+        t.shift();
     }
 
-    delete t;
-    t = nullptr;
-    delete file;
-    file = nullptr;
-
-    return SUCCESS;
+    return EXIT_SUCCESS;
 }

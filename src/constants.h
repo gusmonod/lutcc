@@ -5,8 +5,7 @@
 
 enum ReturnCode {
     SUCCESS = 0,
-    ARG_ERROR,
-    MATCH_ERROR
+    ERROR = 1
 };
 
 #endif  // SRC_CONSTANTS_H_

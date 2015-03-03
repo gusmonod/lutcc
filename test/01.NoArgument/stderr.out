@@ -1,0 +1,13 @@
+ERROR: the option '--lutin-file' is required but missing
+
+Lutin analyzer and executer
+---------------------------
+
+Usage: ../lut <lutin-file> [options]
+(if no lutin-file is specified, reads from stdin)
+Allowed options:
+  -h [ --help ]         : Prints this help
+  -p [ --print ]        : Prints the internal representation
+  -a [ --analyze ]      : Analyzes code and outputs error to stderr
+  -e [ --exec ]         : Executes the given Lutin program
+  -o [ --optim ]        : Optimizes the program by simplifying it
