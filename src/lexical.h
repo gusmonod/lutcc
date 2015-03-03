@@ -28,35 +28,26 @@ enum TokenType {
 //    }
 class Tokenizer {
  public:
-    // Removes all unnecessary whitespace
-    static std::string ws_format(std::istream & input);
-
-    // Allocates a buffer holding the program in memory
-    // Note: the program **must be** ws_formatted
-    explicit Tokenizer(const std::string & inString);
-
-    // Gets a reference to a stream for streaming evaluation
+    // Sets the input source to be a stream
     explicit Tokenizer(std::istream & inStream);
-
-    // Frees the buffer
-    ~Tokenizer();
 
     // Returns true if there is something else to read with next(&type)
     bool has_next() const;
 
     // Returns the next token **without** moving to the next token
-    std::string top(TokenType *type);
+    std::string top();
 
     // Moves to the next token
     void shift();
 
  private:
-    const char *m_line;
-    const char *m_pos_in_line;
+    std::istream & m_inputStream;
+    std::string    m_buffer;
 
-    std::string m_current_token;
+    std::string    m_currentType;
+    std::string    m_currentToken;
 
-    static const int BUFFER_SIZE;
+    static const size_t BUFFER_SIZE;
 
     // Keywords regular expressions
     static const boost::regex keyword;
@@ -69,7 +60,7 @@ class Tokenizer {
     static const boost::regex id;
     static const boost::regex number;
 
-    void init(const std::string & inString);
+    void init();
 };
 
 #endif  // SRC_LEXICAL_H_

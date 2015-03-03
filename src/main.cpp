@@ -21,7 +21,6 @@ int main(int argc, const char * argv[]) {
     if (SUCCESS != get_options_map(argc, argv, &vm)) return ARG_ERROR;
 
     Tokenizer *t = nullptr;
-    TokenType type;
 
     if (vm.count("lutin-file")) {
         std::ifstream file;
@@ -32,7 +31,7 @@ int main(int argc, const char * argv[]) {
     }
 
     while (t->has_next()) {
-        cout << t->top(&type) << " (" << type << ')' << endl;
+        cout << t->top() << endl;
         t->shift();
     }
 
