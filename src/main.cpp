@@ -21,11 +21,12 @@ int main(int argc, const char * argv[]) {
     if (SUCCESS != get_options_map(argc, argv, &vm)) return ARG_ERROR;
 
     Tokenizer *t = nullptr;
+    std::ifstream *file = nullptr;
 
     if (vm.count("lutin-file")) {
-        std::ifstream file;
-        file.open(vm["lutin-file"].as<string>());
-        t = new Tokenizer(&file);
+        file = new std::ifstream;
+        file->open(vm["lutin-file"].as<string>());
+        t = new Tokenizer(file);
     } else {
         t = new Tokenizer(&std::cin);
     }
@@ -34,6 +35,11 @@ int main(int argc, const char * argv[]) {
         cout << t->top() << endl;
         t->shift();
     }
+
+    delete t;
+    t = nullptr;
+    delete file;
+    file = nullptr;
 
     return SUCCESS;
 }
