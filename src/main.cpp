@@ -7,16 +7,15 @@
 
 #include "boost/program_options.hpp"
 
-#include "./tokens.h"
-#include "./options.h"
 #include "./lexical.h"
+#include "./automaton.h"
+#include "./options.h"
 
 using std::string;
 using std::cout;
 using std::endl;
 
 int main(int argc, const char * argv[]) {
-    cout << MulExpr(3) << endl;
     boost::program_options::variables_map vm;
 
     get_options_map(argc, argv, &vm);
@@ -28,11 +27,12 @@ int main(int argc, const char * argv[]) {
         std::exit(EXIT_FAILURE);
     }
 
+    Automaton accepter;
     Tokenizer t(&file);
-
-    while (t.has_next()) {
-        cout << t.top() << endl;
-        t.shift();
+    if (accepter.accepts(&t)) {
+        cout << "Accepted!!" << endl;
+    } else {
+        cout << "Not accepted" << endl;
     }
 
     return EXIT_SUCCESS;

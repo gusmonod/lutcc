@@ -8,7 +8,7 @@ Keywords:
 + `con` = const
 + `var` = var
 + `ecr` = ecrire
-+ `lir` = lire 
++ `lir` = lire
 
 Operators:
 + `aff` = affectation (/^:=/)

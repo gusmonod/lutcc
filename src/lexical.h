@@ -8,6 +8,8 @@
 
 #include "boost/regex.hpp"
 
+#include "./token.h"
+
 // Tokenizes a Lutin program string. Note: the string **must** be ws_formatted
 // Sample usage:
 //    std::string lutin_program;
@@ -27,7 +29,7 @@ class Tokenizer {
     bool has_next() const;
 
     // Returns the next token **without** moving to the next token
-    std::string top();
+    Token::Id top();
 
     // Moves to the next token
     void shift();
@@ -36,7 +38,7 @@ class Tokenizer {
     std::istream & m_inputStream;
     std::string    m_buffer;
 
-    std::string    m_currentType;
+    Token::Id      m_currentTokenId;
     std::string    m_currentToken;
 
     bool           m_shifted;

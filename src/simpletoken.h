@@ -5,27 +5,18 @@
 
 #include <iostream>
 
-class Token {
+#include "./token.h"
+
+class SimpleOperator : public Token {
  public:
-    explicit Token(int id) : m_id(id) { }
-    operator int() const { return m_id; }
-
-    friend std::ostream& operator<<(std::ostream& stream, const Token & token);
-
- protected:
-    int m_id;
-};
-
-class SimpleOperator : Token {
- public:
-    explicit SimpleOperator(int id) : Token(id) { }
+    explicit SimpleOperator(Token::Id id) : Token(id) { }
 
  private:
 };
 
-class Keyword : Token {
+class Keyword : public Token {
  public:
-    explicit Keyword(int id) : Token(id) { }
+    explicit Keyword(Token::Id id) : Token(id) { }
 
  private:
 };
