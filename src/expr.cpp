@@ -1,27 +1,40 @@
 // Copyright (c) 2015 FAT-GYFT, MIT License
 
-#include "expr.h"
+#include "./expr.h"
 
-/** Class Expr **/
-Expr::Expr() {}
+#include <map>
+#include <string>
 
-/** Class Number **/
-Number::Number() {}
+typedef std::map<std::string, uint64_t> VariablesMap;
 
-/** Class Variable **/
-Variable::Variable() {}
+/*virtual*/ uint64_t AddExpr::eval(const VariablesMap & values) {
+    uint64_t result = 0;
+    for (auto entry : values) {
+        result += entry.second;
+    }
+    return result;
+}
 
-/** Class BinExpr **/
-BinExpr::BinExpr() {}
+/*virtual*/ uint64_t SubExpr::eval(const VariablesMap & values) {
+    uint64_t result = 0;
+    for (auto entry : values) {
+        result -= entry.second;
+    }
+    return result;
+}
 
-/** Class AddExpr **/
-AddExpr::AddExpr() {}
+/*virtual*/ uint64_t MulExpr::eval(const VariablesMap & values) {
+    uint64_t result = 1;
+    for (auto entry : values) {
+        result *= entry.second;
+    }
+    return result;
+}
 
-/** Class SubExpr **/
-SubExpr::SubExpr() {}
-
-/** Class MultExpr **/
-MultExpr::MultExpr() {}
-
-/** Class DivExpr **/
-DivExpr::DivExpr() {}
+/*virtual*/ uint64_t DivExpr::eval(const VariablesMap & values) {
+    uint64_t result = 1;
+    for (auto entry : values) {
+        result /= entry.second;
+    }
+    return result;
+}

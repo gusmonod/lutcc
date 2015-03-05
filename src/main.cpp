@@ -7,6 +7,7 @@
 
 #include "boost/program_options.hpp"
 
+#include "./tokens.h"
 #include "./options.h"
 #include "./lexical.h"
 
@@ -15,6 +16,7 @@ using std::cout;
 using std::endl;
 
 int main(int argc, const char * argv[]) {
+    cout << MulExpr(3) << endl;
     boost::program_options::variables_map vm;
 
     get_options_map(argc, argv, &vm);
