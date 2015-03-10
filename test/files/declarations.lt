@@ -1,4 +1,5 @@
-var a,b; 
+var a,b;
 const c = 4;
 const d = 6, f = 5;
+const hi = 6, i = 5, j = 5;
 var e;
