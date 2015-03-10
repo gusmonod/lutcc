@@ -173,9 +173,14 @@ Automaton::Automaton(const Action::Transitions & trans) {
 
 // Frees all Actions from the Transitions table
 /*virtual*/ Automaton::~Automaton() {
+    std::set<Action *> freed_actions;
     for (auto map : m_trans) {
         for (auto it : map.second) {
-            delete it.second;
+            if (freed_actions.find(it.second) != freed_actions.end()) {
+                delete it.second;
+                freed_actions.insert(it.second);
+            }
+            it.second = nullptr;
         }
     }
 }

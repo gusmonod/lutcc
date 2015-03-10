@@ -35,7 +35,5 @@ int main(int argc, const char * argv[]) {
         cout << "Not accepted" << endl;
     }
 
-	std::exit(EXIT_SUCCESS);  // Segmentation fault??
-
     return EXIT_SUCCESS;
 }

@@ -16,3 +16,6 @@ lib/
 
 # Temp files
 *~
+
+# Test results
+results.csv
