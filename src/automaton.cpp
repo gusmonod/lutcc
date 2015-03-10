@@ -43,9 +43,9 @@ Automaton::Automaton() : m_trans() {
 
     // E20, E22, E23, E24, E25, E26
 
-    m_trans[State::E28][Token::Lc]  = new ActionShift(State::E36);
-    m_trans[State::E28][Token::col] =  // ActionShift(State::E36, true);
-    m_trans[State::E28][Token::com] = new ActionShift(State::E36, true);
+    m_trans[State::E28][Token::Lc]  =  // ActionShift(State::E36, true);
+    m_trans[State::E28][Token::com] =  // ActionShift(State::E36, true);
+    m_trans[State::E28][Token::col] = new ActionShift(State::E36, true);
 
     m_trans[State::E29][Token::col] = new ActionReduce(3, Token::D);
     m_trans[State::E29][Token::com] = new ActionShift(State::E38);
@@ -61,7 +61,9 @@ Automaton::Automaton() : m_trans() {
 
     m_trans[State::E42][Token::equ] = new ActionShift(State::E43);
 
-    m_trans[State::E43][Token::num] = new ActionReduce(4, Token::Lc);
+    m_trans[State::E43][Token::num] = new ActionShift(State::E44);
+
+	m_trans[State::E44][Token::col] = new ActionReduce(5, Token::Lc);
 
 	m_trans[State::E45][Token::num] = new ActionShift(State::E28);
 }
@@ -87,6 +89,10 @@ bool Automaton::accepts(Tokenizer *tokenizer, State init) {
     while (tokenizer->has_next()) {
         State s = states.top();
         Token::Id t = tokenizer->top();
+
+		if (State::E29 == s) {
+			volatile int i = 0;
+		}
 
         if (this->error(s, t)) {
             return false;
