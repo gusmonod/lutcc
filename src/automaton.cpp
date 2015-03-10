@@ -12,7 +12,9 @@ Automaton::Automaton() : m_trans() {
     m_trans[State::E0] [Token::P]   = new ActionAccept();
     // Shift-reduce conflict for Ld:
     m_trans[State::E0] [Token::Ld]  = new ActionShift(State::E2);
-    m_trans[State::E0] [Token::D]   = new ActionReduce(2, Token::P);
+    m_trans[State::E0] [Token::D]   = new ActionReduce(1, Token::P);
+    m_trans[State::E0] [Token::con] = new ActionShift(State::E2, true);
+    m_trans[State::E0] [Token::var] = new ActionShift(State::E2, true);
 
     // m_trans[State::E2] [Token::Li]
     // m_trans[State::E2] [Token::I]
@@ -21,7 +23,7 @@ Automaton::Automaton() : m_trans() {
     // m_trans[State::E2] [Token::lir]
     m_trans[State::E2] [Token::con] = new ActionShift(State::E8);
     m_trans[State::E2] [Token::var] = new ActionShift(State::E9);
-    m_trans[State::E2] [Token::D]   = new ActionReduce(2, Token::P);
+    m_trans[State::E2] [Token::D]   = new ActionReduce(1, Token::P);
 
     // E3, E5, E6, E7
 
@@ -33,6 +35,8 @@ Automaton::Automaton() : m_trans() {
 
     // Shift-reduce conflict for Lv
     m_trans[State::E18][Token::Lv]  = new ActionShift(State::E29);
+    m_trans[State::E18][Token::com] = new ActionShift(State::E29, true);
+    m_trans[State::E18][Token::col] = new ActionShift(State::E29, true);
 
     m_trans[State::E19][Token::equ] = new ActionShift(State::E28);
 
@@ -74,15 +78,18 @@ bool Automaton::accepts(Tokenizer *tokenizer, State init) {
     std::stack<State> states;
     states.push(init);
 
+    bool epsilon = true;
     while (tokenizer->has_next()) {
-        if (this->error(states.top(), tokenizer->top())) {
+        State s = states.top();
+        Token::Id t = tokenizer->top();
+
+        if (this->error(s, t)) {
             return false;
         }
-        if (m_trans[states.top()][tokenizer->top()]
-                ->doTransition(m_trans, &states)) {
+        if (m_trans[s][t]->doTransition(m_trans, &states, &epsilon)) {
             return true;
         }
-        tokenizer->shift();
+        if (!epsilon) tokenizer->shift();
     }
 
     return false;

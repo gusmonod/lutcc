@@ -8,13 +8,14 @@
 
 const State Action::initState = State::E0;
 
-ActionShift::ActionShift(State target)
-    : m_target(target) { }
+ActionShift::ActionShift(State target, bool epsilon)
+    : m_target(target), m_epsilon(epsilon) { }
 
 /*virtual*/ bool ActionShift::doTransition(
         const Action::Transitions & transitions,
-        std::stack<State> * states) {
+        std::stack<State> * states, bool * epsilon) {
     states->push(m_target);
+    *epsilon = m_epsilon;
 
     // Ends the recursion, not accepting
     return false;
@@ -25,21 +26,26 @@ ActionReduce::ActionReduce(int nbToPop, Token::Id left)
 
 /*virtual*/ bool ActionReduce::doTransition(
         const Action::Transitions & transitions,
-        std::stack<State> * states) {
+        std::stack<State> * states, bool * epsilon) {
     for (int i = 0; i < m_nbToPop; ++i) {
         states->pop();
     }
+    *epsilon = false;
 
     // Recursive call
     return transitions.find(states->top())->second.find(m_left)
-            ->second->doTransition(transitions, states);
+            ->second->doTransition(transitions, states, epsilon);
 }
 
 ActionAccept::ActionAccept() { }
 
 /*virtual*/ bool ActionAccept::doTransition(
         const Action::Transitions & transitions,
-        std::stack<State> * states) {
+        std::stack<State> * states, bool * epsilon) {
+    *epsilon = false;
+
     // Ends the recursion, accepting
     return true;
 }
+
+

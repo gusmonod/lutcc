@@ -18,18 +18,19 @@ class Action {
     static const State initState;  // E0
 
     virtual bool doTransition(const Action::Transitions & transitions,
-            std::stack<State> * states) = 0;
+            std::stack<State> * states, bool * epsilon) = 0;
 };
 
 class ActionShift : public Action {
  public:
-    explicit ActionShift(State target);
+    explicit ActionShift(State target, bool epsilon = false);
 
     virtual bool doTransition(const Action::Transitions & transitions,
-            std::stack<State> * states);
+            std::stack<State> * states, bool * epsilon);
 
  private:
     const State m_target;
+    bool m_epsilon;
 };
 
 class ActionReduce : public Action {
@@ -37,7 +38,7 @@ class ActionReduce : public Action {
     ActionReduce(int nbToPop, Token::Id tokenId);
 
     virtual bool doTransition(const Action::Transitions & transitions,
-            std::stack<State> * states);
+            std::stack<State> * states, bool * epsilon);
 
  private:
     int m_nbToPop;
@@ -49,7 +50,7 @@ class ActionAccept : public Action {
     ActionAccept();
 
     virtual bool doTransition(const Action::Transitions & transitions,
-            std::stack<State> * states);
+            std::stack<State> * states, bool * epsilon);
 };
 
 #endif  // SRC_ACTIONS_H_
