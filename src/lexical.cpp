@@ -111,7 +111,7 @@ void Tokenizer::analyze() {
                 m_currentTokenId = Token::mul;
                 break;
             case '/':
-                m_currentTokenId = Token::div;
+                m_currentTokenId = Token::quo;
                 break;
             case '(':
                 m_currentTokenId = Token::opp;
