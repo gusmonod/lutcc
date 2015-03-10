@@ -17,7 +17,7 @@ ActionShift::ActionShift(State target, bool epsilon)
     states->push(m_target);
     *epsilon = m_epsilon;
 
-    // Ends the recursion, not accepting
+    // Ends the recursion, continuing the analysis loop
     return false;
 }
 

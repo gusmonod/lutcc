@@ -9,7 +9,7 @@ struct State {
     enum StateEnum {
         E0, E2, E3, E5, E6, E7, E8, E9, E12, E13, E14, E17, E18, E19,
         E20, E22, E23, E24, E25, E26, E28, E29, E31, E32, E33, E34, E36,
-        E38, E41, E42, E43
+        E38, E41, E42, E43, E45
     };
 
     State(State::StateEnum value) : m_value(value) { } // NOLINT
