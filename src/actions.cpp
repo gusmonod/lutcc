@@ -37,6 +37,18 @@ ActionReduce::ActionReduce(int nbToPop, Token::Id left)
             ->second->doTransition(transitions, states, epsilon);
 }
 
+ActionReduceShift::ActionReduceShift(int nbToPop, Token::Id left,
+       Token::Id right)
+    : ActionReduce(nbToPop, left), m_right(right) { }
+
+/*virtual*/ bool ActionReduceShift::doTransition(
+        const Action::Transitions & transitions,
+        std::stack<State> * states, bool * epsilon) {
+    ActionReduce::doTransition(transitions, states, epsilon);
+    return transitions.find(states->top())->second.find(m_right)
+            ->second->doTransition(transitions, states, epsilon);
+}
+
 ActionAccept::ActionAccept() { }
 
 /*virtual*/ bool ActionAccept::doTransition(

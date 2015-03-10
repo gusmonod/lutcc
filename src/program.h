@@ -9,6 +9,4 @@ class Program {
     virtual ~Program() {}
 };
 
-
-
 #endif  // SRC_PROGRAM_H_

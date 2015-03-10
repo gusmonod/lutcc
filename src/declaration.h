@@ -5,17 +5,14 @@
 
 class Declaration : Token {
  public:
-    
 };
 
 class ConstDeclaration : public Declaration {
  public:
-
 };
 
 class VarDeclaration : public Declaration {
  public:
-
 };
 
 #endif  // SRC_DECLARATION_H_

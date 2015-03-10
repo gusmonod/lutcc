@@ -40,9 +40,19 @@ class ActionReduce : public Action {
     virtual bool doTransition(const Action::Transitions & transitions,
             std::stack<State> * states, bool * epsilon);
 
- private:
+ protected:
     int m_nbToPop;
     Token::Id m_left;
+};
+
+class ActionReduceShift : public ActionReduce {
+ public:
+    ActionReduceShift(int nbToPop, Token::Id tokenId, Token::Id right);
+    
+    virtual bool doTransition(const Action::Transitions & transitions,
+                              std::stack<State> * states, bool * epsilon);
+ private:
+    Token::Id m_right;
 };
 
 class ActionAccept : public Action {
