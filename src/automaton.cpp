@@ -15,13 +15,17 @@ Automaton::Automaton() : m_trans() {
     m_trans[State::E0] [Token::con] =  // ActionShift(State::E2, true);
     m_trans[State::E0] [Token::var] =  // ActionShift(State::E2, true);
     m_trans[State::E0] [Token::Li]  =  // ActionShift(State::E2, true);
+    m_trans[State::E0] [Token::idv] =  // ActionShift(State::E2, true);
+    m_trans[State::E0] [Token::ecr] =  // ActionShift(State::E2, true);
+    m_trans[State::E0] [Token::lir] =  // ActionShift(State::E2, true);
+    m_trans[State::E0] [Token::con] =  // ActionShift(State::E2, true);
     m_trans[State::E0] [Token::I]   = new ActionShift(State::E2, true);
 
-    // m_trans[State::E2] [Token::Li]
-    // m_trans[State::E2] [Token::I]
-    // m_trans[State::E2] [Token::idv]
-    // m_trans[State::E2] [Token::ecr]
-    // m_trans[State::E2] [Token::lir]
+    m_trans[State::E2] [Token::Li]  = new ActionShift(State::E3);
+    m_trans[State::E2] [Token::I]   = new ActionReduce(0, Token::Li);
+    m_trans[State::E2] [Token::idv] = new ActionShift(State::E5);
+    m_trans[State::E2] [Token::ecr] = new ActionShift(State::E6);
+    m_trans[State::E2] [Token::lir] = new ActionShift(State::E7);
     m_trans[State::E2] [Token::con] = new ActionShift(State::E8);
     m_trans[State::E2] [Token::var] = new ActionShift(State::E9);
     m_trans[State::E2] [Token::D]   = new ActionReduce(1, Token::Ld);
