@@ -12,7 +12,7 @@ const std::map<Token::Id, std::string> Token::ID_NAMES = {
 
     {Token::con, "const"}, {Token::var, "var"}, {Token::ecr, "ecrire"},
     {Token::lir, "lire"}, {Token::aff, ":="}, {Token::plu, "+"},
-    {Token::min, "-"}, {Token::mul, "*"}, {Token::div, "/"}, {Token::opp, "("},
+    {Token::min, "-"}, {Token::mul, "*"}, {Token::quo, "/"}, {Token::opp, "("},
     {Token::com, ","}, {Token::clo, ")"}, {Token::col, ";"}, {Token::equ, "="},
     {Token::idv, "id"}, {Token::num, "num"}
 };

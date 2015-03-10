@@ -15,24 +15,58 @@ Automaton::Automaton() : m_trans() {
     m_trans[State::E0] [Token::con] =  // ActionShift(State::E2, true);
     m_trans[State::E0] [Token::var] =  // ActionShift(State::E2, true);
     m_trans[State::E0] [Token::Li]  =  // ActionShift(State::E2, true);
+    m_trans[State::E0] [Token::idv] =  // ActionShift(State::E2, true);
+    m_trans[State::E0] [Token::ecr] =  // ActionShift(State::E2, true);
+    m_trans[State::E0] [Token::lir] =  // ActionShift(State::E2, true);
+    m_trans[State::E0] [Token::con] =  // ActionShift(State::E2, true);
     m_trans[State::E0] [Token::I]   = new ActionShift(State::E2, true);
 
-    // m_trans[State::E2] [Token::Li]
-    // m_trans[State::E2] [Token::I]
-    // m_trans[State::E2] [Token::idv]
-    // m_trans[State::E2] [Token::ecr]
-    // m_trans[State::E2] [Token::lir]
+    m_trans[State::E2] [Token::Li]  = new ActionShift(State::E3);
+    m_trans[State::E2] [Token::I]   = new ActionReduce(0, Token::Li);
+    m_trans[State::E2] [Token::idv] = new ActionShift(State::E5);
+    m_trans[State::E2] [Token::ecr] = new ActionShift(State::E6);
+    m_trans[State::E2] [Token::lir] = new ActionShift(State::E7);
     m_trans[State::E2] [Token::con] = new ActionShift(State::E8);
     m_trans[State::E2] [Token::var] = new ActionShift(State::E9);
     m_trans[State::E2] [Token::D]   = new ActionReduce(1, Token::Ld);
 
-    // E3, E5, E6, E7
+    m_trans[State::E3] [Token::I]   = new ActionReduce(1, Token::Li);
+    m_trans[State::E3] [Token::idv] = new ActionShift(State::E5);
+    m_trans[State::E3] [Token::ecr] = new ActionShift(State::E6);
+    m_trans[State::E3] [Token::lir] = new ActionShift(State::E7);
+
+    m_trans[State::E5] [Token::aff] = new ActionShift(State::E12);
+
+    m_trans[State::E6] [Token::E]   = new ActionShift(State::E13);
+    m_trans[State::E6] [Token::opp] = new ActionShift(State::E14);
+    m_trans[State::E6] [Token::num] = //new ActionReduce(0, Token::E);
+    m_trans[State::E6] [Token::idv] = new ActionReduce(0, Token::E);
+
+    m_trans[State::E7] [Token::idv] = new ActionShift(State::E17);
 
     m_trans[State::E8] [Token::idv] = new ActionShift(State::E19);
 
     m_trans[State::E9] [Token::idv] = new ActionShift(State::E18);
 
     // E11, E12, E13, E14, E17
+    m_trans[State::E12] [Token::E]  = new ActionShift(State::E20);
+    m_trans[State::E12][Token::opp] = new ActionShift(State::E14);
+    m_trans[State::E12][Token::num] = // new ActionReduce(0, Token::E);
+    m_trans[State::E12][Token::idv] = new ActionReduce(0, Token::E);
+
+    m_trans[State::E13][Token::col] = new ActionReduce(2, Token::I);
+    m_trans[State::E13][Token::plu] = new ActionShift(State::E22);
+    m_trans[State::E13][Token::min] = new ActionShift(State::E23);
+    m_trans[State::E13][Token::quo] = new ActionShift(State::E24);
+    m_trans[State::E13][Token::mul] = new ActionShift(State::E25);
+
+    m_trans[State::E14] [Token::E]  = new ActionShift(State::E26);
+    m_trans[State::E14][Token::opp] = new ActionShift(State::E14);
+    m_trans[State::E14][Token::num] = //new ActionReduce(0, Token::E);
+    m_trans[State::E14][Token::idv] = new ActionReduce(0, Token::E);
+
+    m_trans[State::E17][Token::col] = new ActionReduce(2, Token::I);
+
 
     // Shift-reduce conflict for Lv
     m_trans[State::E18][Token::Lv]  = new ActionShift(State::E29);
@@ -41,7 +75,37 @@ Automaton::Automaton() : m_trans() {
 
     m_trans[State::E19][Token::equ] = new ActionShift(State::E45);
 
-    // E20, E22, E23, E24, E25, E26
+    m_trans[State::E20][Token::col] = new ActionReduce(3, Token::I);
+    m_trans[State::E20][Token::plu] = new ActionShift(State::E22);
+    m_trans[State::E20][Token::min] = new ActionShift(State::E23);
+    m_trans[State::E20][Token::quo] = new ActionShift(State::E24);
+    m_trans[State::E20][Token::mul] = new ActionShift(State::E25);
+
+    m_trans[State::E22][Token::E]   = new ActionShift(State::E31);
+    m_trans[State::E22][Token::opp] = new ActionShift(State::E14);
+    m_trans[State::E22][Token::num] = // new ActionReduce(0, Token::E);
+    m_trans[State::E22][Token::idv] = new ActionReduce(0, Token::E);
+
+    m_trans[State::E23][Token::E]   = new ActionShift(State::E32);
+    m_trans[State::E23][Token::opp] = new ActionShift(State::E14);
+    m_trans[State::E23][Token::num] = // new ActionReduce(0, Token::E);
+    m_trans[State::E23][Token::idv] = new ActionReduce(0, Token::E);
+
+    m_trans[State::E24][Token::E]   = new ActionShift(State::E33);
+    m_trans[State::E24][Token::opp] = new ActionShift(State::E14);
+    m_trans[State::E24][Token::num] = // new ActionReduce(0, Token::E);
+    m_trans[State::E24][Token::idv] = new ActionReduce(0, Token::E);
+
+    m_trans[State::E25][Token::E]   = new ActionShift(State::E34);
+    m_trans[State::E25][Token::opp] = new ActionShift(State::E14);
+    m_trans[State::E25][Token::num] = // new ActionReduce(0, Token::E);
+    m_trans[State::E25][Token::idv] = new ActionReduce(0, Token::E);
+
+    m_trans[State::E26][Token::clo] = new ActionReduce(2, Token::E);
+    m_trans[State::E26][Token::plu] = new ActionShift(State::E22);
+    m_trans[State::E26][Token::min] = new ActionShift(State::E23);
+    m_trans[State::E26][Token::quo] = new ActionShift(State::E24);
+    m_trans[State::E26][Token::mul] = new ActionShift(State::E25);
 
     m_trans[State::E28][Token::Lc]  =  // ActionShift(State::E36, true);
     m_trans[State::E28][Token::com] =  // ActionShift(State::E36, true);
@@ -51,6 +115,26 @@ Automaton::Automaton() : m_trans() {
     m_trans[State::E29][Token::com] = new ActionShift(State::E38);
 
     // E31, E32, E33, E34
+    m_trans[State::E31][Token::plu] = //new ActionShift(State::E22);
+    m_trans[State::E32][Token::plu] = //new ActionShift(State::E22);
+    m_trans[State::E33][Token::plu] = //new ActionShift(State::E22);
+    m_trans[State::E34][Token::plu] = new ActionShift(State::E22);    
+
+    m_trans[State::E31][Token::min] = //new ActionShift(State::E23);
+    m_trans[State::E32][Token::min] = //new ActionShift(State::E23);
+    m_trans[State::E33][Token::min] = //new ActionShift(State::E23);
+    m_trans[State::E34][Token::min] = new ActionShift(State::E23);
+
+    m_trans[State::E31][Token::quo] = //new ActionShift(State::E24);
+    m_trans[State::E32][Token::quo] = //new ActionShift(State::E24);
+    m_trans[State::E33][Token::quo] = //new ActionShift(State::E24);
+    m_trans[State::E34][Token::quo] = new ActionShift(State::E24);
+
+    m_trans[State::E31][Token::mul] = //new ActionShift(State::E25);
+    m_trans[State::E32][Token::mul] = //new ActionShift(State::E25);
+    m_trans[State::E33][Token::mul] = //new ActionShift(State::E25);
+    m_trans[State::E34][Token::mul] = new ActionShift(State::E25);
+
 
     m_trans[State::E36][Token::col] = new ActionReduce(5, Token::D);
     m_trans[State::E36][Token::com] = new ActionShift(State::E41);

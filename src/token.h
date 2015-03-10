@@ -20,7 +20,7 @@
 // + `plu` = `+`
 // + `min` = `-`
 // + `mul` = `*`
-// + `div` = `/`
+// + `quo` = `/`
 // + `opp` = `(`
 // + `com` = `,`
 // + `clo` = `)`
@@ -50,7 +50,7 @@ class Token {
         // Non-terminals (see above)
         A, P, Ld, Li, D, Lv, Lc, I, E,
         // Terminals
-        con, var, ecr, lir, aff, plu, min, mul, div, opp, com, clo, col, equ,
+        con, var, ecr, lir, aff, plu, min, mul, quo, opp, com, clo, col, equ,
         idv, num
     };
 
