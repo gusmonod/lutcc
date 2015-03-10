@@ -27,6 +27,19 @@ Automaton::Automaton() : m_trans() {
     m_trans[State::E2] [Token::D]   = new ActionReduce(1, Token::Ld);
 
     // E3, E5, E6, E7
+    m_trans[State::E3] [Token::I]   = new ActionReduce(1, Token::Li);
+    m_trans[State::E3] [Token::idv] = new ActionShift(State::E5);
+    m_trans[State::E3] [Token::ecr] = new ActionShift(State::E6);
+    m_trans[State::E3] [Token::lir] = new ActionShift(State::E7);
+
+    m_trans[State::E5] [Token::aff] = new ActionShift(State::E12);
+
+    m_trans[State::E6] [Token::E]   = new ActionShift(State::E13);
+    m_trans[State::E6] [Token::opp] = new ActionShift(State::E14);
+    m_trans[State::E6] [Token::num] = //new ActionReduce(0, Token::E);
+    m_trans[State::E6] [Token::idv] = new ActionReduce(0, Token::E);
+
+    m_trans[State::E7] [Token::idv] = new ActionShift(State::E17);
 
     m_trans[State::E8] [Token::idv] = new ActionShift(State::E19);
 
