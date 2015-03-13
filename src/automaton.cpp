@@ -136,11 +136,11 @@ Automaton::Automaton() : m_trans() {
     m_trans[State::E33][Token::col] =  // ActionReduceShift(3, Token::E, col);
     m_trans[State::E34][Token::col] = new ActionReduceShift(3, Token::E,
                                                                Token::col);
-    
+
     m_trans[State::E33][Token::plu] =  // ActionReduceShift(3, Token::E, plu);
     m_trans[State::E34][Token::plu] = new ActionReduceShift(3, Token::E,
                                                                Token::plu);
-    
+
     m_trans[State::E33][Token::min] =  // ActionReduceShift(3, Token::E, min);
     m_trans[State::E34][Token::min] = new ActionReduceShift(3, Token::E,
                                                                Token::min);
@@ -192,19 +192,23 @@ bool Automaton::accepts(Tokenizer *tokenizer, State init) {
     bool epsilon = true;
     while (!states.empty()) {
         State s = states.top();
-        Token::Id t = tokenizer->top();
+        Token * t = tokenizer->top();
 
-        if (State::E3 == s && Token::ecr == t) {
+        if (State::E3 == s && Token::ecr == *t) {
             volatile int i = 0;
         }
 
-        if (this->error(s, t)) {
+        if (this->error(s, *t)) {
             return false;
         }
-        if (m_trans[s][t]->doTransition(m_trans, &states, &epsilon)) {
+        if (m_trans[s][*t]->doTransition(m_trans, &states, &epsilon)) {
             return true;
         }
-        if (!epsilon) tokenizer->shift();
+        if (!epsilon) {
+            delete t;
+            t = nullptr;
+            tokenizer->shift();
+        }
     }
 
     return false;

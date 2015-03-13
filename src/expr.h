@@ -16,27 +16,31 @@ class Expr : public Token {
  private:
 };
 
+class BinExpr : public Expr {
+public:
+    explicit BinExpr(Token::Id id) : Expr(id) { }
+
+protected:
+    Expr *m_left;
+    Expr *m_right;
+};
+
 class Variable : public Expr {
  public:
-    explicit Variable(Token::Id id) : Expr(id) { }
+    Variable(Token::Id id, std::string name) : Expr(id), m_name(name) { }
+    virtual uint64_t eval(const std::map<std::string, uint64_t> & values);
 
  private:
+    std::string m_name;
 };
 
 class Number : public Expr {
  public:
-    explicit Number(Token::Id id) : Expr(id) { }
+    Number(Token::Id id, uint64_t value) : Expr(id), m_value(value) { }
+    virtual uint64_t eval(const std::map<std::string, uint64_t> & values);
 
  private:
-};
-
-class BinExpr : public Expr {
- public:
-    explicit BinExpr(Token::Id id) : Expr(id) { }
-
- private:
-    Expr *left;
-    Expr *right;
+    uint64_t m_value;
 };
 
 class AddExpr : public BinExpr {

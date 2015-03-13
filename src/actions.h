@@ -13,7 +13,7 @@ class Action {
  public:
     virtual ~Action() { }
 
-    typedef std::map<State, std::map<Token::Id, Action *>> Transitions;
+    typedef std::map<State::Id, std::map<Token::Id, Action *>> Transitions;
 
     static const State initState;  // E0
 

@@ -29,7 +29,8 @@ class Tokenizer {
     bool has_next() const;
 
     // Returns the next token **without** moving to the next token
-    Token::Id top();
+    // !!!!!!! CAUTION: The Token is allocated but YOU must free it yourself
+    Token * top();
 
     // Moves to the next token
     void shift();
@@ -38,8 +39,8 @@ class Tokenizer {
     std::istream & m_inputStream;
     std::string    m_buffer;
 
-    Token::Id      m_currentTokenId;
-    std::string    m_currentToken;
+    Token        * m_currentToken;
+    std::string    m_currentTokenStr;
 
     bool           m_shifted;
 

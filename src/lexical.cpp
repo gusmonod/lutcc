@@ -15,7 +15,7 @@ using std::string;
 using std::cout;
 using std::endl;
 
-const size_t Tokenizer::BUFFER_SIZE = 10;
+const size_t Tokenizer::BUFFER_SIZE = 20;
 
 // Keywords regular expressions
 const boost::regex Tokenizer::keyword("^(const |var |ecrire |lire ).*");
@@ -37,11 +37,11 @@ bool Tokenizer::has_next() const {
     return m_inputStream.good() || m_buffer != "";
 }
 
-Token::Id Tokenizer::top() {
+Token * Tokenizer::top() {
     // If there was a shift, the current type and token must be analyzed again
     if (m_shifted) this->analyze();
 
-    return m_currentTokenId;
+    return m_currentToken;
 }
 
 void Tokenizer::shift() {
@@ -55,7 +55,7 @@ void Tokenizer::shift() {
     char tmp[Tokenizer::BUFFER_SIZE + 1];
 
     // Consumes the current token from the buffer
-    m_buffer = m_buffer.substr(m_currentToken.size());
+    m_buffer = m_buffer.substr(m_currentTokenStr.size());
 
     // If there are spaces after the token, removes them from the buffer
     boost::algorithm::trim_left(m_buffer);
@@ -77,69 +77,70 @@ void Tokenizer::analyze() {
     boost::cmatch matches;
     if (regex_match(m_buffer.c_str(), matches, Tokenizer::keyword)) {
         // If we matched a keyword, the 1st character is enough to recognize it
-        m_currentToken = matches[1];
-        switch (m_currentToken[0]) {
+        m_currentTokenStr = matches[1];
+        switch (m_currentTokenStr[0]) {
             case 'c':
-                m_currentTokenId = Token::con;
+                m_currentToken = new Keyword(Token::con);
                 break;
             case 'v':
-                m_currentTokenId = Token::var;
+                m_currentToken = new Keyword(Token::var);
                 break;
             case 'e':
-                m_currentTokenId = Token::ecr;
+                m_currentToken = new Keyword(Token::ecr);
                 break;
             case 'l':
-                m_currentTokenId = Token::lir;
+                m_currentToken = new Keyword(Token::lir);
                 break;
             // If the keyword does not start from this, programming error
             default:
                 std::exit(EXIT_FAILURE);
         }
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::affect)) {
-        m_currentTokenId = Token::aff;
-        m_currentToken = matches[1];
+        m_currentToken = new SimpleOperator(Token::aff);
+        m_currentTokenStr = matches[1];
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::operatorr)) {
-        m_currentToken = matches[1];
-        switch (m_currentToken[0]) {
+        m_currentTokenStr = matches[1];
+        switch (m_currentTokenStr[0]) {
             case '+':
-                m_currentTokenId = Token::plu;
+                m_currentToken = new SimpleOperator(Token::plu);
                 break;
             case '-':
-                m_currentTokenId = Token::min;
+                m_currentToken = new SimpleOperator(Token::min);
                 break;
             case '*':
-                m_currentTokenId = Token::mul;
+                m_currentToken = new SimpleOperator(Token::mul);
                 break;
             case '/':
-                m_currentTokenId = Token::quo;
+                m_currentToken = new SimpleOperator(Token::quo);
                 break;
             case '(':
-                m_currentTokenId = Token::opp;
+                m_currentToken = new SimpleOperator(Token::opp);
                 break;
             case ',':
-                m_currentTokenId = Token::com;
+                m_currentToken = new SimpleOperator(Token::com);
                 break;
             case ')':
-                m_currentTokenId = Token::clo;
+                m_currentToken = new SimpleOperator(Token::clo);
                 break;
             case ';':
-                m_currentTokenId = Token::col;
+                m_currentToken = new SimpleOperator(Token::col);
                 break;
             case '=':
-                m_currentTokenId = Token::equ;
+                m_currentToken = new SimpleOperator(Token::equ);
                 break;
             // If the operator does not start from this, programming error
             default:
                 std::exit(EXIT_FAILURE);
         }
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::id)) {
-        m_currentToken = matches[1];
-        m_currentTokenId = Token::idv;
+        m_currentTokenStr = matches[1];
+        m_currentToken = new Variable(Token::idv, m_currentTokenStr);
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::number)) {
-        m_currentToken = matches[1];
-        m_currentTokenId = Token::num;
+        m_currentTokenStr = matches[1];
+        uint64_t value = 0;
+        if (!std::istringstream(matches[1]) >> value) std::exit(EXIT_FAILURE);
+        m_currentToken = new Number(Token::num, value);
     } else {
-        // m_currentTokenId = "no match";
-        m_currentToken = m_buffer[0];
+        m_currentTokenStr = m_buffer[0];
     }
 }
