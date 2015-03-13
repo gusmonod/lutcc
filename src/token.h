@@ -47,6 +47,7 @@
 class Token {
  public:
     enum Id {
+        END,  // End of file
         // Non-terminals (see above)
         A, P, Ld, Li, D, Lv, Lc, I, E,
         // Terminals

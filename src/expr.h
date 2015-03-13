@@ -17,10 +17,10 @@ class Expr : public Token {
 };
 
 class BinExpr : public Expr {
-public:
+ public:
     explicit BinExpr(Token::Id id) : Expr(id) { }
 
-protected:
+ protected:
     Expr *m_left;
     Expr *m_right;
 };

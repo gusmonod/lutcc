@@ -3,23 +3,22 @@
 #include "./automaton.h"
 
 #include <stack>
+#include <set>
 
 #include "./actions.h"
 #include "./states.h"
 #include "./token.h"
 
 Automaton::Automaton() : m_trans() {
-    m_trans[State::E0] [Token::P]   = new ActionAccept();
-    // Shift-reduce conflict for Ld:
+    m_trans[State::E0] [Token::P]   = new ActionAccept;
+
     m_trans[State::E0] [Token::Ld]  = new ActionShift(State::E2);
     m_trans[State::E0] [Token::con] =  // ActionShift(State::E2, true);
     m_trans[State::E0] [Token::var] =  // ActionShift(State::E2, true);
-    m_trans[State::E0] [Token::Li]  =  // ActionShift(State::E2, true);
     m_trans[State::E0] [Token::idv] =  // ActionShift(State::E2, true);
     m_trans[State::E0] [Token::ecr] =  // ActionShift(State::E2, true);
     m_trans[State::E0] [Token::lir] =  // ActionShift(State::E2, true);
-    m_trans[State::E0] [Token::con] =  // ActionShift(State::E2, true);
-    m_trans[State::E0] [Token::I]   = new ActionShift(State::E2, true);
+    m_trans[State::E0] [Token::con] = new ActionShift(State::E2, true);
 
     m_trans[State::E2] [Token::Li]  = new ActionShift(State::E3);
     m_trans[State::E2] [Token::I]   = new ActionReduce(0, Token::Li);
@@ -30,11 +29,11 @@ Automaton::Automaton() : m_trans() {
     m_trans[State::E2] [Token::var] = new ActionShift(State::E9);
     m_trans[State::E2] [Token::D]   = new ActionReduce(1, Token::Ld);
 
+    m_trans[State::E3] [Token::END] = new ActionReduce(2, Token::P);
     m_trans[State::E3] [Token::I]   = new ActionReduce(1, Token::Li);
     m_trans[State::E3] [Token::idv] = new ActionShift(State::E5);
     m_trans[State::E3] [Token::ecr] = new ActionShift(State::E6);
     m_trans[State::E3] [Token::lir] = new ActionShift(State::E7);
-    m_trans[State::E3] [Token::col] = new ActionReduce(2, Token::P);
 
     m_trans[State::E5] [Token::aff] = new ActionShift(State::E12);
 
@@ -144,7 +143,7 @@ Automaton::Automaton() : m_trans() {
     m_trans[State::E33][Token::min] =  // ActionReduceShift(3, Token::E, min);
     m_trans[State::E34][Token::min] = new ActionReduceShift(3, Token::E,
                                                                Token::min);
-    
+
     m_trans[State::E31][Token::clo] =  // ActionReduceShift(3, Token::E, clo);
     m_trans[State::E32][Token::clo] =  // ActionReduceShift(3, Token::E, clo);
     m_trans[State::E33][Token::clo] =  // ActionReduceShift(3, Token::E, clo);
@@ -192,11 +191,7 @@ bool Automaton::accepts(Tokenizer *tokenizer, State init) {
     bool epsilon = true;
     while (!states.empty()) {
         State s = states.top();
-        Token * t = tokenizer->top();
-
-        if (State::E3 == s && Token::ecr == *t) {
-            volatile int i = 0;
-        }
+        const Token * t = tokenizer->top();
 
         if (this->error(s, *t)) {
             return false;
@@ -204,11 +199,7 @@ bool Automaton::accepts(Tokenizer *tokenizer, State init) {
         if (m_trans[s][*t]->doTransition(m_trans, &states, &epsilon)) {
             return true;
         }
-        if (!epsilon) {
-            delete t;
-            t = nullptr;
-            tokenizer->shift();
-        }
+        if (!epsilon) tokenizer->shift();
     }
 
     return false;

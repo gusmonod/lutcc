@@ -29,11 +29,14 @@ class Tokenizer {
     bool has_next() const;
 
     // Returns the next token **without** moving to the next token
-    // !!!!!!! CAUTION: The Token is allocated but YOU must free it yourself
-    Token * top();
+    // !!!!!!! CAUTION: The Token will be freed on shift
+    const Token * top();
 
     // Moves to the next token
+    // !!!!!!! CAUTION: The previous token is deleted
     void shift();
+
+    static const Token END_OF_FILE;
 
  private:
     std::istream & m_inputStream;

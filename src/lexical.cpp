@@ -16,6 +16,7 @@ using std::cout;
 using std::endl;
 
 const size_t Tokenizer::BUFFER_SIZE = 20;
+const Token Tokenizer::END_OF_FILE(Token::END);
 
 // Keywords regular expressions
 const boost::regex Tokenizer::keyword("^(const |var |ecrire |lire ).*");
@@ -37,7 +38,9 @@ bool Tokenizer::has_next() const {
     return m_inputStream.good() || m_buffer != "";
 }
 
-Token * Tokenizer::top() {
+const Token * Tokenizer::top() {
+    if (!has_next()) return &(Tokenizer::END_OF_FILE);
+
     // If there was a shift, the current type and token must be analyzed again
     if (m_shifted) this->analyze();
 
@@ -46,6 +49,9 @@ Token * Tokenizer::top() {
 
 void Tokenizer::shift() {
     if (!this->has_next()) return;
+
+    delete m_currentToken;
+    m_currentToken = nullptr;
     m_shifted = true;
 
     using boost::regex_replace;
@@ -63,13 +69,14 @@ void Tokenizer::shift() {
     // Increases the buffer size until it hits Tokenizer::BUFFER_SIZE or EOF
     while (m_buffer.size() < Tokenizer::BUFFER_SIZE) {
         nbToAdd = static_cast<int>(Tokenizer::BUFFER_SIZE - m_buffer.size());
+        tmp[0] = '\0';
         m_inputStream.getline(tmp, nbToAdd + 1);
-        if (m_inputStream.eof() && !m_inputStream.good()) break;
-        m_inputStream.clear();
 
         // Replaces whitespaces with a single ' '
         m_buffer += regex_replace(string(tmp), boost::regex("[\\r\\n\\t ]+"),
                 " ", format_literal);
+        if (m_inputStream.eof() && !m_inputStream.good()) break;
+        m_inputStream.clear();
     }
 }
 
@@ -137,8 +144,7 @@ void Tokenizer::analyze() {
         m_currentToken = new Variable(Token::idv, m_currentTokenStr);
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::number)) {
         m_currentTokenStr = matches[1];
-        uint64_t value = 0;
-        if (!std::istringstream(matches[1]) >> value) std::exit(EXIT_FAILURE);
+        uint64_t value = std::stoull(m_currentTokenStr);
         m_currentToken = new Number(Token::num, value);
     } else {
         m_currentTokenStr = m_buffer[0];
