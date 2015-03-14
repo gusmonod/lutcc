@@ -7,11 +7,14 @@
 #include <map>
 
 #include "./token.h"
+#include "./symbols.h"
+
+class Variable;
 
 class Expr : public Token {
  public:
     explicit Expr(Token::Id id) : Token(id) { }
-    virtual uint64_t eval(const std::map<std::string, uint64_t> & values) = 0;
+    virtual uint64_t eval(const SymbolsTable & values) = 0;
 
  private:
 };
@@ -28,17 +31,20 @@ class BinExpr : public Expr {
 class Variable : public Expr {
  public:
     Variable(Token::Id id, std::string name) : Expr(id), m_name(name) { }
-    virtual uint64_t eval(const std::map<std::string, uint64_t> & values);
+    virtual uint64_t eval(const SymbolsTable & values);
 
- private:
+    std::string name() const { return m_name; }
+
+ protected:
     std::string m_name;
 };
 
 class Number : public Expr {
  public:
     Number(Token::Id id, uint64_t value) : Expr(id), m_value(value) { }
-    virtual uint64_t eval(const std::map<std::string, uint64_t> & values);
+    virtual uint64_t eval(const SymbolsTable & values);
 
+    uint64_t value() const { return m_value; }
  private:
     uint64_t m_value;
 };
@@ -46,7 +52,7 @@ class Number : public Expr {
 class AddExpr : public BinExpr {
  public:
     explicit AddExpr(Token::Id id) : BinExpr(id) { }
-    virtual uint64_t eval(const std::map<std::string, uint64_t> & values);
+    virtual uint64_t eval(const SymbolsTable & values);
 
  private:
 };
@@ -54,7 +60,7 @@ class AddExpr : public BinExpr {
 class SubExpr : public BinExpr {
  public:
     explicit SubExpr(Token::Id id) : BinExpr(id) { }
-    virtual uint64_t eval(const std::map<std::string, uint64_t> & values);
+    virtual uint64_t eval(const SymbolsTable & values);
 
  private:
 };
@@ -62,7 +68,7 @@ class SubExpr : public BinExpr {
 class MulExpr : public BinExpr {
  public:
     explicit MulExpr(Token::Id id) : BinExpr(id) { }
-    virtual uint64_t eval(const std::map<std::string, uint64_t> & values);
+    virtual uint64_t eval(const SymbolsTable & values);
 
  private:
 };
@@ -70,7 +76,7 @@ class MulExpr : public BinExpr {
 class DivExpr : public BinExpr {
  public:
     explicit DivExpr(Token::Id id) : BinExpr(id) { }
-    virtual uint64_t eval(const std::map<std::string, uint64_t> & values);
+    virtual uint64_t eval(const SymbolsTable & values);
 
  private:
 };

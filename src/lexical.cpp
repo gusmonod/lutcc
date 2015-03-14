@@ -69,6 +69,8 @@ void Tokenizer::shift() {
     // Increases the buffer size until it hits Tokenizer::BUFFER_SIZE or EOF
     while (m_buffer.size() < Tokenizer::BUFFER_SIZE) {
         nbToAdd = static_cast<int>(Tokenizer::BUFFER_SIZE - m_buffer.size());
+
+        // Puts to "" in case the input stream isn't good
         tmp[0] = '\0';
         m_inputStream.getline(tmp, nbToAdd + 1);
 

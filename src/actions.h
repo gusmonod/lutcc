@@ -6,61 +6,35 @@
 #include <map>
 #include <stack>
 
-#include "./token.h"
 #include "./states.h"
+#include "./token.h"
+#include "./expr.h"
 
 class Action {
  public:
+    typedef std::map<State::Id, std::map<Token::Id, Action *>> Actions;
+
     virtual ~Action() { }
 
-    typedef std::map<State::Id, std::map<Token::Id, Action *>> Transitions;
-
-    static const State initState;  // E0
-
-    virtual bool doTransition(const Action::Transitions & transitions,
-            std::stack<State> * states, bool * epsilon) = 0;
+    virtual void doAction(const Token & t,
+                          SymbolsTable * variables) = 0;
 };
 
-class ActionShift : public Action {
+class ActionNewSym : public Action {
  public:
-    explicit ActionShift(State target, bool epsilon = false);
+    explicit ActionNewSym(bool constant) : m_constant(constant) { }
 
-    virtual bool doTransition(const Action::Transitions & transitions,
-            std::stack<State> * states, bool * epsilon);
+    virtual void doAction(const Token & t,
+                          SymbolsTable * variables);
 
  private:
-    const State m_target;
-    bool m_epsilon;
+    bool m_constant;
 };
 
-class ActionReduce : public Action {
+class ActionInit : public Action {
  public:
-    ActionReduce(int nbToPop, Token::Id tokenId);
-
-    virtual bool doTransition(const Action::Transitions & transitions,
-            std::stack<State> * states, bool * epsilon);
-
- protected:
-    int m_nbToPop;
-    Token::Id m_left;
-};
-
-class ActionReduceShift : public ActionReduce {
- public:
-    ActionReduceShift(int nbToPop, Token::Id tokenId, Token::Id right);
-
-    virtual bool doTransition(const Action::Transitions & transitions,
-                              std::stack<State> * states, bool * epsilon);
- private:
-    Token::Id m_right;
-};
-
-class ActionAccept : public Action {
- public:
-    ActionAccept();
-
-    virtual bool doTransition(const Action::Transitions & transitions,
-            std::stack<State> * states, bool * epsilon);
+    virtual void doAction(const Token & t,
+                          SymbolsTable * variables);
 };
 
 #endif  // SRC_ACTIONS_H_
