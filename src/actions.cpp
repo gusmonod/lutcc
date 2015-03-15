@@ -21,11 +21,12 @@
     // Interpreting value of `t` as Number
     const Number *n = dynamic_cast<const Number *>(&t);
 
+    SymbolsTable::iterator entry;
     // Assigning value to first undefined constant
-    for (auto entry : *variables) {
-        if (entry.second.constant && !entry.second.defined) {
-            entry.second.value = n->value();
-            entry.second.defined = true;
+    for (entry = variables->begin(); entry != variables->end(); ++entry) {
+        if (entry->second.constant && !entry->second.defined) {
+            entry->second.value = n->value();
+            entry->second.defined = true;
             break;
         }
     }
