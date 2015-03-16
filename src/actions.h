@@ -16,16 +16,18 @@ class Action {
 
     virtual ~Action() { }
 
-    virtual void doAction(const Token & t,
-                          SymbolsTable * variables) = 0;
+    virtual Expr * doAction(const Token & readToken,
+                            SymbolsTable * variables,
+                            Expr * currentExpr) = 0;
 };
 
 class ActionNewSym : public Action {
  public:
     explicit ActionNewSym(bool constant) : m_constant(constant) { }
 
-    virtual void doAction(const Token & t,
-                          SymbolsTable * variables);
+    virtual Expr * doAction(const Token & readToken,
+                            SymbolsTable * variables,
+                            Expr * currentExpr);
 
  private:
     bool m_constant;
@@ -33,8 +35,23 @@ class ActionNewSym : public Action {
 
 class ActionInit : public Action {
  public:
-    virtual void doAction(const Token & t,
-                          SymbolsTable * variables);
+    virtual Expr * doAction(const Token & readToken,
+                            SymbolsTable * variables,
+                            Expr * currentExpr);
+};
+
+class ActionLeftAssoc : public Action {
+ public:
+    virtual Expr * doAction(const Token & readToken,
+                            SymbolsTable * variables,
+                            Expr * currentExpr);
+};
+
+class ActionPriority : public Action {
+ public:
+    virtual Expr * doAction(const Token & readToken,
+                            SymbolsTable * variables,
+                            Expr * currentExpr);
 };
 
 #endif  // SRC_ACTIONS_H_

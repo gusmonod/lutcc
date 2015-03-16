@@ -14,24 +14,15 @@ class Variable;
 class Expr : public Token {
  public:
     explicit Expr(Token::Id id) : Token(id) { }
-    virtual uint64_t eval(const SymbolsTable & values) = 0;
+    virtual uint64_t eval(const SymbolsTable & values) const = 0;
 
  private:
-};
-
-class BinExpr : public Expr {
- public:
-    explicit BinExpr(Token::Id id) : Expr(id) { }
-
- protected:
-    Expr *m_left;
-    Expr *m_right;
 };
 
 class Variable : public Expr {
  public:
     Variable(Token::Id id, std::string name) : Expr(id), m_name(name) { }
-    virtual uint64_t eval(const SymbolsTable & values);
+    virtual uint64_t eval(const SymbolsTable & values) const;
 
     std::string name() const { return m_name; }
 
@@ -42,41 +33,66 @@ class Variable : public Expr {
 class Number : public Expr {
  public:
     Number(Token::Id id, uint64_t value) : Expr(id), m_value(value) { }
-    virtual uint64_t eval(const SymbolsTable & values);
+    virtual uint64_t eval(const SymbolsTable & values) const;
 
     uint64_t value() const { return m_value; }
  private:
     uint64_t m_value;
 };
 
+class BinExpr : public Expr {
+ public:
+    explicit BinExpr(Token::Id id,
+                     Expr * left = nullptr,
+                     Expr * right = nullptr);
+    ~BinExpr() { delete m_left; delete m_right; }
+
+    void left(Expr * left, bool shouldDelete = true);
+    void right(Expr * right, bool shouldDelete = true);
+    Expr * left() const { return m_left; }
+    Expr * right() const { return m_right; }
+
+ protected:
+    Expr * m_left;
+    Expr * m_right;
+};
+
 class AddExpr : public BinExpr {
  public:
-    explicit AddExpr(Token::Id id) : BinExpr(id) { }
-    virtual uint64_t eval(const SymbolsTable & values);
+    explicit AddExpr(Token::Id id,
+                     Expr * left = nullptr,
+                     Expr * right = nullptr);
+    virtual uint64_t eval(const SymbolsTable & values) const;
 
  private:
 };
 
 class SubExpr : public BinExpr {
  public:
-    explicit SubExpr(Token::Id id) : BinExpr(id) { }
-    virtual uint64_t eval(const SymbolsTable & values);
+    explicit SubExpr(Token::Id id,
+                     Expr * left = nullptr,
+                     Expr * right = nullptr);
+    virtual uint64_t eval(const SymbolsTable & values) const;
 
  private:
 };
 
 class MulExpr : public BinExpr {
  public:
-    explicit MulExpr(Token::Id id) : BinExpr(id) { }
-    virtual uint64_t eval(const SymbolsTable & values);
+    explicit MulExpr(Token::Id id,
+                     Expr * left = nullptr,
+                     Expr * right = nullptr);
+    virtual uint64_t eval(const SymbolsTable & values) const;
 
  private:
 };
 
 class DivExpr : public BinExpr {
  public:
-    explicit DivExpr(Token::Id id) : BinExpr(id) { }
-    virtual uint64_t eval(const SymbolsTable & values);
+    explicit DivExpr(Token::Id id,
+                     Expr * left = nullptr,
+                     Expr * right = nullptr);
+    virtual uint64_t eval(const SymbolsTable & values) const;
 
  private:
 };
