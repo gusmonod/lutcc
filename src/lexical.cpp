@@ -196,6 +196,9 @@ void Tokenizer::analyze() {
         m_currentToken = new Variable(Token::idv, m_currentTokenStr);
         #ifdef DEBUG
                 std::cout << m_currentTokenStr << " " ;
+                
+                // We found a variable
+                
 		#endif
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::number)) {
         m_currentTokenStr = matches[1];
