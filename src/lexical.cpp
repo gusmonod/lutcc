@@ -83,22 +83,41 @@ void Tokenizer::shift() {
 }
 
 void Tokenizer::analyze() {
+	m_shifted = false;
     boost::cmatch matches;
     if (regex_match(m_buffer.c_str(), matches, Tokenizer::keyword)) {
         // If we matched a keyword, the 1st character is enough to recognize it
         m_currentTokenStr = matches[1];
+        
+        // Formats the string to be printed to the screen
+		std::size_t pos = m_buffer.find(";") + 1;
+		std::string formattedStr = m_buffer.substr (0,pos);
+        
         switch (m_currentTokenStr[0]) {
+			
             case 'c':
                 m_currentToken = new Keyword(Token::con);
+#ifdef DEBUG
+                std::cout << "Constante detectee : " << formattedStr << std::endl;
+#endif
                 break;
             case 'v':
                 m_currentToken = new Keyword(Token::var);
+#ifdef DEBUG
+                std::cout << "Variable detectee : " << formattedStr << std::endl;
+#endif
                 break;
             case 'e':
                 m_currentToken = new Keyword(Token::ecr);
+#ifdef DEBUG
+                std::cout << "Ecriture detectee : " << formattedStr << std::endl;
+#endif
                 break;
             case 'l':
                 m_currentToken = new Keyword(Token::lir);
+#ifdef DEBUG
+                std::cout << "Lecture detectee : " << formattedStr << std::endl;
+#endif
                 break;
             // If the keyword does not start from this, programming error
             default:
@@ -109,6 +128,11 @@ void Tokenizer::analyze() {
         m_currentTokenStr = matches[1];
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::operatorr)) {
         m_currentTokenStr = matches[1];
+        
+		// Formats the string to be printed to the screen
+		//std::size_t pos = m_buffer.find(" ") + 1;
+		//std::string formattedStr = m_buffer.substr (0,pos);
+        
         switch (m_currentTokenStr[0]) {
             case '+':
                 m_currentToken = new SimpleOperator(Token::plu);
@@ -133,6 +157,7 @@ void Tokenizer::analyze() {
                 break;
             case ';':
                 m_currentToken = new SimpleOperator(Token::col);
+                
                 break;
             case '=':
                 m_currentToken = new SimpleOperator(Token::equ);

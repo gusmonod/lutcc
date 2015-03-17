@@ -18,11 +18,14 @@ LIB_PATH=-L/usr/local/lib
 INC=
 INC_PATH=-I/usr/local/include
 
-.PHONY: clean
+.PHONY: clean debug
 
 $(PROG): $(O_FILES)
 	mkdir -p bin
 	$(LD) $(LD_FLAGS) $(INC_PATH) $(LIB_PATH) $(O_FILES) $(LIBS) -o $(PROG)
+
+debug: CC_FLAGS := $(CC_FLAGS) -DDEBUG
+debug: $(PROG)
 
 %.o: %.cpp
 	@echo Compiling $<...

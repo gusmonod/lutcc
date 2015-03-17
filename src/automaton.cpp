@@ -267,8 +267,8 @@ bool Automaton::accepts(Tokenizer *tokenizer, State init) {
         }
         if (m_trans[s][t]->isShift()) {
             if (this->actionExists(s, t)) {
-                currentExpr = m_actions[s][t]->doAction(*tokenizer->top(),
-                        &values, currentExpr);
+                //currentExpr = m_actions[s][t]->doAction(*tokenizer->top(),
+                        //&values, currentExpr);
             }
             tokenizer->shift();
         }
