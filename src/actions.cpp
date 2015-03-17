@@ -51,21 +51,27 @@
         return leftAssoc.doAction(readToken, variables, currentExpr);
     }
 
-    Expr * right = currentBinExpr->right();
+    // Fetching the rightmost binary expression
+    BinExpr * rightMostBinExpr = currentBinExpr;
+    Expr    * rightMostExpr = nullptr;
+    while (dynamic_cast<BinExpr *>(rightMostExpr = rightMostBinExpr->right())) {
+        rightMostBinExpr = dynamic_cast<BinExpr *>(rightMostExpr);
+    }
 
     // The right part of `currentBinExpr` becomes a BinExpr
     switch (tId) {
         case Token::plu:
-            currentBinExpr->right(new AddExpr(tId, right), false);
+            if (Token::mul == *rightMostBinExpr) return currentExpr;
+            currentBinExpr->right(new AddExpr(tId, rightMostExpr), false);
             break;
         case Token::min:
-            currentBinExpr->right(new SubExpr(tId, right), false);
+            currentBinExpr->right(new SubExpr(tId, rightMostExpr), false);
             break;
         case Token::mul:
-            currentBinExpr->right(new MulExpr(tId, right), false);
+            currentBinExpr->right(new MulExpr(tId, rightMostExpr), false);
             break;
         case Token::quo:
-            currentBinExpr->right(new DivExpr(tId, right), false);
+            currentBinExpr->right(new DivExpr(tId, rightMostExpr), false);
             break;
         default:
             std::exit(EXIT_FAILURE);
@@ -125,7 +131,7 @@
     // Fetching the rightmost binary expression
     BinExpr * rightMostBinExpr = currentBinExpr;
     Expr    * rightMostExpr = nullptr;
-    while ((rightMostExpr = rightMostBinExpr->right())) {
+    while (dynamic_cast<BinExpr *>(rightMostExpr = rightMostBinExpr->right())) {
         rightMostBinExpr = dynamic_cast<BinExpr *>(rightMostExpr);
     }
 
