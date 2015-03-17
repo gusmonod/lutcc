@@ -181,7 +181,7 @@
                                         SymbolsTable * variables,
                                         Expr * currentExpr) {
 
-    //TODO check if all variables of the expression are already declared
+    //TODO check if variable is declared
     //TODO
 
     return currentExpr;

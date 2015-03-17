@@ -67,6 +67,7 @@ Automaton::Automaton() : m_trans() {
     m_trans[State::E12][Token::idv] = new TransReduce(0, Token::E);
 
     m_trans[State::E13][Token::col] = new TransReduce(2, Token::I);
+    m_actions[State::E13][Token::col]=new ActionWrite;
     m_actions[State::E13][Token::plu] = leftAssoc;
     m_actions[State::E13][Token::min] = leftAssoc;
     m_actions[State::E13][Token::quo] = leftAssoc;

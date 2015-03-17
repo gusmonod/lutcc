@@ -30,7 +30,7 @@ const boost::regex Tokenizer::id("^([a-zA-Z][a-zA-Z0-9_-]*).*");
 const boost::regex Tokenizer::number("^([0-9]+).*");
 
 Tokenizer::Tokenizer(std::istream * inStream, bool shift /* = true */)
-    : m_inputStream(*inStream), m_shifted(shift) {
+    : m_inputStream(*inStream), m_currentToken(nullptr), m_shifted(shift) {
     if (shift) this->shift();
 }
 
@@ -88,9 +88,9 @@ void Tokenizer::analyze() {
     if (regex_match(m_buffer.c_str(), matches, Tokenizer::keyword)) {
         // If we matched a keyword, the 1st character is enough to recognize it
         m_currentTokenStr = matches[1];
-        
+
         switch (m_currentTokenStr[0]) {
-			
+
             case 'c':
                 m_currentToken = new Keyword(Token::con);
 #ifdef DEBUG
@@ -127,11 +127,11 @@ void Tokenizer::analyze() {
 		#endif
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::operatorr)) {
         m_currentTokenStr = matches[1];
-        
+
 		// Formats the string to be printed to the screen
 		//std::size_t pos = m_buffer.find(" ") + 1;
 		//std::string formattedStr = m_buffer.substr (0,pos);
-        
+
         switch (m_currentTokenStr[0]) {
             case '+':
                 m_currentToken = new SimpleOperator(Token::plu);
@@ -196,9 +196,9 @@ void Tokenizer::analyze() {
         m_currentToken = new Variable(Token::idv, m_currentTokenStr);
         #ifdef DEBUG
                 std::cout << m_currentTokenStr << " " ;
-                
+
                 // We found a variable
-                
+
                 // top sur la pile pour récuperer la variable qui précede le signe d'affectation
                 // on fait alors une recherche dans la map SymbolsTable (find)
                 // Si on ne trouve pas => erreur de compil, la variable est affectée sans etre instanciee
