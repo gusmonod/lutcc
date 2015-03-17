@@ -181,8 +181,33 @@
                                         SymbolsTable * variables,
                                         Expr * currentExpr) {
 
-    //TODO check if variable is declared
-    //TODO
+    Token::Id eId = static_cast<Token::Id>(*currentExpr);
+    bool toPrint = false;
+
+    // Check if the current expression is a variable or a constant
+    if(eId == Token::Id::idv) {
+      // Check if the symbol exists
+      Variable* v = dynamic_cast<Variable*>(currentExpr);
+      auto it = variables->find(v->name());
+      if(it == variables->end()) {
+        std::cerr << "Undeclared variable" << std::endl;
+      }
+      else {
+        // And if it has a value
+        if(!(it->second.defined)) {
+          std::cerr << "Undefined variable" << std::endl;
+        }
+        else {
+          toPrint = true;
+        }
+      }
+    }
+    else { // It's a litteral, we just print it
+      toPrint = true;
+    }
+    if(toPrint) {
+      std::cout << currentExpr->eval(*variables) << std::endl;
+    }
 
     return currentExpr;
 }
