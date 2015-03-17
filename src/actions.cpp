@@ -146,6 +146,8 @@
                                         SymbolsTable * variables,
                                         Expr * currentExpr) {
 
+    //TODO check if user is not trying to use Read with a constant
+
     //first, we have to check if the variable is declared
     Variable * v = dynamic_cast<Variable *>(currentExpr);
     if (v) {
@@ -171,6 +173,16 @@
     }else{
         std::cerr << "Symbol is not a variable.";
     }
+
+    return currentExpr;
+}
+
+/*virtual*/ Expr * ActionWrite::doAction(const Token & readToken,
+                                        SymbolsTable * variables,
+                                        Expr * currentExpr) {
+
+    //TODO check if all variables of the expression are already declared
+    //TODO
 
     return currentExpr;
 }
