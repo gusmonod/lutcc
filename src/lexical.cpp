@@ -94,25 +94,25 @@ void Tokenizer::analyze() {
             case 'c':
                 m_currentToken = new Keyword(Token::con);
 #ifdef DEBUG
-                std::cout << "Constante : " << m_currentTokenStr << " ";
+                std::cout << "Detection - Constante : " << m_currentTokenStr << " ";
 #endif
                 break;
             case 'v':
                 m_currentToken = new Keyword(Token::var);
 #ifdef DEBUG
-                std::cout << "Variable : " << m_currentTokenStr << " ";
+                std::cout << "Detection - Variable : " << m_currentTokenStr << " ";
 #endif
                 break;
             case 'e':
                 m_currentToken = new Keyword(Token::ecr);
 #ifdef DEBUG
-                std::cout << "Ecriture : " << m_currentTokenStr << " ";
+                std::cout << "Detection - Ecriture : " << m_currentTokenStr << " ";
 #endif
                 break;
             case 'l':
                 m_currentToken = new Keyword(Token::lir);
 #ifdef DEBUG
-                std::cout << "Lecture : " << m_currentTokenStr << " ";
+                std::cout << "Detection - Lecture : " << m_currentTokenStr << " ";
 #endif
                 break;
             // If the keyword does not start from this, programming error
