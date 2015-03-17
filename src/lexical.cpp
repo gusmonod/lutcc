@@ -89,34 +89,30 @@ void Tokenizer::analyze() {
         // If we matched a keyword, the 1st character is enough to recognize it
         m_currentTokenStr = matches[1];
         
-        // Formats the string to be printed to the screen
-		std::size_t pos = m_buffer.find(";") + 1;
-		std::string formattedStr = m_buffer.substr (0,pos);
-        
         switch (m_currentTokenStr[0]) {
 			
             case 'c':
                 m_currentToken = new Keyword(Token::con);
 #ifdef DEBUG
-                std::cout << "Constante detectee : " << formattedStr << std::endl;
+                std::cout << "Detection - Constante : " << m_currentTokenStr << " ";
 #endif
                 break;
             case 'v':
                 m_currentToken = new Keyword(Token::var);
 #ifdef DEBUG
-                std::cout << "Variable detectee : " << formattedStr << std::endl;
+                std::cout << "Detection - Variable : " << m_currentTokenStr << " ";
 #endif
                 break;
             case 'e':
                 m_currentToken = new Keyword(Token::ecr);
 #ifdef DEBUG
-                std::cout << "Ecriture detectee : " << formattedStr << std::endl;
+                std::cout << "Detection - Ecriture : " << m_currentTokenStr << " ";
 #endif
                 break;
             case 'l':
                 m_currentToken = new Keyword(Token::lir);
 #ifdef DEBUG
-                std::cout << "Lecture detectee : " << formattedStr << std::endl;
+                std::cout << "Detection - Lecture : " << m_currentTokenStr << " ";
 #endif
                 break;
             // If the keyword does not start from this, programming error
@@ -126,6 +122,9 @@ void Tokenizer::analyze() {
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::affect)) {
         m_currentToken = new SimpleOperator(Token::aff);
         m_currentTokenStr = matches[1];
+        #ifdef DEBUG
+                std::cout << ":= ";
+		#endif
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::operatorr)) {
         m_currentTokenStr = matches[1];
         
@@ -136,31 +135,57 @@ void Tokenizer::analyze() {
         switch (m_currentTokenStr[0]) {
             case '+':
                 m_currentToken = new SimpleOperator(Token::plu);
+                #ifdef DEBUG
+					std::cout << " + ";
+				#endif
                 break;
             case '-':
                 m_currentToken = new SimpleOperator(Token::min);
+                #ifdef DEBUG
+					std::cout << " - ";
+				#endif
                 break;
             case '*':
                 m_currentToken = new SimpleOperator(Token::mul);
+                #ifdef DEBUG
+					std::cout << " * ";
+				#endif
                 break;
             case '/':
                 m_currentToken = new SimpleOperator(Token::quo);
+                #ifdef DEBUG
+					std::cout << " / ";
+				#endif
                 break;
             case '(':
                 m_currentToken = new SimpleOperator(Token::opp);
+                #ifdef DEBUG
+					std::cout << " ( ";
+				#endif
                 break;
             case ',':
                 m_currentToken = new SimpleOperator(Token::com);
+                #ifdef DEBUG
+					std::cout << " , ";
+				#endif
                 break;
             case ')':
                 m_currentToken = new SimpleOperator(Token::clo);
+                #ifdef DEBUG
+					std::cout << " ) ";
+				#endif
                 break;
             case ';':
                 m_currentToken = new SimpleOperator(Token::col);
-                
+                #ifdef DEBUG
+					std::cout << " ; " << std::endl;
+				#endif
                 break;
             case '=':
                 m_currentToken = new SimpleOperator(Token::equ);
+                #ifdef DEBUG
+					std::cout << " = ";
+				#endif
                 break;
             // If the operator does not start from this, programming error
             default:
@@ -169,10 +194,23 @@ void Tokenizer::analyze() {
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::id)) {
         m_currentTokenStr = matches[1];
         m_currentToken = new Variable(Token::idv, m_currentTokenStr);
+        #ifdef DEBUG
+                std::cout << m_currentTokenStr << " " ;
+                
+                // We found a variable
+                
+                // top sur la pile pour récuperer la variable qui précede le signe d'affectation
+                // on fait alors une recherche dans la map SymbolsTable (find)
+                // Si on ne trouve pas => erreur de compil, la variable est affectée sans etre instanciee
+                // Si on la trouve, OK
+		#endif
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::number)) {
         m_currentTokenStr = matches[1];
         uint64_t value = std::stoull(m_currentTokenStr);
         m_currentToken = new Number(Token::num, value);
+        #ifdef DEBUG
+                std::cout << value;
+		#endif
     } else {
         m_currentTokenStr = m_buffer[0];
     }
