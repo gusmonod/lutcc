@@ -3,6 +3,7 @@
 #include "./actions.h"
 
 #include <stack>
+#include <sstream>
 
 #include "./token.h"
 #include "./simpletoken.h"
@@ -138,4 +139,38 @@
     rightMostBinExpr->right(newExpr, false);
 
     return currentBinExpr;
+}
+
+
+/*virtual*/ Expr * ActionRead::doAction(const Token & readToken,
+                                        SymbolsTable * variables,
+                                        Expr * currentExpr) {
+
+    //first, we have to check if the variable is declared
+    Variable * v = dynamic_cast<Variable *>(currentExpr);
+    if (v) {
+        if(variables->find(v->name()) != variables->end()){
+
+            uint64_t value;
+
+            std::string userEntry;
+            std::cin >> userEntry;
+            std::istringstream iss(userEntry);
+
+            while((iss >> value).fail()){
+                std::cout << "Please type a number.";
+                std::cin >> userEntry;
+            }
+
+            variables->find(v->name())->second.value = value;
+            variables->find(v->name())->second.defined = true;
+
+        }else{
+        std::cerr << "Undeclared variable.";
+        }
+    }else{
+        std::cerr << "Symbol is not a variable.";
+    }
+
+    return currentExpr;
 }

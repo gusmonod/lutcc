@@ -54,4 +54,11 @@ class ActionPriority : public Action {
                             Expr * currentExpr);
 };
 
+class ActionRead : public Action {
+public:
+    virtual Expr * doAction(const Token & readToken,
+                            SymbolsTable * variables,
+                            Expr * currentExpr);
+};
+
 #endif  // SRC_ACTIONS_H_
