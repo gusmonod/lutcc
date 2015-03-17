@@ -199,6 +199,10 @@ void Tokenizer::analyze() {
                 
                 // We found a variable
                 
+                // top sur la pile pour récuperer la variable qui précede le signe d'affectation
+                // on fait alors une recherche dans la map SymbolsTable (find)
+                // Si on ne trouve pas => erreur de compil, la variable est affectée sans etre instanciee
+                // Si on la trouve, OK
 		#endif
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::number)) {
         m_currentTokenStr = matches[1];
