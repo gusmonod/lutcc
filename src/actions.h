@@ -16,50 +16,57 @@ class Action {
 
     virtual ~Action() { }
 
-    virtual void doAction(const Token & currentToken,
-                          SymbolsTable * variables,
-                          std::stack<Token *> * tokens) const = 0;
+    virtual Token * doAction(const Token & currentToken,
+                             SymbolsTable * variables,
+                             std::stack<Token *> * tokens) const = 0;
 };
 
 class ActionNewSym : public Action {
  public:
     explicit ActionNewSym(bool constant) : m_constant(constant) { }
 
-    virtual void doAction(const Token & currentToken,
-                          SymbolsTable * variables,
-                          std::stack<Token *> * tokens) const;
+    virtual Token * doAction(const Token & currentToken,
+                             SymbolsTable * variables,
+                             std::stack<Token *> * tokens) const;
 
  private:
     const bool m_constant;
 };
 
-class PriorityAnalysis : public Action {
+class ActionSimpleExpr : public Action {
  public:
-    virtual void doAction(const Token & currentToken,
-                          SymbolsTable * variables,
-                          std::stack<Token *> * tokens) const;
+    virtual Token * doAction(const Token & currentToken,
+                             SymbolsTable * variables,
+                             std::stack<Token *> * tokens) const;
+};
+    
+class ActionAddExpr : public Action {
+ public:
+    virtual Token * doAction(const Token & currentToken,
+                             SymbolsTable * variables,
+                             std::stack<Token *> * tokens) const;
 };
 
 class ActionAssign : public Action {
  public:
-   virtual void doAction(const Token & currentToken,
-                         SymbolsTable * variables,
-                         std::stack<Token *> * tokens) const;
-}
+   virtual Token * doAction(const Token & currentToken,
+                            SymbolsTable * variables,
+                            std::stack<Token *> * tokens) const;
+};
 
 class ActionRead : public Action {
 public:
-    virtual void doAction(const Token & currentToken,
-                          SymbolsTable * variables,
-                          std::stack<Token *> * tokens) const;
+    virtual Token * doAction(const Token & currentToken,
+                             SymbolsTable * variables,
+                             std::stack<Token *> * tokens) const;
 };
 
 
 class ActionWrite : public Action {
 public:
-    virtual void doAction(const Token & currentToken,
-                          SymbolsTable * variables,
-                          std::stack<Token *> * tokens) const;
+    virtual Token * doAction(const Token & currentToken,
+                             SymbolsTable * variables,
+                             std::stack<Token *> * tokens) const;
 };
 
 #endif  // SRC_ACTIONS_H_

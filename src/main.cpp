@@ -18,13 +18,14 @@ using std::endl;
 int main(int argc, const char * argv[]) {
     boost::program_options::variables_map vm;
 
-    get_options_map(argc, argv, &vm);
+    int err = get_options_map(argc, argv, &vm);
+    if (err) return err;
 
     std::ifstream file;
     file.open(vm["lutin-file"].as<string>());
     if (!file) {
         std::cerr << "Could not open " << vm["lutin-file"].as<string>();
-        std::exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
 
     Automaton accepter;

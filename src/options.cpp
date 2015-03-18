@@ -13,7 +13,7 @@ using std::cerr;
 using std::string;
 using std::endl;
 
-void get_options_map(int argc, const char * argv[],
+int get_options_map(int argc, const char * argv[],
             boost::program_options::variables_map *vm) {
     namespace po = boost::program_options;
 
@@ -58,11 +58,14 @@ void get_options_map(int argc, const char * argv[],
         } catch(po::error& e) {
             cerr << "ERROR: " << e.what() << endl << endl;
             cerr << visible_opts;
-            std::exit(EXIT_FAILURE);
+            return EXIT_FAILURE;
         }
     } catch(std::exception& e) {
         cerr << "Unhandled Exception reached the top of main: "
         << e.what() << ", application will now exit" << endl;
-        std::exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
+
+    // Can continue the program
+    return EXIT_SUCCESS;
 }
