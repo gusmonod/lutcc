@@ -3,9 +3,9 @@
 #include "./simpletoken.h"
 
 /*virtual*/ Token * SimpleOperator::newCopy() const {
-    return new SimpleOperator(static_cast<Token::Id>(*this));
+    return new SimpleOperator(this->id());
 }
 
 /*virtual*/ Token * Keyword::newCopy() const {
-    return new Keyword(static_cast<Token::Id>(*this));
+    return new Keyword(this->id());
 }

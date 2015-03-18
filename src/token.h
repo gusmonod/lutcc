@@ -61,14 +61,12 @@ class Token {
 
     virtual Token * newCopy() const { return new Token(m_id); }
 
-    operator Token::Id() const { return m_id; }
+    Token::Id id() const { return m_id; }
 
     friend std::ostream& operator<<(std::ostream& stream, const Token & token);
 
- protected:
-    Token::Id m_id;
-
  private:
+    Token::Id m_id;
     static const std::map<Token::Id, std::string> ID_NAMES;
 };
 

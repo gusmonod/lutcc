@@ -59,8 +59,10 @@ TransReduce::TransReduce(int nbToPop, Token::Id left,
         states->pop();
     }
 
+    Token * defaultToken = new Token(m_left);
+    Token * nextToken = nullptr;
     if (m_reduceAction) {
-        m_reduceAction->doAction(currentToken, variables, tokens);
+        nextToken = m_reduceAction->doAction(currentToken, variables, tokens);
     } else {
         for (int i = 0; i < m_nbToPop; ++i) {
             delete tokens->top();
@@ -68,7 +70,7 @@ TransReduce::TransReduce(int nbToPop, Token::Id left,
         }
     }
 
-    Token * nextToken = new Token(m_left);
+    nextToken = nextToken ? nextToken : defaultToken;
 
     // Recursive call
     bool r = transitions.find(states->top())->second.find(m_left)

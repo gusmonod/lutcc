@@ -4,22 +4,23 @@
 
 #include <map>
 #include <string>
-#include <cstdlib>
+#include <cassert>
 
 /*virtual*/ Token * Variable::newCopy() const {
-    return new Variable(static_cast<Token::Id>(*this), m_name);
+    return new Variable(this->id(), m_name);
 }
 
 /*virtual*/ uint64_t Variable::eval(const SymbolsTable & values) const {
     auto entry = values.find(m_name);
-    if (entry == values.end() || !entry->second.defined) {
-        std::exit(EXIT_FAILURE);
-    }
+
+    // TODO: change this assertion to a run-time error handling
+    assert((entry != values.end() && entry->second.defined));
+
     return entry->second.value;
 }
 
 /*virtual*/ Token * Number::newCopy() const {
-    return new Number(static_cast<Token::Id>(*this), m_value);
+    return new Number(this->id(), m_value);
 }
 
 /*virtual*/ uint64_t Number::eval(const SymbolsTable & values) const {
@@ -43,7 +44,7 @@ AddExpr::AddExpr(Token::Id id, Expr * left, Expr * right)
     : BinExpr(id, left, right) { }
 
 /*virtual*/ Token * AddExpr::newCopy() const {
-    return new AddExpr(static_cast<Token::Id>(*this),
+    return new AddExpr(this->id(),
             dynamic_cast<Expr *>(m_left->newCopy()),
             dynamic_cast<Expr *>(m_right->newCopy()));
 }
@@ -56,7 +57,7 @@ SubExpr::SubExpr(Token::Id id, Expr * left, Expr * right)
     : BinExpr(id, left, right) { }
 
 /*virtual*/ Token * SubExpr::newCopy() const {
-    return new SubExpr(static_cast<Token::Id>(*this),
+    return new SubExpr(this->id(),
             dynamic_cast<Expr *>(m_left->newCopy()),
             dynamic_cast<Expr *>(m_right->newCopy()));
 }
@@ -69,7 +70,7 @@ MulExpr::MulExpr(Token::Id id, Expr * left, Expr * right)
     : BinExpr(id, left, right) { }
 
 /*virtual*/ Token * MulExpr::newCopy() const {
-    return new MulExpr(static_cast<Token::Id>(*this),
+    return new MulExpr(this->id(),
             dynamic_cast<Expr *>(m_left->newCopy()),
             dynamic_cast<Expr *>(m_right->newCopy()));
 }
@@ -82,7 +83,7 @@ DivExpr::DivExpr(Token::Id id, Expr * left, Expr * right)
     : BinExpr(id, left, right) { }
 
 /*virtual*/ Token * DivExpr::newCopy() const {
-    return new DivExpr(static_cast<Token::Id>(*this),
+    return new DivExpr(this->id(),
             dynamic_cast<Expr *>(m_left->newCopy()),
             dynamic_cast<Expr *>(m_right->newCopy()));
 }

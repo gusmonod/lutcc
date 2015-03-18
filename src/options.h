@@ -5,7 +5,7 @@
 
 #include "boost/program_options.hpp"
 
-void get_options_map(int argc, const char * argv[],
+int get_options_map(int argc, const char * argv[],
             boost::program_options::variables_map *vm);
 
 #endif  // SRC_OPTIONS_H_

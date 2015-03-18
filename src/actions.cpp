@@ -3,16 +3,17 @@
 #include "./actions.h"
 
 #include <stack>
+#include <cassert>
 
 #include "./token.h"
 #include "./simpletoken.h"
 #include "./expr.h"
 
-/*virtual*/ void ActionNewSym::doAction(const Token & currentToken,
+/*virtual*/ Token * ActionNewSym::doAction(const Token & currentToken,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
     Token * tmp = tokens->top();
-    if (Token::Lc == *tmp || Token::Lv == *tmp) {
+    if (Token::Lc == tmp->id() || Token::Lv == tmp->id()) {
         delete tmp;
         tokens->pop();
     }
@@ -51,7 +52,7 @@
     v = nullptr;
 
     // Deleting comma and (`Lv` or `Lc`), if there is a comma
-    if (Token::com == *tokens->top()) {
+    if (Token::com == tokens->top()->id()) {
         delete tokens->top();
         tokens->pop();
         delete tokens->top();
@@ -59,20 +60,33 @@
     }
 
     tmp = tokens->top();
-    if (Token::var == *tmp || Token::con == *tmp) {
+    if (Token::var == tmp->id() || Token::con == tmp->id()) {
         delete tmp;
         tokens->pop();
     }
     tmp = nullptr;
+
+    return nullptr;
 }
 
-/*virtual*/ void PriorityAnalysis::doAction(const Token & currentToken,
+/*virtual*/ Token * ActionSimpleExpr::doAction(const Token & currentToken,
+                          SymbolsTable * variables,
+                          std::stack<Token *> * tokens) const {
+    Expr * e = dynamic_cast<Expr *>(tokens->top());
+    assert((e));
+
+    
+
+    return e;
+}
+
+/*virtual*/ Token * PriorityAnalysis::doAction(const Token & currentToken,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
     // Retrieving the 3 last Tokens to reduce them
     Expr * right = dynamic_cast<Expr *>(tokens->top());
     tokens->pop();
-    Token::Id tId = static_cast<Token::Id>(*tokens->top());
+    Token::Id tId = tokens->top()->id();
     tokens->pop();
     Expr * left = dynamic_cast<Expr *>(tokens->top());
     tokens->pop();
@@ -87,7 +101,10 @@
             newExpr = new DivExpr(tId, left, right);
             break;
         default:
-            std::exit(EXIT_FAILURE);
+            // This should never happen
+            assert((false));
             break;
     }
+
+    return nullptr;
 }

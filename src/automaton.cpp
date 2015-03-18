@@ -11,7 +11,8 @@
 #include "./token.h"
 
 Automaton::Automaton() : m_trans() {
-    Action * priority = new PriorityAnalysis;
+    Trans * shiftToE15 = new TransShift(State::E15);
+    Trans * shiftToE16 = new TransShift(State::E16);
 
     m_trans[State::E0] [Token::P]   = new TransAccept;
 
@@ -44,8 +45,8 @@ Automaton::Automaton() : m_trans() {
 
     m_trans[State::E6] [Token::E]   = new TransShift(State::E13, false);
     m_trans[State::E6] [Token::opp] = new TransShift(State::E14);
-    m_trans[State::E6] [Token::num] =  // TransReduce(0, Token::E);
-    m_trans[State::E6] [Token::idv] = new TransReduce(0, Token::E);
+    m_trans[State::E6] [Token::num] = shiftToE15;
+    m_trans[State::E6] [Token::idv] = shiftToE16;
 
     m_trans[State::E7] [Token::idv] = new TransShift(State::E17);
 
@@ -55,8 +56,8 @@ Automaton::Automaton() : m_trans() {
 
     m_trans[State::E12] [Token::E]  = new TransShift(State::E20, false);
     m_trans[State::E12][Token::opp] = new TransShift(State::E14);
-    m_trans[State::E12][Token::num] =  // TransReduce(0, Token::E);
-    m_trans[State::E12][Token::idv] = new TransReduce(0, Token::E);
+    m_trans[State::E12][Token::num] = shiftToE15;
+    m_trans[State::E12][Token::idv] = shiftToE16;
 
     m_trans[State::E13][Token::col] = new TransReduce(2, Token::I);
     m_trans[State::E13][Token::plu] = new TransShift(State::E22);
@@ -66,8 +67,25 @@ Automaton::Automaton() : m_trans() {
 
     m_trans[State::E14][Token::E]   = new TransShift(State::E26, false);
     m_trans[State::E14][Token::opp] = new TransShift(State::E14);
-    m_trans[State::E14][Token::num] =  // TransReduce(0, Token::E);
-    m_trans[State::E14][Token::idv] = new TransReduce(0, Token::E);
+    m_trans[State::E14][Token::num] = shiftToE15;
+    m_trans[State::E14][Token::idv] = shiftToE16;
+
+    m_trans[State::E15][Token::plu] =
+    m_trans[State::E15][Token::min] =
+    m_trans[State::E15][Token::mul] =
+    m_trans[State::E15][Token::quo] =
+    m_trans[State::E15][Token::opp] =
+    m_trans[State::E15][Token::clo] =
+    m_trans[State::E15][Token::col] =
+
+    m_trans[State::E16][Token::plu] =
+    m_trans[State::E16][Token::min] =
+    m_trans[State::E16][Token::mul] =
+    m_trans[State::E16][Token::quo] =
+    m_trans[State::E16][Token::opp] =
+    m_trans[State::E16][Token::clo] =
+    m_trans[State::E16][Token::col] = new TransReduce(1, Token::E, false,
+                                        new ActionSimpleExpr);
 
     m_trans[State::E17][Token::col] = new TransReduce(2, Token::I);
 
@@ -86,23 +104,23 @@ Automaton::Automaton() : m_trans() {
 
     m_trans[State::E22][Token::E]   = new TransShift(State::E31, false);
     m_trans[State::E22][Token::opp] = new TransShift(State::E14);
-    m_trans[State::E22][Token::num] =  // TransReduce(0, Token::E);
-    m_trans[State::E22][Token::idv] = new TransReduce(0, Token::E);
+    m_trans[State::E22][Token::num] = shiftToE15;
+    m_trans[State::E22][Token::idv] = shiftToE16;
 
     m_trans[State::E23][Token::E]   = new TransShift(State::E32, false);
     m_trans[State::E23][Token::opp] = new TransShift(State::E14);
-    m_trans[State::E23][Token::num] =  // TransReduce(0, Token::E);
-    m_trans[State::E23][Token::idv] = new TransReduce(0, Token::E);
+    m_trans[State::E23][Token::num] = shiftToE15;
+    m_trans[State::E23][Token::idv] = shiftToE16;
 
     m_trans[State::E24][Token::E]   = new TransShift(State::E33, false);
     m_trans[State::E24][Token::opp] = new TransShift(State::E14);
-    m_trans[State::E24][Token::num] =  // TransReduce(0, Token::E);
-    m_trans[State::E24][Token::idv] = new TransReduce(0, Token::E);
+    m_trans[State::E24][Token::num] = shiftToE15;
+    m_trans[State::E24][Token::idv] = shiftToE16;
 
     m_trans[State::E25][Token::E]   = new TransShift(State::E34, false);
     m_trans[State::E25][Token::opp] = new TransShift(State::E14);
-    m_trans[State::E25][Token::num] =  // TransReduce(0, Token::E);
-    m_trans[State::E25][Token::idv] = new TransReduce(0, Token::E);
+    m_trans[State::E25][Token::num] = shiftToE15;
+    m_trans[State::E25][Token::idv] = shiftToE16;
 
     m_trans[State::E26][Token::clo] = new TransReduce(2, Token::E);
     m_trans[State::E26][Token::plu] = new TransShift(State::E22);
@@ -150,7 +168,7 @@ Automaton::Automaton() : m_trans() {
     m_trans[State::E32][Token::clo] =  // TransReduce(3, Token::E, false);
     m_trans[State::E33][Token::clo] =  // TransReduce(3, Token::E, false);
     m_trans[State::E34][Token::clo] = new TransReduce(3, Token::E, false,
-                                                      priority);
+                                            new PriorityAnalysis);
 
     m_trans[State::E36][Token::col] = new TransReduce(5, Token::D, true,
                                             new ActionNewSym(true));
@@ -202,7 +220,7 @@ bool Automaton::accepts(Tokenizer *tokenizer, State init) {
     while (!states.empty()) {
         State::Id sId = states.top();
         const Token * currentToken = tokenizer->top();
-        const Token::Id tId = *currentToken;
+        const Token::Id tId = currentToken->id();
 
         if (this->error(sId, tId)) {
             return false;

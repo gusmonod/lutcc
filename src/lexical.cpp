@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include <cassert>
 
 #include "boost/regex.hpp"
 #include "boost/algorithm/string.hpp"
@@ -118,9 +119,9 @@ void Tokenizer::analyze() {
                 cout << "Lecture detectee : " << formattedStr << endl;
 #endif
                 break;
-            // If the keyword does not start from this, programming error
             default:
-                std::exit(EXIT_FAILURE);
+                // If the keyword does not start from this, programming error
+                assert((false));
         }
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::affect)) {
         m_currentToken = new SimpleOperator(Token::aff);
@@ -156,9 +157,9 @@ void Tokenizer::analyze() {
             case '=':
                 m_currentToken = new SimpleOperator(Token::equ);
                 break;
-            // If the operator does not start from this, programming error
             default:
-                std::exit(EXIT_FAILURE);
+                // If the operator does not start from this, programming error
+                assert((false));
         }
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::id)) {
         m_currentTokenStr = matches[1];
