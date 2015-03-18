@@ -191,17 +191,6 @@ Automaton::Automaton(const Trans::Transitions & trans) {
             it.second = nullptr;
         }
     }
-
-    std::set<Action *> freed_actions;
-    for (auto map : m_actions) {
-        for (auto it : map.second) {
-            if (freed_actions.find(it.second) != freed_actions.end()) {
-                delete it.second;
-                freed_actions.insert(it.second);
-            }
-            it.second = nullptr;
-        }
-    }
 }
 
 bool Automaton::accepts(Tokenizer *tokenizer, State init) {
@@ -234,9 +223,4 @@ bool Automaton::accepts(Tokenizer *tokenizer, State init) {
 bool Automaton::error(State::Id s, Token::Id t) {
     return ( m_trans.find(s) == m_trans.end()
         || m_trans.find(s)->second.find(t) == m_trans.find(s)->second.end() );
-}
-
-bool Automaton::actionExists(State::Id s, Token::Id t) {
-    return ( m_actions.find(s) != m_actions.end()
-    && m_actions.find(s)->second.find(t) != m_actions.find(s)->second.end() );
 }

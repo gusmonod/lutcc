@@ -62,6 +62,7 @@ class TransReduce : public Trans {
  public:
     TransReduce(int nbToPop, Token::Id tokenId,
                 bool terminal = true, Action * reduceAction = nullptr);
+    virtual ~TransReduce();
 
     virtual bool doTransition(const Trans::Transitions & transitions,
                               const Token & currentToken,

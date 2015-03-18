@@ -44,6 +44,11 @@ TransReduce::TransReduce(int nbToPop, Token::Id left,
     : m_nbToPop(nbToPop), m_left(left), m_terminal(terminal),
       m_reduceAction(reduceAction) { }
 
+/*virtual*/ TransReduce::~TransReduce() {
+    delete m_reduceAction;
+    m_reduceAction = nullptr;
+}
+
 /*virtual*/ bool TransReduce::doTransition(
                               const Trans::Transitions & transitions,
                               const Token & currentToken,
