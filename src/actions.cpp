@@ -8,134 +8,86 @@
 #include "./simpletoken.h"
 #include "./expr.h"
 
-/*virtual*/ Expr * ActionNewSym::doAction(const Token & readToken,
-                                          SymbolsTable * variables,
-                                          Expr * currentExpr) {
-    // Interpreting value of `readToken` as Variable
-    const Variable *v = dynamic_cast<const Variable *>(&readToken);
-
-    // Creating new undefined variable or constant
-    (*variables)[v->name()] = {0, false, m_constant};
-
-    return nullptr;
-}
-
-/*virtual*/ Expr * ActionInit::doAction(const Token & readToken,
-                                        SymbolsTable * variables,
-                                        Expr * currentExpr) {
-    // Interpreting value of `readToken` as Number
-    const Number *n = dynamic_cast<const Number *>(&readToken);
-
-    SymbolsTable::iterator entry;
-    // Assigning value to first undefined constant
-    for (entry = variables->begin(); entry != variables->end(); ++entry) {
-        if (entry->second.constant && !entry->second.defined) {
-            entry->second.value = n->value();
-            entry->second.defined = true;
-            break;
-        }
+/*virtual*/ void ActionNewSym::doAction(const Token & currentToken,
+                          SymbolsTable * variables,
+                          std::stack<Token *> * tokens) const {
+    Token * tmp = tokens->top();
+    if (Token::Lc == *tmp || Token::Lv == *tmp) {
+        delete tmp;
+        tokens->pop();
     }
+    tmp = nullptr;
 
-    return nullptr;
-}
-
-/*virtual*/ Expr *ActionPriority::doAction(const Token & readToken,
-                                           SymbolsTable * variables,
-                                           Expr * currentExpr) {
-    const Token::Id tId = static_cast<Token::Id>(readToken);
-
-    BinExpr * currentBinExpr = dynamic_cast<BinExpr *>(currentExpr);
-
-    if (!currentBinExpr) {
-        ActionLeftAssoc leftAssoc;
-        return leftAssoc.doAction(readToken, variables, currentExpr);
-    }
-
-    // Fetching the rightmost binary expression
-    BinExpr * rightMostBinExpr = currentBinExpr;
-    Expr    * rightMostExpr = nullptr;
-    while (dynamic_cast<BinExpr *>(rightMostExpr = rightMostBinExpr->right())) {
-        rightMostBinExpr = dynamic_cast<BinExpr *>(rightMostExpr);
-    }
-
-    // The right part of `currentBinExpr` becomes a BinExpr
-    switch (tId) {
-        case Token::plu:
-            if (Token::mul == *rightMostBinExpr) return currentExpr;
-            currentBinExpr->right(new AddExpr(tId, rightMostExpr), false);
-            break;
-        case Token::min:
-            currentBinExpr->right(new SubExpr(tId, rightMostExpr), false);
-            break;
-        case Token::mul:
-            currentBinExpr->right(new MulExpr(tId, rightMostExpr), false);
-            break;
-        case Token::quo:
-            currentBinExpr->right(new DivExpr(tId, rightMostExpr), false);
-            break;
-        default:
-            std::exit(EXIT_FAILURE);
-            break;
-    }
-
-    return currentExpr;
-}
-
-/*virtual*/ Expr * ActionLeftAssoc::doAction(const Token & readToken,
-                                             SymbolsTable * variables,
-                                             Expr * currentExpr) {
-    const Token::Id tId = static_cast<Token::Id>(readToken);
-    const Variable *v = nullptr;
     const Number *n = nullptr;
+    const Variable *v = nullptr;
+
+    if (m_constant) {
+        // Getting the value of the constant
+        n = dynamic_cast<const Number *>(tokens->top());
+        tokens->pop();
+
+        // Removing the `=` sign
+        delete tokens->top();
+        tokens->pop();
+
+        // Getting the constant name
+        v = dynamic_cast<const Variable *>(tokens->top());
+        tokens->pop();
+
+        // Creating new defined (and constant) symbol entry
+        (*variables)[v->name()] = {n->value(), true, m_constant};
+    } else {
+        v = dynamic_cast<const Variable *>(tokens->top());
+        tokens->pop();
+
+        // Creating new undefined variable
+        (*variables)[v->name()] = {0, false, m_constant};
+    }
+
+    // Deleting value and name of the constant
+    delete n;
+    n = nullptr;
+    delete v;
+    v = nullptr;
+
+    // Deleting comma and (`Lv` or `Lc`), if there is a comma
+    if (Token::com == *tokens->top()) {
+        delete tokens->top();
+        tokens->pop();
+        delete tokens->top();
+        tokens->pop();
+    }
+
+    tmp = tokens->top();
+    if (Token::var == *tmp || Token::con == *tmp) {
+        delete tmp;
+        tokens->pop();
+    }
+    tmp = nullptr;
+}
+
+/*virtual*/ void PriorityAnalysis::doAction(const Token & currentToken,
+                          SymbolsTable * variables,
+                          std::stack<Token *> * tokens) const {
+    // Retrieving the 3 last Tokens to reduce them
+    Expr * right = dynamic_cast<Expr *>(tokens->top());
+    tokens->pop();
+    Token::Id tId = static_cast<Token::Id>(*tokens->top());
+    tokens->pop();
+    Expr * left = dynamic_cast<Expr *>(tokens->top());
+    tokens->pop();
+
     Expr * newExpr = nullptr;
 
-    // Creates the correct `newExpr`, with `currentExpr` as left part
-    // if `newExpr` is a `BinExpr`
     switch (tId) {
-        case Token::idv:
-            v = dynamic_cast<const Variable *>(&readToken);
-            newExpr = new Variable(tId, v->name());
-            break;
-
-        case Token::num:
-            n = dynamic_cast<const Number *>(&readToken);
-            newExpr = new Number(tId, n->value());
-            break;
-
-        case Token::plu:
-            newExpr = new AddExpr(tId, currentExpr);
-            break;
-
-        case Token::min:
-            newExpr = new SubExpr(tId, currentExpr);
-            break;
-
         case Token::mul:
-            newExpr = new MulExpr(tId, currentExpr);
+            newExpr = new MulExpr(tId, left, right);
             break;
-
         case Token::quo:
-            newExpr = new DivExpr(tId, currentExpr);
+            newExpr = new DivExpr(tId, left, right);
             break;
-
         default:
             std::exit(EXIT_FAILURE);
             break;
     }
-
-    BinExpr * currentBinExpr = dynamic_cast<BinExpr *>(currentExpr);
-    BinExpr * newBinExpr = dynamic_cast<BinExpr *>(newExpr);
-
-    if (!currentBinExpr || newBinExpr) return newExpr;
-
-    // Fetching the rightmost binary expression
-    BinExpr * rightMostBinExpr = currentBinExpr;
-    Expr    * rightMostExpr = nullptr;
-    while (dynamic_cast<BinExpr *>(rightMostExpr = rightMostBinExpr->right())) {
-        rightMostBinExpr = dynamic_cast<BinExpr *>(rightMostExpr);
-    }
-
-    rightMostBinExpr->right(newExpr, false);
-
-    return currentBinExpr;
 }

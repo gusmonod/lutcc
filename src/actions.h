@@ -16,42 +16,35 @@ class Action {
 
     virtual ~Action() { }
 
-    virtual Expr * doAction(const Token & readToken,
-                            SymbolsTable * variables,
-                            Expr * currentExpr) = 0;
+    virtual void doAction(const Token & currentToken,
+                          SymbolsTable * variables,
+                          std::stack<Token *> * tokens) const = 0;
 };
 
 class ActionNewSym : public Action {
  public:
     explicit ActionNewSym(bool constant) : m_constant(constant) { }
 
-    virtual Expr * doAction(const Token & readToken,
-                            SymbolsTable * variables,
-                            Expr * currentExpr);
+    virtual void doAction(const Token & currentToken,
+                          SymbolsTable * variables,
+                          std::stack<Token *> * tokens) const;
 
  private:
-    bool m_constant;
+    const bool m_constant;
 };
 
 class ActionInit : public Action {
  public:
-    virtual Expr * doAction(const Token & readToken,
-                            SymbolsTable * variables,
-                            Expr * currentExpr);
+    virtual void doAction(const Token & currentToken,
+                          SymbolsTable * variables,
+                          std::stack<Token *> * tokens) const;
 };
 
-class ActionLeftAssoc : public Action {
- public:
-    virtual Expr * doAction(const Token & readToken,
-                            SymbolsTable * variables,
-                            Expr * currentExpr);
-};
-
-class ActionPriority : public Action {
- public:
-    virtual Expr * doAction(const Token & readToken,
-                            SymbolsTable * variables,
-                            Expr * currentExpr);
+class PriorityAnalysis : public Action {
+public:
+    virtual void doAction(const Token & currentToken,
+                          SymbolsTable * variables,
+                          std::stack<Token *> * tokens) const;
 };
 
 #endif  // SRC_ACTIONS_H_

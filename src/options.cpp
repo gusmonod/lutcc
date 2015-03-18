@@ -22,7 +22,6 @@ void get_options_map(int argc, const char * argv[],
         desc << "Lutin analyzer and executer" << endl
              << "---------------------------" << endl << endl
              << "Usage: " << argv[0] << " <lutin-file> [options]" << endl
-             << "(if no lutin-file is specified, reads from stdin)" << endl
              << "Allowed options";
 
         po::options_description visible_opts(desc.str());

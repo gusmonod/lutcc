@@ -11,6 +11,7 @@ class SimpleOperator : public Token {
  public:
     explicit SimpleOperator(Token::Id id) : Token(id) { }
 
+    virtual Token * newCopy() const;
  private:
 };
 
@@ -18,6 +19,7 @@ class Keyword : public Token {
  public:
     explicit Keyword(Token::Id id) : Token(id) { }
 
+    virtual Token * newCopy() const;
  private:
 };
 
