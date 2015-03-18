@@ -14,6 +14,7 @@ class Variable;
 class Expr : public Token {
  public:
     explicit Expr(Token::Id id) : Token(id) { }
+    virtual Token * newCopy() const = 0;
     virtual uint64_t eval(const SymbolsTable & values) const = 0;
 
  private:
@@ -22,6 +23,7 @@ class Expr : public Token {
 class Variable : public Expr {
  public:
     Variable(Token::Id id, std::string name) : Expr(id), m_name(name) { }
+    virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
 
     std::string name() const { return m_name; }
@@ -33,6 +35,7 @@ class Variable : public Expr {
 class Number : public Expr {
  public:
     Number(Token::Id id, uint64_t value) : Expr(id), m_value(value) { }
+    virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
 
     uint64_t value() const { return m_value; }
@@ -46,6 +49,8 @@ class BinExpr : public Expr {
                      Expr * left = nullptr,
                      Expr * right = nullptr);
     ~BinExpr() { delete m_left; delete m_right; }
+    virtual Token * newCopy() const = 0;
+    virtual uint64_t eval(const SymbolsTable & values) const = 0;
 
     void left(Expr * left, bool shouldDelete = true);
     void right(Expr * right, bool shouldDelete = true);
@@ -62,6 +67,7 @@ class AddExpr : public BinExpr {
     explicit AddExpr(Token::Id id,
                      Expr * left = nullptr,
                      Expr * right = nullptr);
+    virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
 
  private:
@@ -72,6 +78,7 @@ class SubExpr : public BinExpr {
     explicit SubExpr(Token::Id id,
                      Expr * left = nullptr,
                      Expr * right = nullptr);
+    virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
 
  private:
@@ -82,6 +89,7 @@ class MulExpr : public BinExpr {
     explicit MulExpr(Token::Id id,
                      Expr * left = nullptr,
                      Expr * right = nullptr);
+    virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
 
  private:
@@ -92,6 +100,7 @@ class DivExpr : public BinExpr {
     explicit DivExpr(Token::Id id,
                      Expr * left = nullptr,
                      Expr * right = nullptr);
+    virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
 
  private:

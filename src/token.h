@@ -59,6 +59,8 @@ class Token {
 
     virtual ~Token() { }
 
+    virtual Token * newCopy() const { return new Token(m_id); }
+
     operator Token::Id() const { return m_id; }
 
     friend std::ostream& operator<<(std::ostream& stream, const Token & token);
