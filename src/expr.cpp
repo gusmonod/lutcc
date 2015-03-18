@@ -43,7 +43,9 @@ AddExpr::AddExpr(Token::Id id, Expr * left, Expr * right)
     : BinExpr(id, left, right) { }
 
 /*virtual*/ Token * AddExpr::newCopy() const {
-    return new AddExpr(static_cast<Token::Id>(*this), dynamic_cast<Expr *>(m_left->newCopy()), dynamic_cast<Expr *>(m_right->newCopy()));
+    return new AddExpr(static_cast<Token::Id>(*this),
+            dynamic_cast<Expr *>(m_left->newCopy()),
+            dynamic_cast<Expr *>(m_right->newCopy()));
 }
 
 /*virtual*/ uint64_t AddExpr::eval(const SymbolsTable & values) const {
@@ -54,7 +56,9 @@ SubExpr::SubExpr(Token::Id id, Expr * left, Expr * right)
     : BinExpr(id, left, right) { }
 
 /*virtual*/ Token * SubExpr::newCopy() const {
-    return new SubExpr(static_cast<Token::Id>(*this), dynamic_cast<Expr *>(m_left->newCopy()), dynamic_cast<Expr *>(m_right->newCopy()));
+    return new SubExpr(static_cast<Token::Id>(*this),
+            dynamic_cast<Expr *>(m_left->newCopy()),
+            dynamic_cast<Expr *>(m_right->newCopy()));
 }
 
 /*virtual*/ uint64_t SubExpr::eval(const SymbolsTable & values) const {
@@ -65,7 +69,9 @@ MulExpr::MulExpr(Token::Id id, Expr * left, Expr * right)
     : BinExpr(id, left, right) { }
 
 /*virtual*/ Token * MulExpr::newCopy() const {
-    return new MulExpr(static_cast<Token::Id>(*this), dynamic_cast<Expr *>(m_left->newCopy()), dynamic_cast<Expr *>(m_right->newCopy()));
+    return new MulExpr(static_cast<Token::Id>(*this),
+            dynamic_cast<Expr *>(m_left->newCopy()),
+            dynamic_cast<Expr *>(m_right->newCopy()));
 }
 
 /*virtual*/ uint64_t MulExpr::eval(const SymbolsTable & values) const {
@@ -76,7 +82,9 @@ DivExpr::DivExpr(Token::Id id, Expr * left, Expr * right)
     : BinExpr(id, left, right) { }
 
 /*virtual*/ Token * DivExpr::newCopy() const {
-    return new DivExpr(static_cast<Token::Id>(*this), dynamic_cast<Expr *>(m_left->newCopy()), dynamic_cast<Expr *>(m_right->newCopy()));
+    return new DivExpr(static_cast<Token::Id>(*this),
+            dynamic_cast<Expr *>(m_left->newCopy()),
+            dynamic_cast<Expr *>(m_right->newCopy()));
 }
 
 /*virtual*/ uint64_t DivExpr::eval(const SymbolsTable & values) const {

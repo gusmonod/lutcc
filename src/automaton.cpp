@@ -218,7 +218,7 @@ bool Automaton::accepts(Tokenizer *tokenizer, State init) {
         if (this->error(sId, tId)) {
             return false;
         }
-        if (m_trans[sId][tId]->doTransition(m_trans,* currentToken,
+        if (m_trans[sId][tId]->doTransition(m_trans, *currentToken,
                                             &states, &tokens, &values)) {
             return true;
         }

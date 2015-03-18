@@ -41,7 +41,7 @@ class ActionInit : public Action {
 };
 
 class PriorityAnalysis : public Action {
-public:
+ public:
     virtual void doAction(const Token & currentToken,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const;
