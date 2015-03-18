@@ -25,6 +25,7 @@
     if (m_constant) {
         // Getting the value of the constant
         n = dynamic_cast<const Number *>(tokens->top());
+        assert((n));  // `n` must be pointing to a `Number *`
         tokens->pop();
 
         // Removing the `=` sign
@@ -33,12 +34,14 @@
 
         // Getting the constant name
         v = dynamic_cast<const Variable *>(tokens->top());
+        assert((v));  // `v` must be pointing to a `Variable *`
         tokens->pop();
 
         // Creating new defined (and constant) symbol entry
         (*variables)[v->name()] = {n->value(), true, m_constant};
     } else {
         v = dynamic_cast<const Variable *>(tokens->top());
+        assert((v));  // `v` must be pointing to a `Variable *`
         tokens->pop();
 
         // Creating new undefined variable
@@ -66,45 +69,84 @@
     }
     tmp = nullptr;
 
-    return nullptr;
+    return nullptr;  // Default behavior: create a new non terminal Token
 }
 
 /*virtual*/ Token * ActionSimpleExpr::doAction(const Token & currentToken,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
     Expr * e = dynamic_cast<Expr *>(tokens->top());
-    assert((e));
+    assert((e));  // `e` must be pointing to a `Expr *`
 
-    
+    tokens->pop();
 
     return e;
 }
 
-/*virtual*/ Token * PriorityAnalysis::doAction(const Token & currentToken,
+/*virtual*/ Token * ActionAddExpr::doAction(const Token & currentToken,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
     // Retrieving the 3 last Tokens to reduce them
     Expr * right = dynamic_cast<Expr *>(tokens->top());
     tokens->pop();
-    Token::Id tId = tokens->top()->id();
+    Token::Id opId = tokens->top()->id();
     tokens->pop();
     Expr * left = dynamic_cast<Expr *>(tokens->top());
     tokens->pop();
 
-    Expr * newExpr = nullptr;
+    // There must be 2 `Expr` and an operator on the top of the stack
+    assert((right && left));
 
-    switch (tId) {
+    Expr * newExpr = nullptr;
+    
+    switch (opId) {
+        case Token::plu:
+            newExpr = new AddExpr(opId, left, right);
+            break;
+        case Token::min:
+            newExpr = new SubExpr(opId, left, right);
+            break;
         case Token::mul:
-            newExpr = new MulExpr(tId, left, right);
+            newExpr = new MulExpr(opId, left, right);
             break;
         case Token::quo:
-            newExpr = new DivExpr(tId, left, right);
+            newExpr = new DivExpr(opId, left, right);
             break;
         default:
-            // This should never happen
+            // Only operators can be at this position
             assert((false));
             break;
     }
 
-    return nullptr;
+    return newExpr;
+}
+
+/*virtual*/ Token * ActionAffect::doAction(const Token & currentToken,
+                          SymbolsTable * variables,
+                          std::stack<Token *> * tokens) const {
+    Expr * rValue = dynamic_cast<Expr *>(tokens->top());
+    assert((rValue));  // `rValue` must be pointing to a `Expr *`
+    tokens->pop();
+
+    // Removing thxe `:=` operator
+    delete tokens->top();
+    tokens->pop();
+
+    Variable * lValue = dynamic_cast<Variable *>(tokens->top());
+    assert((lValue));  // `lValue` must be pointing to a `Variable *`
+    tokens->pop();
+
+    auto symbol = variables->find(lValue->name());
+
+    assert((symbol != variables->end()));  // TODO: handle error
+
+    symbol->second.defined = true;
+    symbol->second.value = rValue->eval(*variables);
+
+    delete rValue;
+    rValue = nullptr;
+    delete lValue;
+    lValue = nullptr;
+
+    return nullptr;  // Default behavior: create a new non terminal Token
 }

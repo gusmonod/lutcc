@@ -96,7 +96,8 @@ Automaton::Automaton() : m_trans() {
 
     m_trans[State::E19][Token::equ] = new TransShift(State::E45);
 
-    m_trans[State::E20][Token::col] = new TransReduce(3, Token::I);
+    m_trans[State::E20][Token::col] = new TransReduce(3, Token::I, true,
+                                            new ActionAffect);
     m_trans[State::E20][Token::plu] = new TransShift(State::E22);
     m_trans[State::E20][Token::min] = new TransShift(State::E23);
     m_trans[State::E20][Token::quo] = new TransShift(State::E24);
@@ -168,7 +169,7 @@ Automaton::Automaton() : m_trans() {
     m_trans[State::E32][Token::clo] =  // TransReduce(3, Token::E, false);
     m_trans[State::E33][Token::clo] =  // TransReduce(3, Token::E, false);
     m_trans[State::E34][Token::clo] = new TransReduce(3, Token::E, false,
-                                            new PriorityAnalysis);
+                                            new ActionAddExpr);
 
     m_trans[State::E36][Token::col] = new TransReduce(5, Token::D, true,
                                             new ActionNewSym(true));

@@ -13,7 +13,7 @@
 /*virtual*/ uint64_t Variable::eval(const SymbolsTable & values) const {
     auto entry = values.find(m_name);
 
-    // TODO: change this assertion to a run-time error handling
+    // TODO: handle error
     assert((entry != values.end() && entry->second.defined));
 
     return entry->second.value;

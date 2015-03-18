@@ -40,7 +40,14 @@ class ActionSimpleExpr : public Action {
                              std::stack<Token *> * tokens) const;
 };
 
-class PriorityAnalysis : public Action {
+class ActionAddExpr : public Action {
+ public:
+    virtual Token * doAction(const Token & currentToken,
+                             SymbolsTable * variables,
+                             std::stack<Token *> * tokens) const;
+};
+
+class ActionAffect : public Action {
  public:
     virtual Token * doAction(const Token & currentToken,
                              SymbolsTable * variables,
