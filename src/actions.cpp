@@ -93,6 +93,12 @@
     }
 }
 
+/*virtual*/ void ActionAssign::doAction(const Token & currentToken,
+                      SymbolsTable * variables,
+                      std::stack<Token *> * tokens) const {
+
+    
+}
 
 /*virtual*/ void ActionRead::doAction(const Token & currentToken,
                       SymbolsTable * variables,

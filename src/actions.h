@@ -33,19 +33,19 @@ class ActionNewSym : public Action {
     const bool m_constant;
 };
 
-class ActionInit : public Action {
- public:
-    virtual void doAction(const Token & currentToken,
-                          SymbolsTable * variables,
-                          std::stack<Token *> * tokens) const;
-};
-
 class PriorityAnalysis : public Action {
  public:
     virtual void doAction(const Token & currentToken,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const;
 };
+
+class ActionAssign : public Action {
+ public:
+   virtual void doAction(const Token & currentToken,
+                         SymbolsTable * variables,
+                         std::stack<Token *> * tokens) const;
+}
 
 class ActionRead : public Action {
 public:

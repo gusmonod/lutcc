@@ -71,8 +71,6 @@ Automaton::Automaton() : m_trans() {
 
     m_trans[State::E17][Token::col] = new TransReduce(2, Token::I);
 
-    m_actions[State::E17][Token::idv] = new ActionRead;
-
     // Shift-reduce conflict for Lv
     m_trans[State::E18][Token::Lv]  = new TransShift(State::E29, false);
     m_trans[State::E18][Token::com] =  // TransReduce(0, Token::Lv, false);
@@ -80,7 +78,8 @@ Automaton::Automaton() : m_trans() {
 
     m_trans[State::E19][Token::equ] = new TransShift(State::E45);
 
-    m_trans[State::E20][Token::col] = new TransReduce(3, Token::I);
+    m_trans[State::E20][Token::col] = new TransReduce(3, Token::I, true,
+                                            new ActionAssign);
     m_trans[State::E20][Token::plu] = new TransShift(State::E22);
     m_trans[State::E20][Token::min] = new TransShift(State::E23);
     m_trans[State::E20][Token::quo] = new TransShift(State::E24);
