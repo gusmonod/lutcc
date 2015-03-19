@@ -50,7 +50,7 @@ int main(int argc, const char * argv[]) {
         return accepted ? EXIT_SUCCESS : EXIT_FAILURE;
     } catch (const compile_error & e) {
         cerr << e.what() << endl;
-        
+
         return EXIT_SUCCESS;
     } catch (const std::runtime_error & e) {
         cerr << e.what() << endl;

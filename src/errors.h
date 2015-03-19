@@ -22,7 +22,7 @@ inline void myassert(bool assertion, const char * const what = "") {
 class compile_error : public std::runtime_error {
  public:
     explicit compile_error(const char *what) : std::runtime_error(what) {}
-    explicit compile_error(const std::string &what) : std::runtime_error(what) {}
+    explicit compile_error(const std::string &what): std::runtime_error(what){}
 };
 
 #endif  // SRC_ERRORS_H_

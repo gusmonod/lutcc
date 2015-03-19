@@ -27,7 +27,7 @@ class Variable : public Expr {
     std::string name() const { return m_name; }
 
  protected:
-    virtual std::ostream& print(std::ostream& stream) const;
+    virtual std::ostream& print(std::ostream& stream) const;  // NOLINT
 
  private:
     std::string m_name;
@@ -42,7 +42,7 @@ class Number : public Expr {
     uint64_t value() const { return m_value; }
 
  protected:
-    virtual std::ostream& print(std::ostream& stream) const;
+    virtual std::ostream& print(std::ostream& stream) const;  // NOLINT
 
  private:
     uint64_t m_value;
@@ -63,7 +63,7 @@ class BinExpr : public Expr {
     Expr * right() const { return m_right; }
 
  protected:
-    virtual std::ostream& print(std::ostream& stream) const;
+    virtual std::ostream& print(std::ostream& stream) const;  // NOLINT
 
     Expr * m_left;
     Expr * m_right;

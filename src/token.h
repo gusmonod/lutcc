@@ -66,7 +66,7 @@ class Token {
     friend std::ostream& operator<<(std::ostream& stream, const Token & token);
 
  protected:
-    virtual std::ostream& print(std::ostream& stream) const;
+    virtual std::ostream& print(std::ostream& stream) const;  // NOLINT
 
  private:
     Token::Id m_id;

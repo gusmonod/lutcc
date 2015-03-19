@@ -4,6 +4,7 @@
 
 #include <stack>
 #include <sstream>
+#include <string>
 
 #include "./token.h"
 #include "./simpletoken.h"
@@ -95,10 +96,11 @@
     Expr * left = dynamic_cast<Expr *>(tokens->top());
     tokens->pop();
 
-    myassert(right && left, "There must be 2 `Expr` and an operator on the top of the stack");
+    myassert(right && left,
+            "There must be 2 `Expr` and an operator on the top of the stack");
 
     Expr * newExpr = nullptr;
-    
+
     switch (opId) {
         case Token::plu:
             newExpr = new AddExpr(opId, left, right);
@@ -167,10 +169,9 @@
 /*virtual*/ Token * ActionRead::doAction(const Token & currentToken,
                       SymbolsTable * variables,
                       std::stack<Token *> * tokens) const {
-
-    //TODO Refactor to match the new prototype
+    // TODO(nautigsam) Refactor to match the new prototype
     /*
-    //TODO check if user is not trying to use Read with a constant
+    // TODO(nautigsam) check if user is not trying to use Read with a constant
 
     //first, we have to check if the variable is declared
     Variable * v = dynamic_cast<Variable *>(currentExpr);
@@ -206,8 +207,7 @@
 /*virtual*/ Token * ActionWrite::doAction(const Token & currentToken,
                       SymbolsTable * variables,
                       std::stack<Token *> * tokens) const {
-
-    //TODO Refactor to match the new prototype
+    // TODO(nautigsam) Refactor to match the new prototype
     /*
     Token::Id eId = static_cast<Token::Id>(*currentExpr);
     bool toPrint = false;
