@@ -1,0 +1,1 @@
+The stream contains tokens recognized by the lexical analyzer but that don't conform to the grammar - error recovery (example).

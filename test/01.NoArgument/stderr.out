@@ -4,7 +4,6 @@ Lutin analyzer and executer
 ---------------------------
 
 Usage: ../lut <lutin-file> [options]
-(if no lutin-file is specified, reads from stdin)
 Allowed options:
   -h [ --help ]         : Prints this help
   -p [ --print ]        : Prints the internal representation

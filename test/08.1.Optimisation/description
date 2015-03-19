@@ -1,2 +1,1 @@
-Optimisation du programme option -o - propagation de constantes.
-
+Optimisation of the program (-o option) - constants propagation.
