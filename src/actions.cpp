@@ -4,11 +4,11 @@
 
 #include <stack>
 #include <sstream>
-#include <cassert>
 
 #include "./token.h"
 #include "./simpletoken.h"
 #include "./expr.h"
+#include "./myassert.h"
 
 /*virtual*/ Token * ActionNewSym::doAction(const Token & currentToken,
                           SymbolsTable * variables,
@@ -26,7 +26,7 @@
     if (m_constant) {
         // Getting the value of the constant
         n = dynamic_cast<const Number *>(tokens->top());
-        assert((n));  // `n` must be pointing to a `Number *`
+        myassert(n, "`n` must be pointing to a `Number *`");
         tokens->pop();
 
         // Removing the `=` sign
@@ -35,14 +35,14 @@
 
         // Getting the constant name
         v = dynamic_cast<const Variable *>(tokens->top());
-        assert((v));  // `v` must be pointing to a `Variable *`
+        myassert(v, "`v` must be pointing to a `Variable *`");
         tokens->pop();
 
         // Creating new defined (and constant) symbol entry
         (*variables)[v->name()] = {n->value(), true, m_constant};
     } else {
         v = dynamic_cast<const Variable *>(tokens->top());
-        assert((v));  // `v` must be pointing to a `Variable *`
+        myassert(v, "`v` must be pointing to a `Variable *`");
         tokens->pop();
 
         // Creating new undefined variable
@@ -77,7 +77,7 @@
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
     Expr * e = dynamic_cast<Expr *>(tokens->top());
-    assert((e));  // `e` must be pointing to a `Expr *`
+    myassert(e, "`e` must be pointing to a `Expr *`");
 
     tokens->pop();
 
@@ -95,8 +95,7 @@
     Expr * left = dynamic_cast<Expr *>(tokens->top());
     tokens->pop();
 
-    // There must be 2 `Expr` and an operator on the top of the stack
-    assert((right && left));
+    myassert(right && left, "There must be 2 `Expr` and an operator on the top of the stack");
 
     Expr * newExpr = nullptr;
     
@@ -126,7 +125,7 @@
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
     Expr * rValue = dynamic_cast<Expr *>(tokens->top());
-    assert((rValue));  // `rValue` must be pointing to a `Expr *`
+    myassert(rValue, "`rValue` must be pointing to a `Expr *`");
     tokens->pop();
 
     // Removing thxe `:=` operator
@@ -134,15 +133,24 @@
     tokens->pop();
 
     Variable * lValue = dynamic_cast<Variable *>(tokens->top());
-    assert((lValue));  // `lValue` must be pointing to a `Variable *`
+    myassert(lValue, "`lValue` must be pointing to a `Variable *`");
     tokens->pop();
 
     auto symbol = variables->find(lValue->name());
 
-    assert((symbol != variables->end()));  // TODO: handle error
+    if (symbol == variables->end()) {
+        std::string what("Undeclared variable: ");
+        std::runtime_error undeclared(what + lValue->name());
+        throw undeclared;
+    }
 
     symbol->second.defined = true;
-    symbol->second.value = rValue->eval(*variables);
+
+    try {
+        symbol->second.value = rValue->eval(*variables);
+    } catch(const std::runtime_error & e) {
+        std::cerr << e.what() << " in `" << *rValue << "`" << std::endl;
+    }
 
     delete rValue;
     rValue = nullptr;

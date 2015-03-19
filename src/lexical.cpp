@@ -4,13 +4,13 @@
 
 #include <iostream>
 #include <string>
-#include <cassert>
 
 #include "boost/regex.hpp"
 #include "boost/algorithm/string.hpp"
 
 #include "./simpletoken.h"
 #include "./expr.h"
+#include "./myassert.h"
 
 using std::string;
 using std::cout;
@@ -120,8 +120,8 @@ void Tokenizer::analyze() {
 #endif
                 break;
             default:
-                // If the keyword does not start from this, programming error
-                assert((false));
+                myassert(false, "If the keyword does not start from this, programming error");
+                break;
         }
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::affect)) {
         m_currentToken = new SimpleOperator(Token::aff);
@@ -188,8 +188,8 @@ void Tokenizer::analyze() {
 				#endif
                 break;
             default:
-                // If the operator does not start from this, programming error
-                assert((false));
+                myassert(false, "If the operator does not start from this, programming error");
+                break;
         }
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::id)) {
         m_currentTokenStr = matches[1];

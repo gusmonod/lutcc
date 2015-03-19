@@ -4,7 +4,10 @@
 
 #include <map>
 #include <string>
-#include <cassert>
+#include <exception>
+#include <iostream>
+
+#include "./myassert.h"
 
 /*virtual*/ Token * Variable::newCopy() const {
     return new Variable(this->id(), m_name);
@@ -13,10 +16,22 @@
 /*virtual*/ uint64_t Variable::eval(const SymbolsTable & values) const {
     auto entry = values.find(m_name);
 
-    // TODO: handle error
-    assert((entry != values.end() && entry->second.defined));
+    if (entry == values.end()) {
+        std::string what("Undeclared variable: `");
+        std::runtime_error undeclared(what + m_name + "`");
+        throw undeclared;
+    }
+    if (!entry->second.defined) {
+        std::string what("Undefined variable: `");
+        std::runtime_error undefined(what + m_name + "`");
+        throw undefined;
+    }
 
     return entry->second.value;
+}
+
+/*virtual*/ std::ostream& Variable::print(std::ostream& stream) const {
+    return stream << this->m_name;
 }
 
 /*virtual*/ Token * Number::newCopy() const {
@@ -25,6 +40,10 @@
 
 /*virtual*/ uint64_t Number::eval(const SymbolsTable & values) const {
     return m_value;
+}
+
+/*virtual*/ std::ostream& Number::print(std::ostream& stream) const {
+    return stream << this->m_value;
 }
 
 BinExpr::BinExpr(Token::Id id, Expr * left, Expr * right)
@@ -38,6 +57,12 @@ void BinExpr::left(Expr * left, bool shouldDelete) {
 void BinExpr::right(Expr * right, bool shouldDelete) {
     if (shouldDelete) delete m_right;
     m_right = right;
+}
+
+/*virtual*/ std::ostream& BinExpr::print(std::ostream& stream) const {
+    stream << *m_left << ' ';
+    Token::print(stream);
+    return stream << ' ' << *m_right;
 }
 
 AddExpr::AddExpr(Token::Id id, Expr * left, Expr * right)

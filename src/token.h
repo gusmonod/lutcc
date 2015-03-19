@@ -65,6 +65,9 @@ class Token {
 
     friend std::ostream& operator<<(std::ostream& stream, const Token & token);
 
+ protected:
+    virtual std::ostream& print(std::ostream& stream) const;
+
  private:
     Token::Id m_id;
     static const std::map<Token::Id, std::string> ID_NAMES;
