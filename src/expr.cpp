@@ -7,7 +7,7 @@
 #include <exception>
 #include <iostream>
 
-#include "./myassert.h"
+#include "./errors.h"
 
 /*virtual*/ Token * Variable::newCopy() const {
     return new Variable(this->id(), m_name);
@@ -60,9 +60,9 @@ void BinExpr::right(Expr * right, bool shouldDelete) {
 }
 
 /*virtual*/ std::ostream& BinExpr::print(std::ostream& stream) const {
-    stream << *m_left << ' ';
+    stream << *m_left;
     Token::print(stream);
-    return stream << ' ' << *m_right;
+    return stream << *m_right;
 }
 
 AddExpr::AddExpr(Token::Id id, Expr * left, Expr * right)

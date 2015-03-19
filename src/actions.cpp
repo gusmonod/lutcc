@@ -8,7 +8,7 @@
 #include "./token.h"
 #include "./simpletoken.h"
 #include "./expr.h"
-#include "./myassert.h"
+#include "./errors.h"
 
 /*virtual*/ Token * ActionNewSym::doAction(const Token & currentToken,
                           SymbolsTable * variables,
@@ -32,22 +32,22 @@
         // Removing the `=` sign
         delete tokens->top();
         tokens->pop();
-
-        // Getting the constant name
-        v = dynamic_cast<const Variable *>(tokens->top());
-        myassert(v, "`v` must be pointing to a `Variable *`");
-        tokens->pop();
-
-        // Creating new defined (and constant) symbol entry
-        (*variables)[v->name()] = {n->value(), true, m_constant};
-    } else {
-        v = dynamic_cast<const Variable *>(tokens->top());
-        myassert(v, "`v` must be pointing to a `Variable *`");
-        tokens->pop();
-
-        // Creating new undefined variable
-        (*variables)[v->name()] = {0, false, m_constant};
     }
+
+    // Getting the symbol's name
+    v = dynamic_cast<const Variable *>(tokens->top());
+    myassert(v, "`v` must be pointing to a `Variable *`");
+    tokens->pop();
+
+    if (variables->find(v->name()) != variables->end()) {
+        std::ostringstream oss;
+        oss << "The variable `" << v->name() << "` was already declared";
+        throw compile_error(oss.str());
+    }
+
+    // Creating new defined (and constant)
+    // or new undefined (and variable) symbol entry
+    (*variables)[v->name()] = {n ? n->value() : 0, m_constant, m_constant};
 
     // Deleting value and name of the constant
     delete n;
@@ -139,8 +139,8 @@
     auto symbol = variables->find(lValue->name());
 
     if (symbol == variables->end()) {
-        std::string what("Undeclared variable: ");
-        std::runtime_error undeclared(what + lValue->name());
+        std::string what("Undeclared variable `");
+        std::runtime_error undeclared(what + lValue->name() + '`');
         throw undeclared;
     }
 
@@ -149,7 +149,11 @@
     try {
         symbol->second.value = rValue->eval(*variables);
     } catch(const std::runtime_error & e) {
-        std::cerr << e.what() << " in `" << *rValue << "`" << std::endl;
+        // Adding more info to the error message and throwing again
+        std::ostringstream oss;
+        oss << e.what() << " in `" << *rValue << "`";
+        std::runtime_error e2(oss.str());
+        throw e2;
     }
 
     delete rValue;
@@ -188,7 +192,7 @@
             variables->find(v->name())->second.defined = true;
 
         }else{
-        std::cerr << "Undeclared variable.";
+        std::cerr << "Undeclared variable `" << v->name() << '`';
         }
     }else{
         std::cerr << "Symbol is not a variable.";
@@ -214,12 +218,12 @@
       Variable* v = dynamic_cast<Variable*>(currentExpr);
       auto it = variables->find(v->name());
       if(it == variables->end()) {
-        std::cerr << "Undeclared variable" << std::endl;
+        std::cerr << "Undeclared variable `" << v->name() << '`' << std::endl;
       }
       else {
         // And if it has a value
         if(!(it->second.defined)) {
-          std::cerr << "Undefined variable" << std::endl;
+          std::cerr << "Undefined variable `" << v->name() << '`' << std::endl;
         }
         else {
           toPrint = true;

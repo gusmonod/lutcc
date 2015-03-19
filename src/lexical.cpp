@@ -10,7 +10,7 @@
 
 #include "./simpletoken.h"
 #include "./expr.h"
-#include "./myassert.h"
+#include "./errors.h"
 
 using std::string;
 using std::cout;
