@@ -4,13 +4,13 @@
 
 #include <iostream>
 #include <string>
-#include <cassert>
 
 #include "boost/regex.hpp"
 #include "boost/algorithm/string.hpp"
 
 #include "./simpletoken.h"
 #include "./expr.h"
+#include "./errors.h"
 
 using std::string;
 using std::cout;
@@ -120,97 +120,99 @@ void Tokenizer::analyze() {
 #endif
                 break;
             default:
-                // If the keyword does not start from this, programming error
-                assert((false));
+                myassert(false, "Arriving here implies programming error");
+                break;
         }
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::affect)) {
         m_currentToken = new SimpleOperator(Token::aff);
         m_currentTokenStr = matches[1];
-        #ifdef DEBUG
+#ifdef DEBUG
                 std::cout << ":= ";
-		#endif
+#endif
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::operatorr)) {
         m_currentTokenStr = matches[1];
 
         switch (m_currentTokenStr[0]) {
             case '+':
                 m_currentToken = new SimpleOperator(Token::plu);
-                #ifdef DEBUG
-					std::cout << " + ";
-				#endif
+#ifdef DEBUG
+                    std::cout << " + ";
+#endif
                 break;
             case '-':
                 m_currentToken = new SimpleOperator(Token::min);
-                #ifdef DEBUG
-					std::cout << " - ";
-				#endif
+#ifdef DEBUG
+                    std::cout << " - ";
+#endif
                 break;
             case '*':
                 m_currentToken = new SimpleOperator(Token::mul);
-                #ifdef DEBUG
-					std::cout << " * ";
-				#endif
+#ifdef DEBUG
+                    std::cout << " * ";
+#endif
                 break;
             case '/':
                 m_currentToken = new SimpleOperator(Token::quo);
-                #ifdef DEBUG
-					std::cout << " / ";
-				#endif
+#ifdef DEBUG
+                    std::cout << " / ";
+#endif
                 break;
             case '(':
                 m_currentToken = new SimpleOperator(Token::opp);
-                #ifdef DEBUG
-					std::cout << " ( ";
-				#endif
+#ifdef DEBUG
+                    std::cout << " ( ";
+#endif
                 break;
             case ',':
                 m_currentToken = new SimpleOperator(Token::com);
-                #ifdef DEBUG
-					std::cout << " , ";
-				#endif
+#ifdef DEBUG
+                    std::cout << " , ";
+#endif
                 break;
             case ')':
                 m_currentToken = new SimpleOperator(Token::clo);
-                #ifdef DEBUG
-					std::cout << " ) ";
-				#endif
+#ifdef DEBUG
+                    std::cout << " ) ";
+#endif
                 break;
             case ';':
                 m_currentToken = new SimpleOperator(Token::col);
-                #ifdef DEBUG
-					std::cout << " ; " << std::endl;
-				#endif
+#ifdef DEBUG
+                    std::cout << " ; " << std::endl;
+#endif
                 break;
             case '=':
                 m_currentToken = new SimpleOperator(Token::equ);
-                #ifdef DEBUG
-					std::cout << " = ";
-				#endif
+#ifdef DEBUG
+                    std::cout << " = ";
+#endif
                 break;
             default:
-                // If the operator does not start from this, programming error
-                assert((false));
+                myassert(false, "Arriving here implies programming error");
+                break;
         }
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::id)) {
         m_currentTokenStr = matches[1];
         m_currentToken = new Variable(Token::idv, m_currentTokenStr);
-        #ifdef DEBUG
-                std::cout << m_currentTokenStr << " " ;
 
-                // We found a variable
+#ifdef DEBUG
+        std::cout << m_currentTokenStr << " ";
 
-                // top sur la pile pour récuperer la variable qui précede le signe d'affectation
-                // on fait alors une recherche dans la map SymbolsTable (find)
-                // Si on ne trouve pas => erreur de compil, la variable est affectée sans etre instanciee
-                // Si on la trouve, OK
-		#endif
+// We found a variable
+
+// top sur la pile pour récuperer la variable qui précede le signe d'affectation
+// on fait alors une recherche dans la map SymbolsTable (find)
+// Si on ne trouve pas => erreur de compil, la variable est affectée
+// sans etre instanciee. Si on la trouve, OK
+#endif
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::number)) {
         m_currentTokenStr = matches[1];
         uint64_t value = std::stoull(m_currentTokenStr);
         m_currentToken = new Number(Token::num, value);
-        #ifdef DEBUG
-                std::cout << value;
-		#endif
+
+#ifdef DEBUG
+        std::cout << value;
+#endif
     } else {
         m_currentTokenStr = m_buffer[0];
     }

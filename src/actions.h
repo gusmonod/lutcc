@@ -39,7 +39,7 @@ class ActionSimpleExpr : public Action {
                              SymbolsTable * variables,
                              std::stack<Token *> * tokens) const;
 };
-    
+
 class ActionAddExpr : public Action {
  public:
     virtual Token * doAction(const Token & currentToken,
@@ -49,13 +49,13 @@ class ActionAddExpr : public Action {
 
 class ActionAssign : public Action {
  public:
-   virtual Token * doAction(const Token & currentToken,
-                            SymbolsTable * variables,
-                            std::stack<Token *> * tokens) const;
+    virtual Token * doAction(const Token & currentToken,
+                             SymbolsTable * variables,
+                             std::stack<Token *> * tokens) const;
 };
 
 class ActionRead : public Action {
-public:
+ public:
     virtual Token * doAction(const Token & currentToken,
                              SymbolsTable * variables,
                              std::stack<Token *> * tokens) const;
@@ -63,7 +63,7 @@ public:
 
 
 class ActionWrite : public Action {
-public:
+ public:
     virtual Token * doAction(const Token & currentToken,
                              SymbolsTable * variables,
                              std::stack<Token *> * tokens) const;

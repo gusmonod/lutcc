@@ -16,8 +16,6 @@ class Expr : public Token {
     explicit Expr(Token::Id id) : Token(id) { }
     virtual Token * newCopy() const = 0;
     virtual uint64_t eval(const SymbolsTable & values) const = 0;
-
- private:
 };
 
 class Variable : public Expr {
@@ -29,6 +27,9 @@ class Variable : public Expr {
     std::string name() const { return m_name; }
 
  protected:
+    virtual std::ostream& print(std::ostream& stream) const;  // NOLINT
+
+ private:
     std::string m_name;
 };
 
@@ -39,6 +40,10 @@ class Number : public Expr {
     virtual uint64_t eval(const SymbolsTable & values) const;
 
     uint64_t value() const { return m_value; }
+
+ protected:
+    virtual std::ostream& print(std::ostream& stream) const;  // NOLINT
+
  private:
     uint64_t m_value;
 };
@@ -58,6 +63,8 @@ class BinExpr : public Expr {
     Expr * right() const { return m_right; }
 
  protected:
+    virtual std::ostream& print(std::ostream& stream) const;  // NOLINT
+
     Expr * m_left;
     Expr * m_right;
 };
@@ -68,8 +75,6 @@ class AddExpr : public BinExpr {
                      Expr * right = nullptr);
     virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
-
- private:
 };
 
 class SubExpr : public BinExpr {
@@ -78,8 +83,6 @@ class SubExpr : public BinExpr {
                      Expr * right = nullptr);
     virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
-
- private:
 };
 
 class MulExpr : public BinExpr {
@@ -88,8 +91,6 @@ class MulExpr : public BinExpr {
                      Expr * right = nullptr);
     virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
-
- private:
 };
 
 class DivExpr : public BinExpr {
@@ -98,8 +99,6 @@ class DivExpr : public BinExpr {
                      Expr * right = nullptr);
     virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
-
- private:
 };
 
 #endif  // SRC_EXPR_H_

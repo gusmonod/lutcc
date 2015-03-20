@@ -17,7 +17,11 @@ const std::map<Token::Id, std::string> Token::ID_NAMES = {
     {Token::idv, "id"}, {Token::num, "num"}
 };
 
-std::ostream & operator<<(std::ostream & stream, const Token & token) {
-    stream << Token::ID_NAMES.find(token.m_id)->second;
+/*virtual*/ std::ostream& Token::print(std::ostream & stream) const {
+    stream << Token::ID_NAMES.find(this->m_id)->second;
     return stream;
+}
+
+std::ostream & operator<<(std::ostream & stream, const Token & token) {
+    return token.print(stream);
 }

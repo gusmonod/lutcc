@@ -4,11 +4,12 @@
 
 #include <stack>
 #include <sstream>
-#include <cassert>
+#include <string>
 
 #include "./token.h"
 #include "./simpletoken.h"
 #include "./expr.h"
+#include "./errors.h"
 
 /*virtual*/ Token * ActionNewSym::doAction(const Token & currentToken,
                           SymbolsTable * variables,
@@ -26,28 +27,28 @@
     if (m_constant) {
         // Getting the value of the constant
         n = dynamic_cast<const Number *>(tokens->top());
-        assert((n));  // `n` must be pointing to a `Number *`
+        myassert(n, "`n` must be pointing to a `Number *`");
         tokens->pop();
 
         // Removing the `=` sign
         delete tokens->top();
         tokens->pop();
-
-        // Getting the constant name
-        v = dynamic_cast<const Variable *>(tokens->top());
-        assert((v));  // `v` must be pointing to a `Variable *`
-        tokens->pop();
-
-        // Creating new defined (and constant) symbol entry
-        (*variables)[v->name()] = {n->value(), true, m_constant};
-    } else {
-        v = dynamic_cast<const Variable *>(tokens->top());
-        assert((v));  // `v` must be pointing to a `Variable *`
-        tokens->pop();
-
-        // Creating new undefined variable
-        (*variables)[v->name()] = {0, false, m_constant};
     }
+
+    // Getting the symbol's name
+    v = dynamic_cast<const Variable *>(tokens->top());
+    myassert(v, "`v` must be pointing to a `Variable *`");
+    tokens->pop();
+
+    if (variables->find(v->name()) != variables->end()) {
+        std::ostringstream oss;
+        oss << "The variable `" << v->name() << "` was already declared";
+        throw compile_error(oss.str());
+    }
+
+    // Creating new defined (and constant)
+    // or new undefined (and variable) symbol entry
+    (*variables)[v->name()] = {n ? n->value() : 0, m_constant, m_constant};
 
     // Deleting value and name of the constant
     delete n;
@@ -77,7 +78,7 @@
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
     Expr * e = dynamic_cast<Expr *>(tokens->top());
-    assert((e));  // `e` must be pointing to a `Expr *`
+    myassert(e, "`e` must be pointing to a `Expr *`");
 
     tokens->pop();
 
@@ -95,8 +96,8 @@
     Expr * left = dynamic_cast<Expr *>(tokens->top());
     tokens->pop();
 
-    // There must be 2 `Expr` and an operator on the top of the stack
-    assert((right && left));
+    myassert(right && left,
+            "There must be 2 `Expr` and an operator on the top of the stack");
 
     Expr * newExpr = nullptr;
 
@@ -126,7 +127,7 @@
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
     Expr * rValue = dynamic_cast<Expr *>(tokens->top());
-    assert((rValue));  // `rValue` must be pointing to a `Expr *`
+    myassert(rValue, "`rValue` must be pointing to a `Expr *`");
     tokens->pop();
 
     // Removing thxe `:=` operator
@@ -134,15 +135,28 @@
     tokens->pop();
 
     Variable * lValue = dynamic_cast<Variable *>(tokens->top());
-    assert((lValue));  // `lValue` must be pointing to a `Variable *`
+    myassert(lValue, "`lValue` must be pointing to a `Variable *`");
     tokens->pop();
 
     auto symbol = variables->find(lValue->name());
 
-    assert((symbol != variables->end()));  // TODO: handle error
+    if (symbol == variables->end()) {
+        std::string what("Undeclared variable `");
+        std::runtime_error undeclared(what + lValue->name() + '`');
+        throw undeclared;
+    }
 
     symbol->second.defined = true;
-    symbol->second.value = rValue->eval(*variables);
+
+    try {
+        symbol->second.value = rValue->eval(*variables);
+    } catch(const std::runtime_error & e) {
+        // Adding more info to the error message and throwing again
+        std::ostringstream oss;
+        oss << e.what() << " in `" << *rValue << "`";
+        std::runtime_error e2(oss.str());
+        throw e2;
+    }
 
     delete rValue;
     rValue = nullptr;
@@ -155,10 +169,9 @@
 /*virtual*/ Token * ActionRead::doAction(const Token & currentToken,
                       SymbolsTable * variables,
                       std::stack<Token *> * tokens) const {
-
-    //TODO Refactor to match the new prototype
+    // TODO(nautigsam) Refactor to match the new prototype
     /*
-    //TODO check if user is not trying to use Read with a constant
+    // TODO(nautigsam) check if user is not trying to use Read with a constant
 
     //first, we have to check if the variable is declared
     Variable * v = dynamic_cast<Variable *>(currentExpr);
@@ -180,7 +193,7 @@
             variables->find(v->name())->second.defined = true;
 
         }else{
-        std::cerr << "Undeclared variable.";
+        std::cerr << "Undeclared variable `" << v->name() << '`';
         }
     }else{
         std::cerr << "Symbol is not a variable.";
@@ -194,8 +207,7 @@
 /*virtual*/ Token * ActionWrite::doAction(const Token & currentToken,
                       SymbolsTable * variables,
                       std::stack<Token *> * tokens) const {
-
-    //TODO Refactor to match the new prototype
+    // TODO(nautigsam) Refactor to match the new prototype
     /*
     Token::Id eId = static_cast<Token::Id>(*currentExpr);
     bool toPrint = false;
@@ -206,12 +218,12 @@
       Variable* v = dynamic_cast<Variable*>(currentExpr);
       auto it = variables->find(v->name());
       if(it == variables->end()) {
-        std::cerr << "Undeclared variable" << std::endl;
+        std::cerr << "Undeclared variable `" << v->name() << '`' << std::endl;
       }
       else {
         // And if it has a value
         if(!(it->second.defined)) {
-          std::cerr << "Undefined variable" << std::endl;
+          std::cerr << "Undefined variable `" << v->name() << '`' << std::endl;
         }
         else {
           toPrint = true;
