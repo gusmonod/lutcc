@@ -99,19 +99,19 @@
     assert((right && left));
 
     Expr * newExpr = nullptr;
-    
+
     switch (opId) {
         case Token::plu:
-            newExpr = new AddExpr(opId, left, right);
+            newExpr = new AddExpr(left, right);
             break;
         case Token::min:
-            newExpr = new SubExpr(opId, left, right);
+            newExpr = new SubExpr(left, right);
             break;
         case Token::mul:
-            newExpr = new MulExpr(opId, left, right);
+            newExpr = new MulExpr(left, right);
             break;
         case Token::quo:
-            newExpr = new DivExpr(opId, left, right);
+            newExpr = new DivExpr(left, right);
             break;
         default:
             // Only operators can be at this position

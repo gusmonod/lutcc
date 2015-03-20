@@ -64,8 +64,7 @@ class BinExpr : public Expr {
 
 class AddExpr : public BinExpr {
  public:
-    explicit AddExpr(Token::Id id,
-                     Expr * left = nullptr,
+    explicit AddExpr(Expr * left = nullptr,
                      Expr * right = nullptr);
     virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
@@ -75,8 +74,7 @@ class AddExpr : public BinExpr {
 
 class SubExpr : public BinExpr {
  public:
-    explicit SubExpr(Token::Id id,
-                     Expr * left = nullptr,
+    explicit SubExpr(Expr * left = nullptr,
                      Expr * right = nullptr);
     virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
@@ -86,8 +84,7 @@ class SubExpr : public BinExpr {
 
 class MulExpr : public BinExpr {
  public:
-    explicit MulExpr(Token::Id id,
-                     Expr * left = nullptr,
+    explicit MulExpr(Expr * left = nullptr,
                      Expr * right = nullptr);
     virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
@@ -97,8 +94,7 @@ class MulExpr : public BinExpr {
 
 class DivExpr : public BinExpr {
  public:
-    explicit DivExpr(Token::Id id,
-                     Expr * left = nullptr,
+    explicit DivExpr(Expr * left = nullptr,
                      Expr * right = nullptr);
     virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;

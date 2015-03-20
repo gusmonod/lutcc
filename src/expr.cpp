@@ -40,52 +40,48 @@ void BinExpr::right(Expr * right, bool shouldDelete) {
     m_right = right;
 }
 
-AddExpr::AddExpr(Token::Id id, Expr * left, Expr * right)
-    : BinExpr(id, left, right) { }
+AddExpr::AddExpr(Expr * left, Expr * right)
+    : BinExpr(Token::Id::plu, left, right) { }
 
 /*virtual*/ Token * AddExpr::newCopy() const {
-    return new AddExpr(this->id(),
-            dynamic_cast<Expr *>(m_left->newCopy()),
-            dynamic_cast<Expr *>(m_right->newCopy()));
+    return new AddExpr(dynamic_cast<Expr *>(m_left->newCopy()),
+                        dynamic_cast<Expr *>(m_right->newCopy()));
 }
 
 /*virtual*/ uint64_t AddExpr::eval(const SymbolsTable & values) const {
     return m_left->eval(values) + m_right->eval(values);
 }
 
-SubExpr::SubExpr(Token::Id id, Expr * left, Expr * right)
-    : BinExpr(id, left, right) { }
+SubExpr::SubExpr(Expr * left, Expr * right)
+    : BinExpr(Token::Id::min, left, right) { }
 
 /*virtual*/ Token * SubExpr::newCopy() const {
-    return new SubExpr(this->id(),
-            dynamic_cast<Expr *>(m_left->newCopy()),
-            dynamic_cast<Expr *>(m_right->newCopy()));
+    return new SubExpr(dynamic_cast<Expr *>(m_left->newCopy()),
+                        dynamic_cast<Expr *>(m_right->newCopy()));
 }
 
 /*virtual*/ uint64_t SubExpr::eval(const SymbolsTable & values) const {
     return m_left->eval(values) - m_right->eval(values);
 }
 
-MulExpr::MulExpr(Token::Id id, Expr * left, Expr * right)
-    : BinExpr(id, left, right) { }
+MulExpr::MulExpr(Expr * left, Expr * right)
+    : BinExpr(Token::Id::mul, left, right) { }
 
 /*virtual*/ Token * MulExpr::newCopy() const {
-    return new MulExpr(this->id(),
-            dynamic_cast<Expr *>(m_left->newCopy()),
-            dynamic_cast<Expr *>(m_right->newCopy()));
+    return new MulExpr(dynamic_cast<Expr *>(m_left->newCopy()),
+                        dynamic_cast<Expr *>(m_right->newCopy()));
 }
 
 /*virtual*/ uint64_t MulExpr::eval(const SymbolsTable & values) const {
     return m_left->eval(values) * m_right->eval(values);
 }
 
-DivExpr::DivExpr(Token::Id id, Expr * left, Expr * right)
-    : BinExpr(id, left, right) { }
+DivExpr::DivExpr(Expr * left, Expr * right)
+    : BinExpr(Token::Id::quo, left, right) { }
 
 /*virtual*/ Token * DivExpr::newCopy() const {
-    return new DivExpr(this->id(),
-            dynamic_cast<Expr *>(m_left->newCopy()),
-            dynamic_cast<Expr *>(m_right->newCopy()));
+    return new DivExpr(dynamic_cast<Expr *>(m_left->newCopy()),
+                        dynamic_cast<Expr *>(m_right->newCopy()));
 }
 
 /*virtual*/ uint64_t DivExpr::eval(const SymbolsTable & values) const {
