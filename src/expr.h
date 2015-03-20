@@ -23,8 +23,15 @@ class Variable : public Expr {
     Variable(Token::Id id, std::string name) : Expr(id), m_name(name) { }
     virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
+    const std::runtime_error * undeclared_error() const;
+    const std::runtime_error * undefined_error() const;
+    const std::runtime_error * constant_error() const;
 
     std::string name() const { return m_name; }
+
+    static const std::runtime_error * Undeclared_error(std::string name);
+    static const std::runtime_error * Undefined_error(std::string name);
+    static const std::runtime_error * Constant_error(std::string name);
 
  protected:
     virtual std::ostream& print(std::ostream& stream) const;  // NOLINT

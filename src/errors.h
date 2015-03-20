@@ -13,9 +13,13 @@ inline void myassert(bool assertion, const char * const what = "") { }
 
 #else
 
-inline void myassert(bool assertion, const char * const what = "") {
-    assert(assertion && what);
+inline void MYASSERT(bool assertion, char const * file,
+                                     int line,
+                                     const char * const what = "") {
+    if(!assertion) std::cerr << what << " in " << file << ":" << line << std::endl;
+    assert(assertion);
 }
+#define myassert(assertion, what) MYASSERT(assertion, __FILE__, __LINE__, what)
 
 #endif  // NDEBUG
 

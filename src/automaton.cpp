@@ -59,7 +59,8 @@ Automaton::Automaton() : m_trans() {
     m_trans[State::E12][Token::num] = shiftToE15;
     m_trans[State::E12][Token::idv] = shiftToE16;
 
-    m_trans[State::E13][Token::col] = new TransReduce(2, Token::I);
+    m_trans[State::E13][Token::col] = new TransReduce(2, Token::I, true,
+                                            new ActionWrite);
     m_trans[State::E13][Token::plu] = new TransShift(State::E22);
     m_trans[State::E13][Token::min] = new TransShift(State::E23);
     m_trans[State::E13][Token::quo] = new TransShift(State::E24);
@@ -87,7 +88,8 @@ Automaton::Automaton() : m_trans() {
     m_trans[State::E16][Token::col] = new TransReduce(1, Token::E, false,
                                         new ActionSimpleExpr);
 
-    m_trans[State::E17][Token::col] = new TransReduce(2, Token::I);
+    m_trans[State::E17][Token::col] = new TransReduce(2, Token::I, true,
+                                            new ActionRead);
 
     // Shift-reduce conflict for Lv
     m_trans[State::E18][Token::Lv]  = new TransShift(State::E29, false);

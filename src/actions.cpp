@@ -92,6 +92,7 @@
     Expr * right = dynamic_cast<Expr *>(tokens->top());
     tokens->pop();
     Token::Id opId = tokens->top()->id();
+    delete tokens->top();
     tokens->pop();
     Expr * left = dynamic_cast<Expr *>(tokens->top());
     tokens->pop();
@@ -141,9 +142,7 @@
     auto symbol = variables->find(lValue->name());
 
     if (symbol == variables->end()) {
-        std::string what("Undeclared variable `");
-        std::runtime_error undeclared(what + lValue->name() + '`');
-        throw undeclared;
+        throw *lValue->undeclared_error();
     }
 
     symbol->second.defined = true;
@@ -169,75 +168,61 @@
 /*virtual*/ Token * ActionRead::doAction(const Token & currentToken,
                       SymbolsTable * variables,
                       std::stack<Token *> * tokens) const {
-    // TODO(nautigsam) Refactor to match the new prototype
-    /*
-    // TODO(nautigsam) check if user is not trying to use Read with a constant
 
-    //first, we have to check if the variable is declared
-    Variable * v = dynamic_cast<Variable *>(currentExpr);
-    if (v) {
-        if(variables->find(v->name()) != variables->end()){
+    Variable * dest = dynamic_cast<Variable *>(tokens->top());
+    tokens->pop();
+    // Removes 'lire' keyword
+    delete tokens->top();
+    tokens->pop();
 
-            uint64_t value;
+    myassert(dest, "`dest` must be a well-formed `Variable *`");
 
-            std::string userEntry;
-            std::cin >> userEntry;
-            std::istringstream iss(userEntry);
-
-            while((iss >> value).fail()){
-                std::cout << "Please type a number.";
-                std::cin >> userEntry;
-            }
-
-            variables->find(v->name())->second.value = value;
-            variables->find(v->name())->second.defined = true;
-
-        }else{
-        std::cerr << "Undeclared variable `" << v->name() << '`';
-        }
-    }else{
-        std::cerr << "Symbol is not a variable.";
+    auto symbol = variables->find(dest->name());
+    if(symbol == variables->end()) {
+        throw *dest->undeclared_error();
+    }
+    if(symbol->second.constant) {
+        throw *dest->constant_error();
     }
 
-    return currentExpr;
-    */
+    uint64_t value;
+    std::string input;
+    getline(std::cin,input);
+    while((std::stringstream(input) >> value).fail()){
+        std::cout << "Error, please type an integer." << std::endl;
+        getline(std::cin,input);
+    }
+
+    symbol->second.value = value;
+    symbol->second.defined = true;
+
+    delete dest;
+    dest = nullptr;
+
     return nullptr;  // Default behavior: create a new non terminal Token
 }
 
 /*virtual*/ Token * ActionWrite::doAction(const Token & currentToken,
                       SymbolsTable * variables,
                       std::stack<Token *> * tokens) const {
-    // TODO(nautigsam) Refactor to match the new prototype
-    /*
-    Token::Id eId = static_cast<Token::Id>(*currentExpr);
-    bool toPrint = false;
 
-    // Check if the current expression is a variable or a constant
-    if(eId == Token::Id::idv) {
-      // Check if the symbol exists
-      Variable* v = dynamic_cast<Variable*>(currentExpr);
-      auto it = variables->find(v->name());
-      if(it == variables->end()) {
-        std::cerr << "Undeclared variable `" << v->name() << '`' << std::endl;
-      }
-      else {
-        // And if it has a value
-        if(!(it->second.defined)) {
-          std::cerr << "Undefined variable `" << v->name() << '`' << std::endl;
-        }
-        else {
-          toPrint = true;
-        }
-      }
-    }
-    else { // It's a litteral, we just print it
-      toPrint = true;
-    }
-    if(toPrint) {
-      std::cout << currentExpr->eval(*variables) << std::endl;
-    }
+    // Get the expr to print and pop it
+    Expr * toWrite = dynamic_cast<Expr *>(tokens->top());
+    tokens->pop();
+    // Remove 'ecrire' keyword
+    delete tokens->top();
+    tokens->pop();
 
-    return currentExpr;
-    */
+    myassert(toWrite, "`toWrite` must be a well-formed `Expr *`");
+
+    // Check the value of the expr
+    int value;
+    value = toWrite->eval(*variables);
+
+    std::cout << value << std::endl;
+
+    delete toWrite;
+    toWrite = nullptr;
+
     return nullptr;  // Default behavior: create a new non terminal Token
 }
