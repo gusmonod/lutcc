@@ -125,7 +125,8 @@ Automaton::Automaton() : m_trans() {
     m_trans[State::E25][Token::num] = shiftToE15;
     m_trans[State::E25][Token::idv] = shiftToE16;
 
-    m_trans[State::E26][Token::clo] = new TransReduce(2, Token::E);
+    m_trans[State::E26][Token::clo] = new TransReduce(2, Token::E, true,
+                                            new ActionParenthesisExpr);
     m_trans[State::E26][Token::plu] = new TransShift(State::E22);
     m_trans[State::E26][Token::min] = new TransShift(State::E23);
     m_trans[State::E26][Token::quo] = new TransShift(State::E24);

@@ -74,6 +74,21 @@
     return nullptr;  // Default behavior: create a new non terminal Token
 }
 
+/*virtual*/ Token * ActionParenthesisExpr::doAction(const Token & currentToken,
+                          SymbolsTable * variables,
+                          std::stack<Token *> * tokens) const {
+
+    Expr * e = dynamic_cast<Expr *>(tokens->top());
+    myassert(e, "`e` must be pointing to a `Expr *`");
+
+    tokens->pop();
+    // Remove the opening parenthesis
+    delete tokens->top();
+    tokens->pop();
+
+    return e;
+}
+
 /*virtual*/ Token * ActionSimpleExpr::doAction(const Token & currentToken,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {

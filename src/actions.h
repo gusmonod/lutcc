@@ -33,6 +33,13 @@ class ActionNewSym : public Action {
     const bool m_constant;
 };
 
+class ActionParenthesisExpr : public Action {
+ public:
+     virtual Token * doAction(const Token & currentToken,
+                              SymbolsTable * variables,
+                              std::stack<Token *> * tokens) const;
+};
+
 class ActionSimpleExpr : public Action {
  public:
     virtual Token * doAction(const Token & currentToken,
