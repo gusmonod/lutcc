@@ -10,6 +10,7 @@
 #include "./simpletoken.h"
 #include "./expr.h"
 #include "./errors.h"
+#include "./options.h"
 
 /*virtual*/ Token * ActionNewSym::doAction(const Token & currentToken,
                           SymbolsTable * variables,
@@ -200,15 +201,17 @@
         throw *dest->constant_error();
     }
 
-    uint64_t value;
-    std::string input;
-    getline(std::cin,input);
-    while((std::stringstream(input) >> value).fail()){
-        std::cout << "Error, please type an integer." << std::endl;
+    if(Config::CurrentMode() == ProgramMode::EXECUTION) {
+        uint64_t value;
+        std::string input;
         getline(std::cin,input);
-    }
+        while((std::stringstream(input) >> value).fail()){
+            std::cout << "Error, please type an integer." << std::endl;
+            getline(std::cin,input);
+        }
 
-    symbol->second.value = value;
+        symbol->second.value = value;
+    }
     symbol->second.defined = true;
 
     delete dest;
@@ -230,11 +233,12 @@
 
     myassert(toWrite, "`toWrite` must be a well-formed `Expr *`");
 
-    // Check the value of the expr
-    int value;
-    value = toWrite->eval(*variables);
-
-    std::cout << value << std::endl;
+    if(Config::CurrentMode() == ProgramMode::EXECUTION) {
+        // Check the value of the expr
+        int value;
+        value = toWrite->eval(*variables);
+        std::cout << value << std::endl;
+    }
 
     delete toWrite;
     toWrite = nullptr;

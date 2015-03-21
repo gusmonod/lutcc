@@ -33,6 +33,11 @@ int main(int argc, const char * argv[]) {
         return EXIT_FAILURE;
     }
 
+    // Set the program mode
+    if(vm.count("exec")) {
+        Config::SetCurrentMode(ProgramMode::EXECUTION);
+    }
+
     Automaton accepter;
     Tokenizer t(&file);
 
