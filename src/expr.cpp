@@ -132,3 +132,7 @@ DivExpr::DivExpr(Expr * left, Expr * right)
 /*virtual*/ uint64_t DivExpr::eval(const SymbolsTable & values) const {
     return m_left->eval(values) / m_right->eval(values);
 }
+
+const std::runtime_error * DivExpr::Math_error(std::string what) {
+    return new std::runtime_error("Math error: "+what);
+}

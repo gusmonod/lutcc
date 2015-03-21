@@ -34,9 +34,16 @@ int main(int argc, const char * argv[]) {
     }
 
     // Set the program mode
-    if(vm.count("exec")) {
+    if(vm.count("optim") && vm.count("print"))
+        Config::SetCurrentMode(ProgramMode::PRINT_TRANSFORM);
+    if(vm.count("optim"))
+        Config::SetCurrentMode(ProgramMode::TRANSFORM);
+    if(vm.count("print"))
+        Config::SetCurrentMode(ProgramMode::PRINT);
+    if(vm.count("exec"))
         Config::SetCurrentMode(ProgramMode::EXECUTION);
-    }
+    if(vm.count("analyze"))
+        Config::SetCurrentMode(ProgramMode::ANALYSIS);
 
     Automaton accepter;
     Tokenizer t(&file);

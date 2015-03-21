@@ -106,6 +106,8 @@ class DivExpr : public BinExpr {
                      Expr * right = nullptr);
     virtual Token * newCopy() const;
     virtual uint64_t eval(const SymbolsTable & values) const;
+
+    static const std::runtime_error * Math_error(std::string what);
 };
 
 #endif  // SRC_EXPR_H_

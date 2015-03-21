@@ -27,7 +27,7 @@ const boost::regex Tokenizer::affect("^(:=).*");
 const boost::regex Tokenizer::operatorr("^(\\+|-|\\*|/|\\(|,|\\)|;|=).*");
 
 // Operands regular expressions
-const boost::regex Tokenizer::id("^([a-zA-Z][a-zA-Z0-9_-]*).*");
+const boost::regex Tokenizer::id("^([a-zA-Z][a-zA-Z0-9_]*).*");
 const boost::regex Tokenizer::number("^([0-9]+).*");
 
 Tokenizer::Tokenizer(std::istream * inStream, bool shift /* = true */)

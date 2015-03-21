@@ -118,18 +118,59 @@
 
     Expr * newExpr = nullptr;
 
+    uint64_t denominator;
     switch (opId) {
         case Token::plu:
-            newExpr = new AddExpr(left, right);
+            if(Config::IsTransformMode()) {
+                if(left->eval(*variables) == 0) {
+                    newExpr = right;
+                }
+                else if(right->eval(*variables) == 0) {
+                    newExpr = left;
+                }
+                else {
+                    newExpr = new AddExpr(left, right);
+                }
+            }
+            else {
+                newExpr = new AddExpr(left, right);
+            }
             break;
         case Token::min:
-            newExpr = new SubExpr(left, right);
+            if(Config::IsTransformMode() && right->eval(*variables) == 0) {
+                newExpr = left;
+            }
+            else {
+                newExpr = new SubExpr(left, right);
+            }
             break;
         case Token::mul:
-            newExpr = new MulExpr(left, right);
+            if(Config::IsTransformMode()) {
+                if(left->eval(*variables) == 1) {
+                    newExpr = right;
+                }
+                else if(right->eval(*variables) == 1) {
+                    newExpr = left;
+                }
+                else {
+                    newExpr = new MulExpr(left, right);
+                }
+            }
+            else {
+                newExpr = new MulExpr(left, right);
+            }
             break;
         case Token::quo:
-            newExpr = new DivExpr(left, right);
+            denominator = right->eval(*variables);
+            if(denominator == 0) {
+                throw *DivExpr::Math_error("division by zero");
+            }
+            if(Config::IsTransformMode() && denominator == 1) {
+                newExpr = left;
+            }
+            else {
+                newExpr = new DivExpr(left, right);
+            }
             break;
         default:
             // Only operators can be at this position

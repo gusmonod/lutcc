@@ -10,13 +10,21 @@ int get_options_map(int argc, const char * argv[],
 
 enum ProgramMode {
     NONE,
-    EXECUTION
+    EXECUTION,
+    TRANSFORM,
+    PRINT,
+    PRINT_TRANSFORM,
+    ANALYSIS
 };
 
 class Config {
  public:
 
     static ProgramMode CurrentMode() {return Config::m_currentMode;}
+    static bool IsTransformMode() {
+        return Config::m_currentMode == ProgramMode::TRANSFORM ||
+                Config::m_currentMode == ProgramMode::PRINT_TRANSFORM;
+    }
     // Ensures that the mode can't be modified once the program started
     static bool SetCurrentMode(ProgramMode pm) {
         if(m_currentMode == ProgramMode::NONE) {
