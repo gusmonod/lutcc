@@ -15,7 +15,7 @@
 class Automaton {
  public:
     // Empty constructor => uses the default transitions table
-    Automaton();
+    explicit Automaton(bool optimize = false);
 
     explicit Automaton(const Trans::Transitions & trans);
 

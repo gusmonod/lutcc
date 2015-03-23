@@ -49,8 +49,8 @@
 
     // Creating new defined (and constant)
     // or new undefined (and variable) symbol entry
-    // Note: the symbol is always unused
-    (*variables)[v->name()] = {n ? n->value() : 0, m_constant, m_constant, false};
+    (*variables)[v->name()] = {n ? n->value() : 0, m_constant, m_constant
+            , false};  // Note: the symbol is always unused
 
     // Deleting value and name of the constant
     delete n;
@@ -121,48 +121,27 @@
     uint64_t denominator;
     switch (opId) {
         case Token::plu:
-            if (Config::IsTransformMode()) {
-                if (0 == left->eval(variables)) {
-                    newExpr = right;
-                } else if (0 == right->eval(variables)) {
-                    newExpr = left;
-                } else {
-                    newExpr = new AddExpr(left, right);
-                }
-            } else {
-                newExpr = new AddExpr(left, right);
-            }
+            newExpr = this->optimize(left, right, variables, 0);
+            if (!newExpr) newExpr = new AddExpr(left, right);
             break;
         case Token::min:
-            if (Config::IsTransformMode() && right->eval(variables) == 0) {
-                newExpr = left;
-            } else {
-                newExpr = new SubExpr(left, right);
-            }
+            newExpr = this->optimize(left, right, variables, 0);
+            if (!newExpr) newExpr = new SubExpr(left, right);
             break;
         case Token::mul:
-            if (Config::IsTransformMode()) {
-                if (left->eval(variables) == 1) {
-                    newExpr = right;
-                } else if (right->eval(variables) == 1) {
-                    newExpr = left;
-                } else {
-                    newExpr = new MulExpr(left, right);
-                }
-            } else {
-                newExpr = new MulExpr(left, right);
-            }
+            newExpr = this->optimize(left, right, variables, 1);
+            if (!newExpr) newExpr = new MulExpr(left, right);
             break;
         case Token::quo:
-            denominator = right->eval(variables);
-            if (denominator == 0) {
-                throw math_error("division by zero");
-            }
-            if (Config::IsTransformMode() && denominator == 1) {
-                newExpr = left;
-            } else {
-                newExpr = new DivExpr(left, right);
-            }
+            newExpr = this->optimize(left, right, variables, 1);
+
+            try {
+                if (right->eval(variables) == 0) {
+                    throw math_error("division by zero");
+                }
+            } catch (const std::runtime_error & e) { /* ignore error */ }
+
+            if (!newExpr) newExpr = new DivExpr(left, right);
             break;
         default:
             myassert(false, "Only operators can be at this position");
@@ -170,6 +149,23 @@
     }
 
     return newExpr;
+}
+
+Expr * ActionExpr::optimize(Expr * left, Expr * right,
+                            SymbolsTable * variables,
+                            uint64_t neutralElement) const {
+    // TODO(gusmonod) constant propagation
+
+    if (!m_optimize) return nullptr;  // No optimization wanted
+
+    try {
+        if (neutralElement == left->eval(variables)) return right;
+    } catch (const std::runtime_error & e) { /* ignore error */ }
+    try {
+        if (neutralElement == right->eval(variables)) return left;
+    } catch (const std::runtime_error & e) { /* ignore error */ }
+
+    return nullptr;  // No optimization possible
 }
 
 /*virtual*/ Token * ActionAssign::doAction(const Token & currentToken,

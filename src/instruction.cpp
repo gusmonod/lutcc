@@ -3,6 +3,7 @@
 #include "./instruction.h"
 
 #include <sstream>
+#include <string>
 
 #include "./errors.h"
 
@@ -19,11 +20,9 @@ Assignment::Assignment(const std::string varName,
 }
 
 /*virtual*/ void Assignment::execute(SymbolsTable * variables) const {
+    this->analyze(variables);  // Marks as defined and `m_rValue` as "used"
+
     auto symbol = variables->find(m_varName);
-
-    if (symbol == variables->end()) throw undeclared_error(m_varName);
-
-    symbol->second.defined = true;
 
     symbol->second.value = m_rValue->eval(variables);
 }
@@ -57,10 +56,9 @@ Read::Read(const std::string varName, std::istream & inStream,
     : m_varName(varName), m_inStream(inStream), m_outStream(outStream) { }
 
 /*virtual*/ void Read::execute(SymbolsTable * variables) const {
-    auto symbol = variables->find(m_varName);
+    this->analyze(variables);  // Marks as defined
 
-    if (symbol == variables->end()) throw undeclared_error(m_varName);
-    if (symbol->second.constant) throw constant_error(m_varName);
+    auto symbol = variables->find(m_varName);
 
     uint64_t value;
     std::string input;
@@ -71,8 +69,6 @@ Read::Read(const std::string varName, std::istream & inStream,
     }
 
     symbol->second.value = value;
-
-    symbol->second.defined = true;
 }
 
 /*virtual*/ void Read::analyze(SymbolsTable * variables) const {
@@ -96,8 +92,11 @@ Write::Write(const Expr * rValue, std::ostream & outStream)
 }
 
 /*virtual*/ void Write::execute(SymbolsTable * variables) const {
+    this->analyze(variables);  // Marks the variable as "used"
+
     uint64_t value;
-    value = m_rValue->eval(variables, true);  // Marking variables as used
+    value = m_rValue->eval(variables);
+
     m_outStream << value << std::endl;
 }
 

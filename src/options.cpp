@@ -69,5 +69,3 @@ int get_options_map(int argc, const char * argv[],
     // Can continue the program
     return EXIT_SUCCESS;
 }
-
-ProgramMode Config::m_currentMode = ProgramMode::NONE;

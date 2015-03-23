@@ -56,7 +56,7 @@ int main(int argc, const char * argv[]) {
         return EXIT_FAILURE;
     }
 
-    Automaton accepter;
+    Automaton accepter(vm.count("optim"));
     Tokenizer t(&file);
 
     while (true) {
@@ -103,14 +103,16 @@ int main(int argc, const char * argv[]) {
 #endif
 
             return accepted ? EXIT_SUCCESS : EXIT_FAILURE;
+
+        // TODO(titouan, thibautbremand) better error handling
         } catch (const lexical_error & e) {
             cerr << e.what() << endl;
             t.shift();  // Next token
             // No return statement: try again
         } catch (const compile_error & e) {
             cerr << e.what() << endl;
-
-            return EXIT_SUCCESS;
+            t.shift();  // Next token
+            // No return statement: try again
         } catch (const std::runtime_error & e) {
             cerr << e.what() << endl;
 

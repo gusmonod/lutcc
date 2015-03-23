@@ -4,6 +4,7 @@
 #define SRC_INSTRUCTION_H_
 
 #include <iostream>
+#include <string>
 
 #include "./expr.h"
 #include "./symbols.h"
@@ -16,19 +17,19 @@ class Instruction {
     friend std::ostream & operator<<(std::ostream & o, const Instruction & i);
 
  private:
-    virtual std::ostream & print(std::ostream & o) const = 0;
+    virtual std::ostream & print(std::ostream & o) const = 0;  // NOLINT
 };
 
 class Assignment : public Instruction {
-public:
+ public:
     Assignment(const std::string varName,
                const Expr * rValue);
-    
+
     virtual void execute(SymbolsTable * variables) const;
     virtual void analyze(SymbolsTable * variables) const;
 
-private:
-    virtual std::ostream & print(std::ostream & o) const;
+ private:
+    virtual std::ostream & print(std::ostream & o) const;  // NOLINT
 
     const std::string m_varName;
     const Expr * m_rValue;
@@ -37,14 +38,14 @@ private:
 class Read : public Instruction {
  public:
     explicit Read(const std::string varName,
-         std::istream & inStream = std::cin,
+         std::istream & inStream = std::cin,     // NOLINT
          std::ostream & outStream = std::cout);  // NOLINT
 
     virtual void execute(SymbolsTable * variables) const;
     virtual void analyze(SymbolsTable * variables) const;
 
-private:
-    virtual std::ostream & print(std::ostream & o) const;
+ private:
+    virtual std::ostream & print(std::ostream & o) const;  // NOLINT
 
     std::string m_varName;
     std::istream & m_inStream;
@@ -59,8 +60,8 @@ class Write : public Instruction {
     virtual void execute(SymbolsTable * variables) const;
     virtual void analyze(SymbolsTable * variables) const;
 
-private:
-    virtual std::ostream & print(std::ostream & o) const;
+ private:
+    virtual std::ostream & print(std::ostream & o) const;  // NOLINT
 
     const Expr * m_rValue;
     std::ostream & m_outStream;

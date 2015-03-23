@@ -55,6 +55,7 @@ void BinExpr::right(Expr * right, bool shouldDelete) {
 }
 
 /*virtual*/ std::ostream& BinExpr::print(std::ostream& stream) const {
+    // TODO(nautigsam, florianbouron) Add parens display
     stream << *m_left;
     Token::print(stream);
     return stream << *m_right;

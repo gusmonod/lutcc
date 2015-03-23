@@ -51,31 +51,30 @@ class ActionSimpleExpr : public Action {
 
 class ActionExpr : public Action {
  public:
+    explicit ActionExpr(bool optimize = false) : m_optimize(optimize) { }
     virtual Token * doAction(const Token & currentToken,
                              SymbolsTable * variables,
                              std::stack<Token *> * tokens) const;
-};
-
-class ActionExec : public Action {
- public:
-    ActionExec(std::vector<Instruction *> * ins) : m_instructions(ins) { }
 
  private:
-    std::vector<Instruction *> * m_instructions;
+    Expr * optimize(Expr * left, Expr * right,
+                    SymbolsTable * variables, uint64_t neutralElement) const;
+
+    bool m_optimize;
 };
 
 class ActionInstruction : public Action {
  protected:
-    ActionInstruction(std::vector<const Instruction *> * ins)
-        : m_instructions(ins){}
+    explicit ActionInstruction(std::vector<const Instruction *> * ins)
+        : m_instructions(ins) { }
 
     std::vector<const Instruction *> * m_instructions;
 };
 
 class ActionAssign : public ActionInstruction {
  public:
-    ActionAssign(std::vector<const Instruction *> * ins)
-        : ActionInstruction(ins){}
+    explicit ActionAssign(std::vector<const Instruction *> * ins)
+        : ActionInstruction(ins) { }
 
     virtual Token * doAction(const Token & currentToken,
                              SymbolsTable * variables,
@@ -84,8 +83,8 @@ class ActionAssign : public ActionInstruction {
 
 class ActionRead : public ActionInstruction {
  public:
-    ActionRead(std::vector<const Instruction *> * ins)
-        : ActionInstruction(ins){}
+    explicit ActionRead(std::vector<const Instruction *> * ins)
+        : ActionInstruction(ins) { }
 
     virtual Token * doAction(const Token & currentToken,
                              SymbolsTable * variables,
@@ -95,8 +94,8 @@ class ActionRead : public ActionInstruction {
 
 class ActionWrite : public ActionInstruction {
  public:
-    ActionWrite(std::vector<const Instruction *> * ins)
-        : ActionInstruction(ins){}
+    explicit ActionWrite(std::vector<const Instruction *> * ins)
+        : ActionInstruction(ins) { }
 
     virtual Token * doAction(const Token & currentToken,
                              SymbolsTable * variables,

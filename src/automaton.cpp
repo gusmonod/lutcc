@@ -12,7 +12,8 @@
 #include "./token.h"
 #include "./errors.h"
 
-Automaton::Automaton() : m_trans(), m_states(), m_tokens(), m_values() {
+Automaton::Automaton(bool optimize)
+    : m_trans(), m_states(), m_tokens(), m_values() {
     m_states.push(Trans::initState);
 
     Trans * shiftToE15 = new TransShift(State::E15);
@@ -176,7 +177,7 @@ Automaton::Automaton() : m_trans(), m_states(), m_tokens(), m_values() {
     m_trans[State::E32][Token::clo] =  // TransReduce(3, Token::E, false);
     m_trans[State::E33][Token::clo] =  // TransReduce(3, Token::E, false);
     m_trans[State::E34][Token::clo] = new TransReduce(3, Token::E, false,
-                                            new ActionExpr);
+                                            new ActionExpr(optimize));
 
     m_trans[State::E36][Token::col] = new TransReduce(5, Token::D, true,
                                             new ActionNewSym(true));
@@ -236,6 +237,7 @@ bool Automaton::analyze(Tokenizer *tokenizer) {
         const Token::Id tId = currentToken->id();
 
         if (this->error(sId, tId)) {
+            // TODO(felipematias, yousra) add syntactic error handling
             return false;
         }
         if (m_trans[sId][tId]->doTransition(m_trans, *currentToken,
