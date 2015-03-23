@@ -9,18 +9,6 @@
 
 #include "./errors.h"
 
-const std::runtime_error * Variable::Undeclared_error(std::string name) {
-    return new std::runtime_error("Undeclared variable: `" + name + "`");
-}
-
-const std::runtime_error * Variable::Undefined_error(std::string name) {
-    return new std::runtime_error("Undefined variable: `" + name + "`");
-}
-
-const std::runtime_error * Variable::Constant_error(std::string name) {
-    return new std::runtime_error("Variable `" + name + "` can't be modified");
-}
-
 /*virtual*/ Token * Variable::newCopy() const {
     return new Variable(this->id(), m_name);
 }
@@ -29,25 +17,25 @@ const std::runtime_error * Variable::Constant_error(std::string name) {
     auto entry = values.find(m_name);
 
     if (entry == values.end()) {
-        throw *undeclared_error();
+        throw this->undeclared_error();
     }
     if (!entry->second.defined) {
-        throw *undefined_error();
+        throw this->undefined_error();
     }
 
     return entry->second.value;
 }
 
-const std::runtime_error * Variable::undeclared_error() const {
-    return Variable::Undeclared_error(m_name);
+const std::runtime_error Variable::undeclared_error() const {
+    return std::runtime_error("Undeclared variable: `" + m_name + "`");
 }
 
-const std::runtime_error * Variable::undefined_error() const {
-    return Variable::Undefined_error(m_name);
+const std::runtime_error Variable::undefined_error() const {
+    return std::runtime_error("Undefined variable: `" + m_name + "`");
 }
 
-const std::runtime_error * Variable::constant_error() const {
-    return Variable::Constant_error(m_name);
+const std::runtime_error Variable::constant_error() const {
+    return std::runtime_error("Variable `" + m_name + "` can't be modified");
 }
 
 /*virtual*/ std::ostream& Variable::print(std::ostream& stream) const {

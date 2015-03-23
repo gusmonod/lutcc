@@ -4,13 +4,17 @@
 
 #include <stack>
 #include <set>
+#include <sstream>
 
 #include "./actions.h"
 #include "./transitions.h"
 #include "./states.h"
 #include "./token.h"
+#include "./errors.h"
 
-Automaton::Automaton() : m_trans() {
+Automaton::Automaton() : m_trans(), m_states(), m_tokens(), m_values() {
+    m_states.push(Trans::initState);
+
     Trans * shiftToE15 = new TransShift(State::E15);
     Trans * shiftToE16 = new TransShift(State::E16);
 
@@ -215,29 +219,26 @@ Automaton::Automaton(const Trans::Transitions & trans) {
     }
 }
 
-bool Automaton::accepts(Tokenizer *tokenizer, State init) {
-    std::stack<State> states;
-    std::stack<Token *> tokens;
-    states.push(init);
-
-    SymbolsTable values;
-    while (!states.empty()) {
-        State::Id sId = states.top();
+bool Automaton::accepts(Tokenizer *tokenizer) {
+    while (!m_states.empty()) {
+        State::Id sId = m_states.top();
         const Token * currentToken = tokenizer->top();
-        while (!currentToken) {
-            std::cerr << "Lexical error (" << tokenizer->line() << ':'
-                      << tokenizer->column() << ") character `"
-                      << tokenizer->topStr() << '`' << std::endl;
-            tokenizer->shift();
-            currentToken = tokenizer->top();
+
+        if (!currentToken) {
+            std::ostringstream oss;
+            oss << "Lexical error (" << tokenizer->line() << ':'
+                << tokenizer->column() << ") character `"
+                << tokenizer->topStr() << '`';
+            throw lexical_error(oss.str());
         }
+
         const Token::Id tId = currentToken->id();
 
         if (this->error(sId, tId)) {
             return false;
         }
         if (m_trans[sId][tId]->doTransition(m_trans, *currentToken,
-                                            &states, &tokens, &values)) {
+                                            &m_states, &m_tokens, &m_values)) {
             return true;
         }
         if (m_trans[sId][tId]->isShift()) {

@@ -18,8 +18,6 @@ using std::cerr;
 using std::endl;
 
 int main(int argc, const char * argv[]) {
-    std::runtime_error a("fdsafds");
-
     boost::program_options::variables_map vm;
 
     int err = get_options_map(argc, argv, &vm);
@@ -34,39 +32,46 @@ int main(int argc, const char * argv[]) {
     }
 
     // Set the program mode
-    if(vm.count("optim") && vm.count("print"))
+    if (vm.count("optim") && vm.count("print")) {
         Config::SetCurrentMode(ProgramMode::PRINT_TRANSFORM);
-    if(vm.count("optim"))
+    } else if (vm.count("optim")) {
         Config::SetCurrentMode(ProgramMode::TRANSFORM);
-    if(vm.count("print"))
+    } else if (vm.count("print")) {
         Config::SetCurrentMode(ProgramMode::PRINT);
-    if(vm.count("exec"))
+    } else if (vm.count("exec")) {
         Config::SetCurrentMode(ProgramMode::EXECUTION);
-    if(vm.count("analyze"))
+    } else if (vm.count("analyze")) {
         Config::SetCurrentMode(ProgramMode::ANALYSIS);
+    }
 
     Automaton accepter;
     Tokenizer t(&file);
 
-    try {
-        bool accepted = accepter.accepts(&t);
+    while (true) {
+        try {
+            bool accepted = accepter.accepts(&t);
 
-#ifdef DEBUG
-        if (accepted) {
-            cout << "Accepted!!" << endl;
-        } else {
-            cout << "Not accepted" << endl;
+    #ifdef DEBUG
+            if (accepted) {
+                cout << "Accepted!!" << endl;
+            } else {
+                cout << "Not accepted" << endl;
+            }
+    #endif
+
+            return accepted ? EXIT_SUCCESS : EXIT_FAILURE;
+        } catch (const lexical_error & e) {
+            cerr << e.what() << endl;
+            t.shift();  // Next token
+            // No return statement: try again
+        } catch (const compile_error & e) {
+            cerr << e.what() << endl;
+
+            return EXIT_SUCCESS;
+        } catch (const std::runtime_error & e) {
+            cerr << e.what() << endl;
+
+            return EXIT_FAILURE;
         }
-#endif
-
-        return accepted ? EXIT_SUCCESS : EXIT_FAILURE;
-    } catch (const compile_error & e) {
-        cerr << e.what() << endl;
-
-        return EXIT_SUCCESS;
-    } catch (const std::runtime_error & e) {
-        cerr << e.what() << endl;
-
-        return EXIT_FAILURE;
     }
 }

@@ -85,7 +85,6 @@ void Tokenizer::shift() {
 
         m_inputStream.clear();
     }
-
 }
 
 void Tokenizer::trim_left() {
@@ -212,7 +211,7 @@ void Tokenizer::analyze() {
             m_logNewLine = true;
         }
     } else {
-        std::cout << std::endl << "ERROR: " << m_currentTokenStr << std::endl;
+        std::cout << "ERROR: " << m_currentTokenStr << std::endl;
     }
 #endif
 }

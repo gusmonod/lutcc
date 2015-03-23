@@ -3,6 +3,8 @@
 #ifndef SRC_AUTOMATON_H_
 #define SRC_AUTOMATON_H_
 
+#include <stack>
+
 #include "./lexical.h"
 #include "./transitions.h"
 #include "./actions.h"
@@ -19,13 +21,20 @@ class Automaton {
     // Frees all Actions from the Transitions table
     virtual ~Automaton();
 
-    bool accepts(Tokenizer *tokenizer, State init = Trans::initState);
+    bool accepts(Tokenizer *tokenizer);
+
+    void analyze(Tokenizer *tokenizer);
 
     // Returns true if the state or token given is not in the transitions table
     bool error(State::Id s, Token::Id t);
 
  private:
     Trans::Transitions m_trans;
+
+    std::stack<State> m_states;
+    std::stack<Token *> m_tokens;
+
+    SymbolsTable m_values;
 };
 
 #endif  // SRC_AUTOMATON_H_
