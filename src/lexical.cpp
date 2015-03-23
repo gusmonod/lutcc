@@ -6,7 +6,6 @@
 #include <string>
 
 #include "boost/regex.hpp"
-#include "boost/algorithm/string.hpp"
 
 #include "./simpletoken.h"
 #include "./expr.h"
@@ -16,7 +15,7 @@ using std::string;
 using std::cout;
 using std::endl;
 
-const size_t Tokenizer::BUFFER_SIZE = 20;
+const int Tokenizer::BUFFER_SIZE = 20;
 const Token Tokenizer::END_OF_FILE(Token::END);
 
 // Keywords regular expressions
@@ -29,9 +28,12 @@ const boost::regex Tokenizer::operatorr("^(\\+|-|\\*|/|\\(|,|\\)|;|=).*");
 // Operands regular expressions
 const boost::regex Tokenizer::id("^([a-zA-Z][a-zA-Z0-9_]*).*");
 const boost::regex Tokenizer::number("^([0-9]+).*");
+const boost::regex Tokenizer::whitespace("^[\\r\\n\\t ]+.*");
 
 Tokenizer::Tokenizer(std::istream * inStream, bool shift /* = true */)
     : m_inputStream(*inStream), m_currentToken(nullptr), m_shifted(shift) {
+    m_line = 1;
+    m_column = 1;
     if (shift) this->shift();
 }
 
@@ -55,37 +57,66 @@ void Tokenizer::shift() {
     m_currentToken = nullptr;
     m_shifted = true;
 
-    using boost::regex_replace;
-    using boost::regex_constants::format_literal;
+    // Consumes the current token from the buffer
+    m_buffer = m_buffer.substr(m_currentTokenStr.size());
+    m_column += m_currentTokenStr.size();
 
     int nbToAdd;
     char tmp[Tokenizer::BUFFER_SIZE + 1];
-
-    // Consumes the current token from the buffer
-    m_buffer = m_buffer.substr(m_currentTokenStr.size());
-
-    // If there are spaces after the token, removes them from the buffer
-    boost::algorithm::trim_left(m_buffer);
 
     // Increases the buffer size until it hits Tokenizer::BUFFER_SIZE or EOF
     while (m_buffer.size() < Tokenizer::BUFFER_SIZE) {
         nbToAdd = static_cast<int>(Tokenizer::BUFFER_SIZE - m_buffer.size());
 
-        // Puts to "" in case the input stream isn't good
+        // Sets `tmp` to "" in case the input stream isn't good
         tmp[0] = '\0';
-        m_inputStream.getline(tmp, nbToAdd + 1);
+        m_inputStream.getline(tmp, nbToAdd + 1, '\0');
 
-        // Replaces whitespaces with a single ' '
-        m_buffer += regex_replace(string(tmp), boost::regex("[\\r\\n\\t ]+"),
-                " ", format_literal);
+        m_buffer += tmp;
+
+        // Removes leading whitespaces while counting lines and columns
+        this->trim_left();
+
+        // If the stream hits EOF, stop
         if (m_inputStream.eof() && !m_inputStream.good()) break;
+
         m_inputStream.clear();
+    }
+
+}
+
+void Tokenizer::trim_left() {
+    // If there are spaces at the beginning, removes them from the buffer
+    boost::cmatch _;
+    while (regex_match(m_buffer.c_str(), _, Tokenizer::whitespace)) {
+        switch (m_buffer[0]) {
+            case '\t':
+            case ' ':
+                ++m_column;
+                break;
+            case '\r':
+                // If a '\r' is followed by a '\n', remove '\r'
+                if ('\n' == m_buffer[1]) m_buffer = m_buffer.substr(1);
+                m_column = 1;
+                ++m_line;
+                break;
+            case '\n':
+                m_column = 1;
+                ++m_line;
+                break;
+            default:
+                myassert(false, "A whitespace must match ^[\\r\\n\\t ]+");
+                break;
+        }
+        // Removing whitespace
+        m_buffer = m_buffer.substr(1);
     }
 }
 
 void Tokenizer::analyze() {
     m_shifted = false;
     boost::cmatch matches;
+
     if (regex_match(m_buffer.c_str(), matches, Tokenizer::keyword)) {
         // If we matched a keyword, the 1st character is enough to recognize it
         m_currentTokenStr = matches[1];

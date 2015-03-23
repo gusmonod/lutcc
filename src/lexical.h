@@ -28,6 +28,12 @@ class Tokenizer {
     // Returns true if there is something else to read with next(&type)
     bool has_next() const;
 
+    int column() const { return m_column; }
+
+    int line() const { return m_line; }
+
+    std::string topStr() const { return m_currentTokenStr; }
+
     // Returns the next token **without** moving to the next token
     // !!!!!!! CAUTION: The Token will be freed on shift
     const Token * top();
@@ -47,7 +53,10 @@ class Tokenizer {
 
     bool           m_shifted;
 
-    static const size_t BUFFER_SIZE;
+    int            m_line;
+    int            m_column;
+
+    static const int BUFFER_SIZE;
 
     // Keywords regular expressions
     static const boost::regex keyword;
@@ -59,6 +68,10 @@ class Tokenizer {
     // Operands regular expressions
     static const boost::regex id;
     static const boost::regex number;
+
+    static const boost::regex whitespace;
+
+    void trim_left();
 
     void analyze();
 };

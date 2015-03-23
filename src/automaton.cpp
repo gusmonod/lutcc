@@ -224,6 +224,13 @@ bool Automaton::accepts(Tokenizer *tokenizer, State init) {
     while (!states.empty()) {
         State::Id sId = states.top();
         const Token * currentToken = tokenizer->top();
+        while (!currentToken) {
+            std::cerr << "Lexical error (" << tokenizer->line() << ':'
+                      << tokenizer->column() << ") character `"
+                      << tokenizer->topStr() << '`' << std::endl;
+            tokenizer->shift();
+            currentToken = tokenizer->top();
+        }
         const Token::Id tId = currentToken->id();
 
         if (this->error(sId, tId)) {
