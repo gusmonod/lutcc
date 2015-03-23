@@ -4,6 +4,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 #include "boost/program_options.hpp"
 
@@ -17,6 +18,30 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
+void print_var(const SymbolsTable & variables) {
+    for (auto entry : variables) {
+        if (entry.second.constant) {
+            cout << "const ";
+        } else {
+            cout << "var ";
+        }
+
+        cout << entry.first;
+
+        if (entry.second.constant) {
+            cout << " = " << entry.second.value;
+        }
+
+        cout << ";" << endl;
+    }
+}
+
+void print_ins(const std::vector<const Instruction *> instructions) {
+    for (auto instruction : instructions) {
+        cout << *instruction << endl;
+    }
+}
+
 int main(int argc, const char * argv[]) {
     boost::program_options::variables_map vm;
 
@@ -26,22 +51,9 @@ int main(int argc, const char * argv[]) {
     std::ifstream file;
     file.open(vm["lutin-file"].as<string>());
     if (!file) {
-        std::cerr << "Could not open `" << vm["lutin-file"].as<string>() << '`'
-                  << std::endl;
+        cerr << "Could not open `" << vm["lutin-file"].as<string>() << '`'
+             << endl;
         return EXIT_FAILURE;
-    }
-
-    // Set the program mode
-    if (vm.count("optim") && vm.count("print")) {
-        Config::SetCurrentMode(ProgramMode::PRINT_TRANSFORM);
-    } else if (vm.count("optim")) {
-        Config::SetCurrentMode(ProgramMode::TRANSFORM);
-    } else if (vm.count("print")) {
-        Config::SetCurrentMode(ProgramMode::PRINT);
-    } else if (vm.count("exec")) {
-        Config::SetCurrentMode(ProgramMode::EXECUTION);
-    } else if (vm.count("analyze")) {
-        Config::SetCurrentMode(ProgramMode::ANALYSIS);
     }
 
     Automaton accepter;
@@ -49,15 +61,46 @@ int main(int argc, const char * argv[]) {
 
     while (true) {
         try {
-            bool accepted = accepter.accepts(&t);
+            bool accepted = accepter.analyze(&t);
 
-    #ifdef DEBUG
-            if (accepted) {
-                cout << "Accepted!!" << endl;
-            } else {
-                cout << "Not accepted" << endl;
+            if (vm.count("print")) {
+                print_var(accepter.variables());
+                print_ins(accepter.instructions());
             }
-    #endif
+
+            if (vm.count("analyze")) {
+                // Copying the variables to `analysisTable`
+                SymbolsTable analysisTable = accepter.variables();
+                for (auto instruction : accepter.instructions()) {
+                    instruction->analyze(&analysisTable);
+                }
+                for (auto entry : analysisTable) {
+                    if (!entry.second.defined) {
+                        cerr << "Undefined variable `" << entry.first
+                        << '`' << endl;
+                    }
+                    if (!entry.second.used) {
+                        cerr << "Unused "
+                             << (entry.second.constant ? "constant" :
+                                 "variable") << " `" << entry.first
+                             << '`' << endl;
+                    }
+                }
+            }
+
+            if (vm.count("exec")) {
+                for (auto instruction : accepter.instructions()) {
+                    instruction->execute(&accepter.variables());
+                }
+            }
+
+#ifdef DEBUG
+            if (accepted) {
+                cout << "DEBUG: Accepted!!" << endl;
+            } else {
+                cout << "DEBUG: Not accepted" << endl;
+            }
+#endif
 
             return accepted ? EXIT_SUCCESS : EXIT_FAILURE;
         } catch (const lexical_error & e) {
@@ -71,7 +114,7 @@ int main(int argc, const char * argv[]) {
         } catch (const std::runtime_error & e) {
             cerr << e.what() << endl;
 
-            return EXIT_FAILURE;
+            return EXIT_SUCCESS;
         }
     }
 }

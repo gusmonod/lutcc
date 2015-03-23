@@ -10,6 +10,7 @@ struct Symbol {
     uint64_t value;
     bool defined;
     bool constant;
+    bool used;
 };
 
 typedef std::map<std::string, Symbol> SymbolsTable;

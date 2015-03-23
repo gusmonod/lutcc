@@ -5,10 +5,12 @@
 
 #include <map>
 #include <stack>
+#include <vector>
 
 #include "./states.h"
 #include "./token.h"
 #include "./expr.h"
+#include "./instruction.h"
 
 class Action {
  public:
@@ -47,30 +49,55 @@ class ActionSimpleExpr : public Action {
                              std::stack<Token *> * tokens) const;
 };
 
-class ActionAddExpr : public Action {
+class ActionExpr : public Action {
  public:
     virtual Token * doAction(const Token & currentToken,
                              SymbolsTable * variables,
                              std::stack<Token *> * tokens) const;
 };
 
-class ActionAssign : public Action {
+class ActionExec : public Action {
  public:
+    ActionExec(std::vector<Instruction *> * ins) : m_instructions(ins) { }
+
+ private:
+    std::vector<Instruction *> * m_instructions;
+};
+
+class ActionInstruction : public Action {
+ protected:
+    ActionInstruction(std::vector<const Instruction *> * ins)
+        : m_instructions(ins){}
+
+    std::vector<const Instruction *> * m_instructions;
+};
+
+class ActionAssign : public ActionInstruction {
+ public:
+    ActionAssign(std::vector<const Instruction *> * ins)
+        : ActionInstruction(ins){}
+
     virtual Token * doAction(const Token & currentToken,
                              SymbolsTable * variables,
                              std::stack<Token *> * tokens) const;
 };
 
-class ActionRead : public Action {
+class ActionRead : public ActionInstruction {
  public:
+    ActionRead(std::vector<const Instruction *> * ins)
+        : ActionInstruction(ins){}
+
     virtual Token * doAction(const Token & currentToken,
                              SymbolsTable * variables,
                              std::stack<Token *> * tokens) const;
 };
 
 
-class ActionWrite : public Action {
+class ActionWrite : public ActionInstruction {
  public:
+    ActionWrite(std::vector<const Instruction *> * ins)
+        : ActionInstruction(ins){}
+
     virtual Token * doAction(const Token & currentToken,
                              SymbolsTable * variables,
                              std::stack<Token *> * tokens) const;

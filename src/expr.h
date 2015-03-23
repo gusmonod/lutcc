@@ -15,24 +15,21 @@ class Expr : public Token {
  public:
     explicit Expr(Token::Id id) : Token(id) { }
     virtual Token * newCopy() const = 0;
-    virtual uint64_t eval(const SymbolsTable & values) const = 0;
+    virtual uint64_t eval(SymbolsTable * values, bool used = false) const = 0;
 };
 
 class Variable : public Expr {
  public:
-    Variable(Token::Id id, std::string name) : Expr(id), m_name(name) { }
+    Variable(Token::Id id, std::string name)
+        : Expr(id), m_name(name) { }
     virtual Token * newCopy() const;
-    virtual uint64_t eval(const SymbolsTable & values) const;
-    const std::runtime_error undeclared_error() const;
-    const std::runtime_error undefined_error() const;
-    const std::runtime_error constant_error() const;
+    virtual uint64_t eval(SymbolsTable * values, bool used = false) const;
 
     std::string name() const { return m_name; }
 
- protected:
+ private:
     virtual std::ostream& print(std::ostream& stream) const;  // NOLINT
 
- private:
     std::string m_name;
 };
 
@@ -40,14 +37,13 @@ class Number : public Expr {
  public:
     Number(Token::Id id, uint64_t value) : Expr(id), m_value(value) { }
     virtual Token * newCopy() const;
-    virtual uint64_t eval(const SymbolsTable & values) const;
+    virtual uint64_t eval(SymbolsTable * values, bool used = false) const;
 
     uint64_t value() const { return m_value; }
 
- protected:
+ private:
     virtual std::ostream& print(std::ostream& stream) const;  // NOLINT
 
- private:
     uint64_t m_value;
 };
 
@@ -58,7 +54,7 @@ class BinExpr : public Expr {
                      Expr * right = nullptr);
     ~BinExpr() { delete m_left; delete m_right; }
     virtual Token * newCopy() const = 0;
-    virtual uint64_t eval(const SymbolsTable & values) const = 0;
+    virtual uint64_t eval(SymbolsTable * values, bool used = false) const = 0;
 
     void left(Expr * left, bool shouldDelete = true);
     void right(Expr * right, bool shouldDelete = true);
@@ -66,10 +62,11 @@ class BinExpr : public Expr {
     Expr * right() const { return m_right; }
 
  protected:
-    virtual std::ostream& print(std::ostream& stream) const;  // NOLINT
-
     Expr * m_left;
     Expr * m_right;
+
+ private:
+    virtual std::ostream& print(std::ostream& stream) const;  // NOLINT
 };
 
 class AddExpr : public BinExpr {
@@ -77,7 +74,7 @@ class AddExpr : public BinExpr {
     explicit AddExpr(Expr * left = nullptr,
                      Expr * right = nullptr);
     virtual Token * newCopy() const;
-    virtual uint64_t eval(const SymbolsTable & values) const;
+    virtual uint64_t eval(SymbolsTable * values, bool used = false) const;
 };
 
 class SubExpr : public BinExpr {
@@ -85,7 +82,7 @@ class SubExpr : public BinExpr {
     explicit SubExpr(Expr * left = nullptr,
                      Expr * right = nullptr);
     virtual Token * newCopy() const;
-    virtual uint64_t eval(const SymbolsTable & values) const;
+    virtual uint64_t eval(SymbolsTable * values, bool used = false) const;
 };
 
 class MulExpr : public BinExpr {
@@ -93,7 +90,7 @@ class MulExpr : public BinExpr {
     explicit MulExpr(Expr * left = nullptr,
                      Expr * right = nullptr);
     virtual Token * newCopy() const;
-    virtual uint64_t eval(const SymbolsTable & values) const;
+    virtual uint64_t eval(SymbolsTable * values, bool used = false) const;
 };
 
 class DivExpr : public BinExpr {
@@ -101,9 +98,7 @@ class DivExpr : public BinExpr {
     explicit DivExpr(Expr * left = nullptr,
                      Expr * right = nullptr);
     virtual Token * newCopy() const;
-    virtual uint64_t eval(const SymbolsTable & values) const;
-
-    static const std::runtime_error * Math_error(std::string what);
+    virtual uint64_t eval(SymbolsTable * values, bool used = false) const;
 };
 
 #endif  // SRC_EXPR_H_

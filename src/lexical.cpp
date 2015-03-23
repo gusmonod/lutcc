@@ -192,7 +192,7 @@ void Tokenizer::analyze() {
 #ifdef DEBUG
     if (m_currentToken) {
         if (m_logNewLine) {
-            std::cout << "Line " << m_line << ": ";
+            std::cout << "DEBUG Line " << m_line << ": ";
             m_logNewLine = false;
         }
 
@@ -211,7 +211,7 @@ void Tokenizer::analyze() {
             m_logNewLine = true;
         }
     } else {
-        std::cout << "ERROR: " << m_currentTokenStr << std::endl;
+        std::cout << "DEBUG ERROR: " << m_currentTokenStr << std::endl;
     }
 #endif
 }

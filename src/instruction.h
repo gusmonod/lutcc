@@ -3,39 +3,67 @@
 #ifndef SRC_INSTRUCTION_H_
 #define SRC_INSTRUCTION_H_
 
-#include "./token.h"
-#include "./expr.h"
+#include <iostream>
 
-class Instruction : public Token {
+#include "./expr.h"
+#include "./symbols.h"
+
+class Instruction {
  public:
-    explicit Instruction(Token::Id id) : Token(id) {}
-    virtual ~Instruction() {}
+    virtual void execute(SymbolsTable * variables) const = 0;
+    virtual void analyze(SymbolsTable * variables) const = 0;
+
+    friend std::ostream & operator<<(std::ostream & o, const Instruction & i);
+
+ private:
+    virtual std::ostream & print(std::ostream & o) const = 0;
+};
+
+class Assignment : public Instruction {
+public:
+    Assignment(const std::string varName,
+               const Expr * rValue);
+    
+    virtual void execute(SymbolsTable * variables) const;
+    virtual void analyze(SymbolsTable * variables) const;
+
+private:
+    virtual std::ostream & print(std::ostream & o) const;
+
+    const std::string m_varName;
+    const Expr * m_rValue;
 };
 
 class Read : public Instruction {
  public:
-    Read(Token::Id id, Variable *_pV) : Instruction(id), pV(_pV) {}
-    virtual ~Read() {}
- protected:
-    Variable *pV;
+    explicit Read(const std::string varName,
+         std::istream & inStream = std::cin,
+         std::ostream & outStream = std::cout);  // NOLINT
+
+    virtual void execute(SymbolsTable * variables) const;
+    virtual void analyze(SymbolsTable * variables) const;
+
+private:
+    virtual std::ostream & print(std::ostream & o) const;
+
+    std::string m_varName;
+    std::istream & m_inStream;
+    std::ostream & m_outStream;
 };
 
 class Write : public Instruction {
  public:
-    Write(Token::Id id, Variable *_pV) : Instruction(id), pV(_pV) {}
-    virtual ~Write() {}
- protected:
-    Variable *pV;
-};
+    explicit Write(const Expr * rValue,
+          std::ostream & outStream = std::cout);  // NOLINT
 
-class Assignment : public Instruction {
- public:
-    Assignment(Token::Id id, Variable *_pV, Expr *_pE)
-            : Instruction(id), left(_pV), right(_pE) { }
-    virtual ~Assignment() {}
- protected:
-    Variable *left;
-    Expr *right;
+    virtual void execute(SymbolsTable * variables) const;
+    virtual void analyze(SymbolsTable * variables) const;
+
+private:
+    virtual std::ostream & print(std::ostream & o) const;
+
+    const Expr * m_rValue;
+    std::ostream & m_outStream;
 };
 
 #endif  // SRC_INSTRUCTION_H_

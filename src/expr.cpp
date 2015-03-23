@@ -13,29 +13,15 @@
     return new Variable(this->id(), m_name);
 }
 
-/*virtual*/ uint64_t Variable::eval(const SymbolsTable & values) const {
-    auto entry = values.find(m_name);
+/*virtual*/ uint64_t Variable::eval(SymbolsTable * values, bool used) const {
+    auto entry = values->find(m_name);
 
-    if (entry == values.end()) {
-        throw this->undeclared_error();
-    }
-    if (!entry->second.defined) {
-        throw this->undefined_error();
-    }
+    if (entry == values->end()) throw undeclared_error(m_name);
+    if (!entry->second.defined) throw undefined_error(m_name);
+
+    if (used) entry->second.used = used;
 
     return entry->second.value;
-}
-
-const std::runtime_error Variable::undeclared_error() const {
-    return std::runtime_error("Undeclared variable: `" + m_name + "`");
-}
-
-const std::runtime_error Variable::undefined_error() const {
-    return std::runtime_error("Undefined variable: `" + m_name + "`");
-}
-
-const std::runtime_error Variable::constant_error() const {
-    return std::runtime_error("Variable `" + m_name + "` can't be modified");
 }
 
 /*virtual*/ std::ostream& Variable::print(std::ostream& stream) const {
@@ -46,7 +32,8 @@ const std::runtime_error Variable::constant_error() const {
     return new Number(this->id(), m_value);
 }
 
-/*virtual*/ uint64_t Number::eval(const SymbolsTable & values) const {
+/*virtual*/ uint64_t Number::eval(SymbolsTable * values,
+                                  bool used) const {
     return m_value;
 }
 
@@ -81,8 +68,8 @@ AddExpr::AddExpr(Expr * left, Expr * right)
                         dynamic_cast<Expr *>(m_right->newCopy()));
 }
 
-/*virtual*/ uint64_t AddExpr::eval(const SymbolsTable & values) const {
-    return m_left->eval(values) + m_right->eval(values);
+/*virtual*/ uint64_t AddExpr::eval(SymbolsTable * values, bool used) const {
+    return m_left->eval(values, used) + m_right->eval(values, used);
 }
 
 SubExpr::SubExpr(Expr * left, Expr * right)
@@ -93,8 +80,8 @@ SubExpr::SubExpr(Expr * left, Expr * right)
                         dynamic_cast<Expr *>(m_right->newCopy()));
 }
 
-/*virtual*/ uint64_t SubExpr::eval(const SymbolsTable & values) const {
-    return m_left->eval(values) - m_right->eval(values);
+/*virtual*/ uint64_t SubExpr::eval(SymbolsTable * values, bool used) const {
+    return m_left->eval(values, used) - m_right->eval(values, used);
 }
 
 MulExpr::MulExpr(Expr * left, Expr * right)
@@ -105,8 +92,8 @@ MulExpr::MulExpr(Expr * left, Expr * right)
                         dynamic_cast<Expr *>(m_right->newCopy()));
 }
 
-/*virtual*/ uint64_t MulExpr::eval(const SymbolsTable & values) const {
-    return m_left->eval(values) * m_right->eval(values);
+/*virtual*/ uint64_t MulExpr::eval(SymbolsTable * values, bool used) const {
+    return m_left->eval(values, used) * m_right->eval(values, used);
 }
 
 DivExpr::DivExpr(Expr * left, Expr * right)
@@ -117,10 +104,6 @@ DivExpr::DivExpr(Expr * left, Expr * right)
                         dynamic_cast<Expr *>(m_right->newCopy()));
 }
 
-/*virtual*/ uint64_t DivExpr::eval(const SymbolsTable & values) const {
-    return m_left->eval(values) / m_right->eval(values);
-}
-
-const std::runtime_error * DivExpr::Math_error(std::string what) {
-    return new std::runtime_error("Math error: "+what);
+/*virtual*/ uint64_t DivExpr::eval(SymbolsTable * values, bool used) const {
+    return m_left->eval(values, used) / m_right->eval(values, used);
 }

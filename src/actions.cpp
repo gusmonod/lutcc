@@ -49,7 +49,8 @@
 
     // Creating new defined (and constant)
     // or new undefined (and variable) symbol entry
-    (*variables)[v->name()] = {n ? n->value() : 0, m_constant, m_constant};
+    // Note: the symbol is always unused
+    (*variables)[v->name()] = {n ? n->value() : 0, m_constant, m_constant, false};
 
     // Deleting value and name of the constant
     delete n;
@@ -78,7 +79,6 @@
 /*virtual*/ Token * ActionParenthesisExpr::doAction(const Token & currentToken,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
-
     Expr * e = dynamic_cast<Expr *>(tokens->top());
     myassert(e, "`e` must be pointing to a `Expr *`");
 
@@ -101,7 +101,7 @@
     return e;
 }
 
-/*virtual*/ Token * ActionAddExpr::doAction(const Token & currentToken,
+/*virtual*/ Token * ActionExpr::doAction(const Token & currentToken,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
     // Retrieving the 3 last Tokens to reduce them
@@ -121,60 +121,51 @@
     uint64_t denominator;
     switch (opId) {
         case Token::plu:
-            if(Config::IsTransformMode()) {
-                if(left->eval(*variables) == 0) {
+            if (Config::IsTransformMode()) {
+                if (0 == left->eval(variables)) {
                     newExpr = right;
-                }
-                else if(right->eval(*variables) == 0) {
+                } else if (0 == right->eval(variables)) {
                     newExpr = left;
-                }
-                else {
+                } else {
                     newExpr = new AddExpr(left, right);
                 }
-            }
-            else {
+            } else {
                 newExpr = new AddExpr(left, right);
             }
             break;
         case Token::min:
-            if(Config::IsTransformMode() && right->eval(*variables) == 0) {
+            if (Config::IsTransformMode() && right->eval(variables) == 0) {
                 newExpr = left;
-            }
-            else {
+            } else {
                 newExpr = new SubExpr(left, right);
             }
             break;
         case Token::mul:
-            if(Config::IsTransformMode()) {
-                if(left->eval(*variables) == 1) {
+            if (Config::IsTransformMode()) {
+                if (left->eval(variables) == 1) {
                     newExpr = right;
-                }
-                else if(right->eval(*variables) == 1) {
+                } else if (right->eval(variables) == 1) {
                     newExpr = left;
-                }
-                else {
+                } else {
                     newExpr = new MulExpr(left, right);
                 }
-            }
-            else {
+            } else {
                 newExpr = new MulExpr(left, right);
             }
             break;
         case Token::quo:
-            denominator = right->eval(*variables);
-            if(denominator == 0) {
-                throw *DivExpr::Math_error("division by zero");
+            denominator = right->eval(variables);
+            if (denominator == 0) {
+                throw math_error("division by zero");
             }
-            if(Config::IsTransformMode() && denominator == 1) {
+            if (Config::IsTransformMode() && denominator == 1) {
                 newExpr = left;
-            }
-            else {
+            } else {
                 newExpr = new DivExpr(left, right);
             }
             break;
         default:
-            // Only operators can be at this position
-            assert((false));
+            myassert(false, "Only operators can be at this position");
             break;
     }
 
@@ -188,7 +179,7 @@
     myassert(rValue, "`rValue` must be pointing to a `Expr *`");
     tokens->pop();
 
-    // Removing thxe `:=` operator
+    // Removing the ':=' operator
     delete tokens->top();
     tokens->pop();
 
@@ -196,23 +187,7 @@
     myassert(lValue, "`lValue` must be pointing to a `Variable *`");
     tokens->pop();
 
-    auto symbol = variables->find(lValue->name());
-
-    if (symbol == variables->end()) {
-        throw *lValue->undeclared_error();
-    }
-
-    symbol->second.defined = true;
-
-    try {
-        symbol->second.value = rValue->eval(*variables);
-    } catch(const std::runtime_error & e) {
-        // Adding more info to the error message and throwing again
-        std::ostringstream oss;
-        oss << e.what() << " in `" << *rValue << "`";
-        std::runtime_error e2(oss.str());
-        throw e2;
-    }
+    m_instructions->push_back(new Assignment(lValue->name(), rValue));
 
     delete rValue;
     rValue = nullptr;
@@ -225,7 +200,6 @@
 /*virtual*/ Token * ActionRead::doAction(const Token & currentToken,
                       SymbolsTable * variables,
                       std::stack<Token *> * tokens) const {
-
     Variable * dest = dynamic_cast<Variable *>(tokens->top());
     tokens->pop();
     // Removes 'lire' keyword
@@ -234,26 +208,7 @@
 
     myassert(dest, "`dest` must be a well-formed `Variable *`");
 
-    auto symbol = variables->find(dest->name());
-    if(symbol == variables->end()) {
-        throw *dest->undeclared_error();
-    }
-    if(symbol->second.constant) {
-        throw *dest->constant_error();
-    }
-
-    if(Config::CurrentMode() == ProgramMode::EXECUTION) {
-        uint64_t value;
-        std::string input;
-        getline(std::cin,input);
-        while((std::stringstream(input) >> value).fail()){
-            std::cout << "Error, please type an integer." << std::endl;
-            getline(std::cin,input);
-        }
-
-        symbol->second.value = value;
-    }
-    symbol->second.defined = true;
+    m_instructions->push_back(new Read(dest->name()));
 
     delete dest;
     dest = nullptr;
@@ -264,7 +219,6 @@
 /*virtual*/ Token * ActionWrite::doAction(const Token & currentToken,
                       SymbolsTable * variables,
                       std::stack<Token *> * tokens) const {
-
     // Get the expr to print and pop it
     Expr * toWrite = dynamic_cast<Expr *>(tokens->top());
     tokens->pop();
@@ -274,12 +228,7 @@
 
     myassert(toWrite, "`toWrite` must be a well-formed `Expr *`");
 
-    if(Config::CurrentMode() == ProgramMode::EXECUTION) {
-        // Check the value of the expr
-        int value;
-        value = toWrite->eval(*variables);
-        std::cout << value << std::endl;
-    }
+    m_instructions->push_back(new Write(toWrite));
 
     delete toWrite;
     toWrite = nullptr;
