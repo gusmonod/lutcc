@@ -1,8 +1,9 @@
 var a;
-var b; 
+var b;
 const c = 4;
 const d = 6;
 var e;
+const z = 2;
 a := (c+d)*3-5;
 lire b;
 ecrire a*b;
