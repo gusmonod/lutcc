@@ -7,7 +7,7 @@ O_FILES=$(SRC:.cpp=.o)
 PROG=bin/lutcc
 
 CC=g++
-CC_FLAGS=-g -Wall -W -Wextra -std=c++11
+CC_FLAGS=-Wall -W -Wextra -std=c++11
 
 LD=g++
 LD_FLAGS=-g
@@ -25,9 +25,9 @@ $(PROG): $(O_FILES)
 	$(LD) $(LD_FLAGS) $(INC_PATH) $(LIB_PATH) $(O_FILES) $(LIBS) -o $(PROG)
 
 test: $(PROG)
-	@make -C test/
+	@(cd test; ./mktest.sh)
 
-debug: CC_FLAGS := $(CC_FLAGS) -DDEBUG
+debug: CC_FLAGS := $(CC_FLAGS) -DDEBUG -g
 debug: $(PROG)
 
 %.o: %.cpp
