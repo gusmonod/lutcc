@@ -238,7 +238,22 @@ bool Automaton::analyze(Tokenizer *tokenizer) {
 
         if (this->error(sId, tId)) {
             // TODO(felipematias, yousra) add syntactic error handling
-            return false;
+			std::map<Token::Id, Trans *> IDmap = m_trans.find(sId)->second;
+
+			std::ostringstream oss;
+			oss << "Syntactic error (" << tokenizer->line() << ':'
+				<< tokenizer->column() << ") ";
+
+			for (std::map<Token::Id, Trans *>::iterator it = IDmap.begin(); it != IDmap.end(); ){
+				Token * t = new Token(it->first);
+				oss << t ;
+				it++;
+				if (it != IDmap.end());
+				{
+					oss << " or ";
+				}
+			}
+			throw syntactic_error(oss.str());
         }
         if (m_trans[sId][tId]->doTransition(m_trans, *currentToken,
                                             &m_states, &m_tokens, &m_values)) {

@@ -4,6 +4,7 @@
 #define SRC_ERRORS_H_
 
 #include <exception>
+#include <stdexcept>
 #include <cassert>
 #include <string>
 #include <iostream>
@@ -38,6 +39,12 @@ class lexical_error : public std::runtime_error {
  public:
     explicit lexical_error(const char *what) : std::runtime_error(what) {}
     explicit lexical_error(const std::string &what): std::runtime_error(what){}
+};
+
+class syntactic_error : public std::runtime_error {
+public:
+	explicit syntactic_error(const char *what) : std::runtime_error(what) {}
+	explicit syntactic_error(const std::string &what) : std::runtime_error(what){}
 };
 
 const std::runtime_error undeclared_error(const std::string & name);

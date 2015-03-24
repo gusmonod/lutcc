@@ -5,6 +5,7 @@
 
 #include <string>
 #include <map>
+#include <stdint.h>
 
 struct Symbol {
     uint64_t value;
