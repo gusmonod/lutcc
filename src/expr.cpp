@@ -25,7 +25,10 @@
 }
 
 /*virtual*/ std::ostream& Variable::print(std::ostream& stream) const {
-    return stream << this->m_name;
+    if(inBrackets) stream << '(';
+    stream << this->m_name;
+    if(inBrackets) stream << ')';
+    return stream;
 }
 
 /*virtual*/ Token * Number::newCopy() const {
@@ -38,7 +41,10 @@
 }
 
 /*virtual*/ std::ostream& Number::print(std::ostream& stream) const {
-    return stream << this->m_value;
+    if(inBrackets) stream << '(';
+    stream << this->m_value;
+    if(inBrackets) stream << ')';
+    return stream;
 }
 
 BinExpr::BinExpr(Token::Id id, Expr * left, Expr * right)
@@ -56,9 +62,12 @@ void BinExpr::right(Expr * right, bool shouldDelete) {
 
 /*virtual*/ std::ostream& BinExpr::print(std::ostream& stream) const {
     // TODO(nautigsam, florianbouron) Add parens display
+    if(inBrackets) stream << '(';
     stream << *m_left;
     Token::print(stream);
-    return stream << *m_right;
+    stream << *m_right;
+    if(inBrackets) stream << ')';
+    return stream;
 }
 
 AddExpr::AddExpr(Expr * left, Expr * right)
