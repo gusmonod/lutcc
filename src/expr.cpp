@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <exception>
+#include <stdexcept>
 #include <iostream>
 
 #include "./errors.h"
