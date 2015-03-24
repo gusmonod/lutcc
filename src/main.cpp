@@ -42,77 +42,71 @@ void print_ins(const std::vector<Instruction *> instructions) {
     }
 }
 
-int errorHandlingLoop( Automaton *accepter, const boost::program_options::variables_map &vm, Tokenizer *t) {
-    try {
-        bool accepted = accepter->analyze(t);
+bool doWithOptions(Automaton *accepter,
+                   const boost::program_options::variables_map &vm,
+                   Tokenizer *t) {
+    bool accepted = accepter->analyze(t);
 
-        SymbolsTable * variables = accepter->variables();
-        std::vector<Instruction *> *instructions = accepter->instructions();
+    SymbolsTable * variables = accepter->variables();
+    std::vector<Instruction *> *instructions = accepter->instructions();
 
-        if (vm.count("optim2")) {
-            for (auto instruction : *instructions) {
-                instruction->optimize(variables);
+    if (vm.count("optim2")) {
+        for (auto instruction : *instructions) {
+            instruction->optimize(variables);
+        }
+    }
+
+    if (vm.count("print")) {
+        print_var(*variables);
+        print_ins(*instructions);
+    }
+
+    if (vm.count("analyze")) {
+        for (auto instruction : *instructions) {
+            instruction->analyze(variables);
+        }
+        for (auto entry : *variables) {
+            if (!entry.second.defined) {
+                cerr << "Undefined variable `" << entry.first
+                << '`' << endl;
+            }
+            if (!entry.second.used) {
+                cerr << "Unused "
+                << (entry.second.constant ? "constant" :
+                    "variable") << " `" << entry.first
+                << '`' << endl;
             }
         }
+    }
 
-        if (vm.count("print")) {
-            print_var(*variables);
-            print_ins(*instructions);
+    if (vm.count("exec")) {
+        for (auto instruction : *instructions) {
+            instruction->execute(variables);
         }
-
-        if (vm.count("analyze")) {
-            for (auto instruction : *instructions) {
-                instruction->analyze(variables);
-            }
-            for (auto entry : *variables) {
-                if (!entry.second.defined) {
-                    cerr << "Undefined variable `" << entry.first
-                    << '`' << endl;
-                }
-                if (!entry.second.used) {
-                    cerr << "Unused "
-                    << (entry.second.constant ? "constant" :
-                        "variable") << " `" << entry.first
-                    << '`' << endl;
-                }
-            }
-        }
-
-        if (vm.count("exec")) {
-            for (auto instruction : *instructions) {
-                instruction->execute(variables);
-            }
-        }
+    }
 
 #ifdef DEBUG
-        if (accepted) {
-            cout << "DEBUG: Accepted!!" << endl;
-        } else {
-            cout << "DEBUG: Not accepted" << endl;
-        }
+    if (accepted) {
+        cout << "DEBUG: Accepted!!" << endl;
+    } else {
+        cout << "DEBUG: Not accepted" << endl;
+    }
 #endif
 
-        return accepted ? EXIT_SUCCESS : EXIT_FAILURE;
+    return accepted;
+}
 
-    } catch (const lexical_error & e) {
-        cerr << e.what() << endl;
-        t->shift();  // Next token
+std::ostream& operator<<(std::ostream& os, const std::vector<Token>& vec) {
+    if (vec.size() < 1) return os;
 
-        // Try again:
-        return errorHandlingLoop(accepter, vm, t);
-    } catch (const compile_error & e) {
-        cerr << e.what() << endl;
-        t->shift();  // Next token
+    auto el = vec.begin();
+    os << *el;
 
-        // Try again:
-        return errorHandlingLoop(accepter, vm, t);
-    // Errors that are not compile or lexical 
-    } catch (const std::runtime_error & e) {
-        cerr << e.what() << endl;
-
-        return EXIT_SUCCESS;
+    for (; el != vec.end(); ++el) {
+        os << " or " << *el;
     }
-    
+
+    return os;
 }
 
 int main(int argc, const char * argv[]) {
@@ -132,5 +126,18 @@ int main(int argc, const char * argv[]) {
     Automaton accepter(vm.count("optim1") || vm.count("optim2"));
     Tokenizer t(&file);
 
-    return errorHandlingLoop(&accepter, vm, &t);
+    bool tryAgain = true;
+    while (tryAgain) {
+        try {
+            tryAgain = !doWithOptions(&accepter, vm, &t);
+        } catch (const syntactic_error & e) {
+            cerr << e.what() << e.expected() << endl;
+            volatile int i = 0;
+        } catch (const recoverable_error & e) {
+            cerr << e.what() << endl;
+            t.shift();  // shift and try again
+        } catch (const std::runtime_error & e) { tryAgain = false; }
+    }
+
+    return EXIT_SUCCESS;
 }

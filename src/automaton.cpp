@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iterator>
 #include <cassert>
+#include <map>
 
 #include "./actions.h"
 #include "./transitions.h"
@@ -101,7 +102,8 @@ Automaton::Automaton(bool optimize)
     // Shift-reduce conflict for Lv
     m_trans[State::E18][Token::Lv]  = new TransShift(State::E29, false);
     m_trans[State::E18][Token::com] =  // TransReduce(0, Token::Lv, false);
-    m_trans[State::E18][Token::col] = new TransReduce(0, Token::Lv, false);
+    m_trans[State::E18][Token::col] =  // TransReduce(0, Token::Lv, false);
+    m_trans[State::E18][Token::idv] = new TransReduce(0, Token::Lv, false);
 
     m_trans[State::E19][Token::equ] = new TransShift(State::E45);
 
@@ -141,7 +143,8 @@ Automaton::Automaton(bool optimize)
 
     m_trans[State::E28][Token::Lc]  = new TransShift(State::E36, false);
     m_trans[State::E28][Token::com] =  // TransReduce(0, Token::Lc, false);
-    m_trans[State::E28][Token::col] = new TransReduce(0, Token::Lc, false);
+    m_trans[State::E28][Token::col] =  // TransReduce(0, Token::Lc, false);
+    m_trans[State::E28][Token::idv] = new TransReduce(0, Token::Lc, false);
 
     m_trans[State::E29][Token::col] = new TransReduce(3, Token::D, true,
                                             new ActionNewSym(false));
@@ -244,24 +247,24 @@ bool Automaton::analyze(Tokenizer *tokenizer) {
         const Token::Id tId = currentToken->id();
 
         if (this->error(sId, tId)) {
-            // TODO(felipematias, yousra) add syntactic error handling
-			auto next = m_trans.find(sId);
-            assert((next != m_trans.end()
-                    && "There must be at least one transition from sId"));
+            std::ostringstream oss;
+            oss << "Syntactic error (" << tokenizer->line() << ':'
+                << tokenizer->column() << ')';
 
-			std::ostringstream oss;
-			oss << "Syntactic error (" << tokenizer->line() << ':'
-				<< tokenizer->column() << ") ";
-			Token * t = new Token(next->second.begin()->first);
-			oss << '`' << *t << '`';
-            for (auto it : next->second) {
-				oss << " or `" << Token(it.first) << '`';
-			}
-			oss << " expected";
-			throw syntactic_error(oss.str());
+            std::vector<Token> expected;
+
+            for (auto entry : m_trans.find(sId)->second) {
+                if (entry.first > Token::E) {
+                    expected.push_back(*currentToken);
+                }
+            }
+
+            return false;
         }
         if (m_trans[sId][tId]->doTransition(m_trans, *currentToken,
                                             &m_states, &m_tokens, &m_values)) {
+            // Acception: removing the last state (init)
+            m_states.pop();
             return true;
         }
         if (m_trans[sId][tId]->isShift()) {
@@ -269,11 +272,11 @@ bool Automaton::analyze(Tokenizer *tokenizer) {
         }
     }
 
-    return false;
+    return true;
 }
 
 // Returns true if the state or token given is not in the transitions table
 bool Automaton::error(State::Id s, Token::Id t) {
-    return ( m_trans.find(s) == m_trans.end()
-        || m_trans.find(s)->second.find(t) == m_trans.find(s)->second.end() );
+    return m_trans.find(s) == m_trans.end()
+        || m_trans.find(s)->second.find(t) == m_trans.find(s)->second.end();
 }

@@ -2,12 +2,19 @@
 # All rights reserved
 
 SRC=$(wildcard src/*.cpp src/*/*.cpp src/*/*/*.cpp)
-O_FILES=$(SRC:.cpp=.o)
+OBJECTS=$(SRC:.cpp=.o)
 
 PROG=bin/lutcc
 
 CC=g++
 CC_FLAGS=-Wall -W -Wextra -std=c++11
+TARGET ?= release
+
+ifeq ($(TARGET), release)
+    CC_FLAGS +=-DNDEBUG
+else
+    CC_FLAGS +=-DDEBUG
+endif
 
 LD=g++
 LD_FLAGS=-g
@@ -18,17 +25,14 @@ LIB_PATH=-L/usr/local/lib
 INC=
 INC_PATH=-I/usr/local/include
 
-.PHONY: clean debug test
+.PHONY: clean test
 
-$(PROG): $(O_FILES)
+$(PROG): $(OBJECTS)
 	mkdir -p bin
-	$(LD) $(LD_FLAGS) $(INC_PATH) $(LIB_PATH) $(O_FILES) $(LIBS) -o $(PROG)
+	$(LD) $(LD_FLAGS) $(INC_PATH) $(LIB_PATH) $(OBJECTS) $(LIBS) -o $(PROG)
 
 test: $(PROG)
 	@(cd test; ./mktest.sh)
-
-debug: CC_FLAGS := $(CC_FLAGS) -DDEBUG -g
-debug: $(PROG)
 
 %.o: %.cpp
 	@echo Compiling $<...
@@ -36,4 +40,4 @@ debug: $(PROG)
 	@echo Compiled $< successfully
 
 clean:
-	rm -f $(O_FILES) $(PROG) core
+	rm -f $(OBJECTS) $(PROG) core

@@ -40,6 +40,7 @@ class TransShift : public Trans {
 
     virtual bool isShift() const { return m_terminal; }
 
+    const State target() const { return m_target; }
  private:
     const State m_target;
     bool m_terminal;

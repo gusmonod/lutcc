@@ -17,6 +17,6 @@ const std::runtime_error constant_error(const std::string & name) {
     return std::runtime_error("Variable `" + name + "` can't be modified");
 }
 
-const std::runtime_error math_error(std::string what) {
+const std::runtime_error math_error(const std::string & what) {
     return std::runtime_error("Math error: " + what);
 }
