@@ -9,4 +9,5 @@ Allowed options:
   -p [ --print ]        : Prints the internal representation
   -a [ --analyze ]      : Analyzes code and outputs error to stderr
   -e [ --exec ]         : Executes the given Lutin program
-  -o [ --optim ]        : Optimizes the program by simplifying it
+  -1 [ --optim1 ]       : Propagates constants and neutral elements
+  -o [ --optim2 ]       : Propagates variable with constant value

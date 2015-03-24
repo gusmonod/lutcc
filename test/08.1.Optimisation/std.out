@@ -3,6 +3,7 @@ var b;
 const c = 4;
 const d = 6;
 var e;
+const z = 2;
 a := 25;
 lire b;
 ecrire 25*b;
