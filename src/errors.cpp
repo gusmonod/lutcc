@@ -3,6 +3,7 @@
 #include "./errors.h"
 
 #include <string>
+#include <stdexcept>
 
 const std::runtime_error undeclared_error(const std::string & name) {
     return std::runtime_error("Undeclared variable `" + name + "`");

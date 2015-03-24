@@ -3,7 +3,7 @@
 #ifndef SRC_ERRORS_H_
 #define SRC_ERRORS_H_
 
-#include <exception>
+#include <stdexcept>
 #include <cassert>
 #include <string>
 #include <iostream>
