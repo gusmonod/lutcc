@@ -7,8 +7,8 @@
 
 const std::map<Token::Id, std::string> Token::ID_NAMES = {
     {Token::A, "A"}, {Token::P, "P"}, {Token::Ld, "Ld"}, {Token::Li, "Li"},
-    {Token::D, "D"}, {Token::Lv, "Lv"}, {Token::Lc, "Lc"}, {Token::I, "I"},
-    {Token::E, "E"},
+    {Token::D, "D"}, {Token::Lv, "VariablesList"}, {Token::Lc, "Lc"}, {Token::I, "I"}, //Replace A, ld P...
+    {Token::E, "Expression"},
 
     {Token::con, "const"}, {Token::var, "var"}, {Token::ecr, "ecrire"},
     {Token::lir, "lire"}, {Token::aff, ":="}, {Token::plu, "+"},

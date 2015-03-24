@@ -5,6 +5,7 @@
 #include <stack>
 #include <set>
 #include <sstream>
+#include <iterator>
 
 #include "./actions.h"
 #include "./transitions.h"
@@ -243,16 +244,13 @@ bool Automaton::analyze(Tokenizer *tokenizer) {
 			std::ostringstream oss;
 			oss << "Syntactic error (" << tokenizer->line() << ':'
 				<< tokenizer->column() << ") ";
-
-			for (std::map<Token::Id, Trans *>::iterator it = IDmap.begin(); it != IDmap.end(); ){
-				Token * t = new Token(it->first);
-				oss << t ;
-				it++;
-				if (it != IDmap.end());
-				{
-					oss << " or ";
-				}
+			Token * t = new Token(IDmap.begin()->first);
+			oss << "'" << *t << "'";
+			for (std::map<Token::Id, Trans *>::iterator it = std::next(IDmap.begin()); it != IDmap.end(); it++){
+				t = new Token(it->first);
+				oss << " or " << "'" << *t << "'";
 			}
+			oss << " expected";
 			throw syntactic_error(oss.str());
         }
         if (m_trans[sId][tId]->doTransition(m_trans, *currentToken,
