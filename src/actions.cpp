@@ -81,8 +81,8 @@
                           std::stack<Token *> * tokens) const {
     Expr * e = dynamic_cast<Expr *>(tokens->top());
     myassert(e, "`e` must be pointing to a `Expr *`");
-
-    e.setInBrackets(true);
+    
+    e->setInBrackets(true);
 
     tokens->pop();
     // Remove the opening parenthesis
