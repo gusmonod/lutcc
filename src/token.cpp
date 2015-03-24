@@ -6,9 +6,10 @@
 #include <string>
 
 const std::map<Token::Id, std::string> Token::ID_NAMES = {
-    {Token::A, "A"}, {Token::P, "P"}, {Token::Ld, "Ld"}, {Token::Li, "Li"},
-    {Token::D, "D"}, {Token::Lv, "VariablesList"}, {Token::Lc, "Lc"}, {Token::I, "I"}, //Replace A, ld P...
-    {Token::E, "Expression"},
+    {Token::A, "Axiom"}, {Token::P, "Program"}, {Token::Ld, "List of declarations"}, 
+	{Token::Li, "List of instructions"},{Token::D, "Declaration"}, 
+	{Token::Lv, "List of variables"}, {Token::Lc, "List of constants"}, 
+	{Token::I, "Instruction"}, {Token::E, "Expression"},
 
     {Token::con, "const"}, {Token::var, "var"}, {Token::ecr, "ecrire"},
     {Token::lir, "lire"}, {Token::aff, ":="}, {Token::plu, "+"},
