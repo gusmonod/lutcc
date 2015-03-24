@@ -118,22 +118,18 @@
 
     Expr * newExpr = nullptr;
 
-    uint64_t denominator;
     switch (opId) {
         case Token::plu:
-            newExpr = this->optimize(left, right, variables, 0);
-            if (!newExpr) newExpr = new AddExpr(left, right);
+            newExpr = this->optimize(new AddExpr(left, right), variables, 0);
             break;
         case Token::min:
-            newExpr = this->optimize(left, right, variables, 0);
-            if (!newExpr) newExpr = new SubExpr(left, right);
+            newExpr = this->optimize(new SubExpr(left, right), variables, 0);
             break;
         case Token::mul:
-            newExpr = this->optimize(left, right, variables, 1);
-            if (!newExpr) newExpr = new MulExpr(left, right);
+            newExpr = this->optimize(new MulExpr(left, right), variables, 1);
             break;
         case Token::quo:
-            newExpr = this->optimize(left, right, variables, 1);
+            newExpr = this->optimize(new DivExpr(left, right), variables, 1);
 
             try {
                 if (right->eval(variables) == 0) {
@@ -151,21 +147,45 @@
     return newExpr;
 }
 
-Expr * ActionExpr::optimize(Expr * left, Expr * right,
-                            SymbolsTable * variables,
+Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
                             uint64_t neutralElement) const {
-    // TODO(gusmonod) constant propagation
+    if (!m_optimize) return toOptimize;  // No optimization wanted
 
-    if (!m_optimize) return nullptr;  // No optimization wanted
-
+    Expr * left = toOptimize->left();
+    Expr * right = toOptimize->right();
     try {
-        if (neutralElement == left->eval(variables)) return right;
+        uint64_t result = left->eval(variables);
+
+        if (neutralElement == result) {
+            delete left;  // eval threw no exception: left has result
+            return right;
+        }
+
+        try {
+            result = toOptimize->eval(variables);
+        } catch (const std::runtime_error & e) {
+            // eval threw exception: left has result, but not right
+            toOptimize->left(new Number(result));  // Deletes `left`
+            return toOptimize;
+        }
+
+        // eval threw no exception: right and left have result
+        delete left;
+        delete right;
+            
+        return new Number(result);
     } catch (const std::runtime_error & e) { /* ignore error */ }
     try {
-        if (neutralElement == right->eval(variables)) return left;
+        uint64_t result = right->eval(variables);
+        if (neutralElement == result) {
+            delete right;
+            return left;
+        }
+
+        toOptimize->right(new Number(result));  // Deletes `right`
     } catch (const std::runtime_error & e) { /* ignore error */ }
 
-    return nullptr;  // No optimization possible
+    return toOptimize;  // No optimization possible
 }
 
 /*virtual*/ Token * ActionAssign::doAction(const Token & currentToken,

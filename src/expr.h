@@ -20,8 +20,7 @@ class Expr : public Token {
 
 class Variable : public Expr {
  public:
-    Variable(Token::Id id, std::string name)
-        : Expr(id), m_name(name) { }
+    Variable(std::string name) : Expr(Token::idv), m_name(name) { }
     virtual Token * newCopy() const;
     virtual uint64_t eval(SymbolsTable * values, bool used = false) const;
 
@@ -35,7 +34,7 @@ class Variable : public Expr {
 
 class Number : public Expr {
  public:
-    Number(Token::Id id, uint64_t value) : Expr(id), m_value(value) { }
+    Number(uint64_t value) : Expr(Token::num), m_value(value) { }
     virtual Token * newCopy() const;
     virtual uint64_t eval(SymbolsTable * values, bool used = false) const;
 

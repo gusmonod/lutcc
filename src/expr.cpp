@@ -10,7 +10,7 @@
 #include "./errors.h"
 
 /*virtual*/ Token * Variable::newCopy() const {
-    return new Variable(this->id(), m_name);
+    return new Variable(m_name);
 }
 
 /*virtual*/ uint64_t Variable::eval(SymbolsTable * values, bool used) const {
@@ -29,7 +29,7 @@
 }
 
 /*virtual*/ Token * Number::newCopy() const {
-    return new Number(this->id(), m_value);
+    return new Number(m_value);
 }
 
 /*virtual*/ uint64_t Number::eval(SymbolsTable * values,

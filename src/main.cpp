@@ -36,7 +36,7 @@ void print_var(const SymbolsTable & variables) {
     }
 }
 
-void print_ins(const std::vector<const Instruction *> instructions) {
+void print_ins(const std::vector<Instruction *> instructions) {
     for (auto instruction : instructions) {
         cout << *instruction << endl;
     }
@@ -56,28 +56,35 @@ int main(int argc, const char * argv[]) {
         return EXIT_FAILURE;
     }
 
-    Automaton accepter(vm.count("optim"));
+    Automaton accepter(vm.count("optim1") || vm.count("optim2"));
     Tokenizer t(&file);
 
     while (true) {
         try {
             bool accepted = accepter.analyze(&t);
 
+            SymbolsTable * variables = accepter.variables();
+            std::vector<Instruction *> *instructions = accepter.instructions();
+
+            if (vm.count("optim2")) {
+                for (auto instruction : *instructions) {
+                    instruction->optimize(variables);
+                }
+            }
+
             if (vm.count("print")) {
-                print_var(accepter.variables());
-                print_ins(accepter.instructions());
+                print_var(*variables);
+                print_ins(*instructions);
             }
 
             if (vm.count("analyze")) {
-                // Copying the variables to `analysisTable`
-                SymbolsTable analysisTable = accepter.variables();
-                for (auto instruction : accepter.instructions()) {
-                    instruction->analyze(&analysisTable);
+                for (auto instruction : *instructions) {
+                    instruction->analyze(variables);
                 }
-                for (auto entry : analysisTable) {
+                for (auto entry : *variables) {
                     if (!entry.second.defined) {
                         cerr << "Undefined variable `" << entry.first
-                        << '`' << endl;
+                             << '`' << endl;
                     }
                     if (!entry.second.used) {
                         cerr << "Unused "
@@ -89,8 +96,8 @@ int main(int argc, const char * argv[]) {
             }
 
             if (vm.count("exec")) {
-                for (auto instruction : accepter.instructions()) {
-                    instruction->execute(&accepter.variables());
+                for (auto instruction : *instructions) {
+                    instruction->execute(variables);
                 }
             }
 

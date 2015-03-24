@@ -56,10 +56,10 @@ class ActionExpr : public Action {
                              SymbolsTable * variables,
                              std::stack<Token *> * tokens) const;
 
- private:
-    Expr * optimize(Expr * left, Expr * right,
-                    SymbolsTable * variables, uint64_t neutralElement) const;
+    Expr * optimize(BinExpr * toOptimize, SymbolsTable * variables,
+                    uint64_t neutralElement) const;
 
+ private:
     bool m_optimize;
 };
 

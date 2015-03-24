@@ -13,6 +13,7 @@ class Instruction {
  public:
     virtual void execute(SymbolsTable * variables) const = 0;
     virtual void analyze(SymbolsTable * variables) const = 0;
+    virtual void optimize(SymbolsTable * variables) = 0;
 
     friend std::ostream & operator<<(std::ostream & o, const Instruction & i);
 
@@ -27,6 +28,7 @@ class Assignment : public Instruction {
 
     virtual void execute(SymbolsTable * variables) const;
     virtual void analyze(SymbolsTable * variables) const;
+    virtual void optimize(SymbolsTable * variables);
 
  private:
     virtual std::ostream & print(std::ostream & o) const;  // NOLINT
@@ -43,6 +45,7 @@ class Read : public Instruction {
 
     virtual void execute(SymbolsTable * variables) const;
     virtual void analyze(SymbolsTable * variables) const;
+    virtual void optimize(SymbolsTable * variables);
 
  private:
     virtual std::ostream & print(std::ostream & o) const;  // NOLINT
@@ -59,6 +62,7 @@ class Write : public Instruction {
 
     virtual void execute(SymbolsTable * variables) const;
     virtual void analyze(SymbolsTable * variables) const;
+    virtual void optimize(SymbolsTable * variables);
 
  private:
     virtual std::ostream & print(std::ostream & o) const;  // NOLINT

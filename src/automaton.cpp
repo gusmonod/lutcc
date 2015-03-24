@@ -219,6 +219,11 @@ Automaton::Automaton(const Trans::Transitions & trans) {
             it.second = nullptr;
         }
     }
+
+    while (!m_tokens.empty()) {
+        delete m_tokens.top();
+        m_tokens.pop();
+    }
 }
 
 bool Automaton::analyze(Tokenizer *tokenizer) {

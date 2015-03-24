@@ -30,7 +30,8 @@ int get_options_map(int argc, const char * argv[],
             ("print,p", ": Prints the internal representation")
             ("analyze,a", ": Analyzes code and outputs error to stderr")
             ("exec,e", ": Executes the given Lutin program")
-            ("optim,o", ": Optimizes the program by simplifying it");
+            ("optim1,1", ": Propagates constants and neutral elements")
+            ("optim2,o", ": Propagates variable with constant value");
 
         po::positional_options_description pos_opts;
         pos_opts.add("lutin-file", -1);

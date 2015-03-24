@@ -180,11 +180,11 @@ void Tokenizer::analyze() {
         }
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::id)) {
         m_currentTokenStr = matches[1];
-        m_currentToken = new Variable(Token::idv, m_currentTokenStr);
+        m_currentToken = new Variable(m_currentTokenStr);
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::number)) {
         m_currentTokenStr = matches[1];
         uint64_t value = std::stoull(m_currentTokenStr);
-        m_currentToken = new Number(Token::num, value);
+        m_currentToken = new Number(value);
     } else {
         m_currentTokenStr = m_buffer[0];
     }
