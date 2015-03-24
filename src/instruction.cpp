@@ -62,9 +62,11 @@ Read::Read(const std::string varName, std::istream & inStream,
 
     uint64_t value;
     std::string input;
+    m_outStream << "> ";
     getline(m_inStream, input);
-    while ((std::stringstream(input) >> value).fail()) {
-        m_outStream << "Error, please type an integer." << std::endl;
+
+    while ((std::stringstream(input) >> value).fail() || std::to_string(value) != input) {
+        m_outStream << "Error, please type an integer." << std::endl << "> ";
         getline(m_inStream, input);
     }
 
