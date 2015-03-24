@@ -5,6 +5,7 @@
 #include <stack>
 #include <sstream>
 #include <string>
+#include <cassert>
 
 #include "./token.h"
 #include "./simpletoken.h"
@@ -28,7 +29,7 @@
     if (m_constant) {
         // Getting the value of the constant
         n = dynamic_cast<const Number *>(tokens->top());
-        myassert(n, "`n` must be pointing to a `Number *`");
+        assert((n && "`n` must be pointing to a `Number *`"));
         tokens->pop();
 
         // Removing the `=` sign
@@ -38,7 +39,7 @@
 
     // Getting the symbol's name
     v = dynamic_cast<const Variable *>(tokens->top());
-    myassert(v, "`v` must be pointing to a `Variable *`");
+    assert((v && "`v` must be pointing to a `Variable *`"));
     tokens->pop();
 
     if (variables->find(v->name()) != variables->end()) {
@@ -80,7 +81,9 @@
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
     Expr * e = dynamic_cast<Expr *>(tokens->top());
-    myassert(e, "`e` must be pointing to a `Expr *`");
+    assert((e && "`e` must be pointing to a `Expr *`"));
+    
+    e->inBrackets(true);
 
     tokens->pop();
     // Remove the opening parenthesis
@@ -94,7 +97,7 @@
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
     Expr * e = dynamic_cast<Expr *>(tokens->top());
-    myassert(e, "`e` must be pointing to a `Expr *`");
+    assert((e && "`e` must be pointing to a `Expr *`"));
 
     tokens->pop();
 
@@ -113,8 +116,8 @@
     Expr * left = dynamic_cast<Expr *>(tokens->top());
     tokens->pop();
 
-    myassert(right && left,
-            "There must be 2 `Expr` and an operator on the top of the stack");
+    assert((right && left &&
+            "There must be 2 `Expr` and an operator on the top of the stack"));
 
     Expr * newExpr = nullptr;
 
@@ -140,7 +143,7 @@
             if (!newExpr) newExpr = new DivExpr(left, right);
             break;
         default:
-            myassert(false, "Only operators can be at this position");
+            assert((false && "Only operators can be at this position"));
             break;
     }
 
@@ -150,6 +153,8 @@
 Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
                             uint64_t neutralElement) const {
     if (!m_optimize) return toOptimize;  // No optimization wanted
+
+    bool isInBrackets = toOptimize->isInBrackets();
 
     Expr * left = toOptimize->left();
     Expr * right = toOptimize->right();
@@ -165,15 +170,16 @@ Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
             result = toOptimize->eval(variables);
         } catch (const std::runtime_error & e) {
             // eval threw exception: left has result, but not right
-            toOptimize->left(new Number(result));  // Deletes `left`
+            // Note: `BinExpr::left(Expr *)` Deletes `left`
+            toOptimize->left(new Number(result, isInBrackets));
             return toOptimize;
         }
 
         // eval threw no exception: right and left have result
         delete left;
         delete right;
-            
-        return new Number(result);
+
+        return new Number(result, isInBrackets);
     } catch (const std::runtime_error & e) { /* ignore error */ }
     try {
         uint64_t result = right->eval(variables);
@@ -182,7 +188,8 @@ Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
             return left;
         }
 
-        toOptimize->right(new Number(result));  // Deletes `right`
+        // Note: `BinExpr::right(Expr *)` Deletes `right`
+        toOptimize->right(new Number(result, isInBrackets));
     } catch (const std::runtime_error & e) { /* ignore error */ }
 
     return toOptimize;  // No optimization possible
@@ -192,7 +199,7 @@ Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
     Expr * rValue = dynamic_cast<Expr *>(tokens->top());
-    myassert(rValue, "`rValue` must be pointing to a `Expr *`");
+    assert((rValue && "`rValue` must be pointing to a `Expr *`"));
     tokens->pop();
 
     // Removing the ':=' operator
@@ -200,7 +207,7 @@ Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
     tokens->pop();
 
     Variable * lValue = dynamic_cast<Variable *>(tokens->top());
-    myassert(lValue, "`lValue` must be pointing to a `Variable *`");
+    assert((lValue && "`lValue` must be pointing to a `Variable *`"));
     tokens->pop();
 
     m_instructions->push_back(new Assignment(lValue->name(), rValue));
@@ -222,7 +229,7 @@ Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
     delete tokens->top();
     tokens->pop();
 
-    myassert(dest, "`dest` must be a well-formed `Variable *`");
+    assert((dest && "`dest` must be a well-formed `Variable *`"));
 
     m_instructions->push_back(new Read(dest->name()));
 
@@ -242,7 +249,7 @@ Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
     delete tokens->top();
     tokens->pop();
 
-    myassert(toWrite, "`toWrite` must be a well-formed `Expr *`");
+    assert((toWrite && "`toWrite` must be a well-formed `Expr *`"));
 
     m_instructions->push_back(new Write(toWrite));
 

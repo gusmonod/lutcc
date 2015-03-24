@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+#include <cassert>
 
 #include "boost/regex.hpp"
 
@@ -107,7 +108,7 @@ void Tokenizer::trim_left() {
                 ++m_line;
                 break;
             default:
-                myassert(false, "A whitespace must match ^[\\r\\n\\t ]+");
+                assert((false && "A whitespace must match ^[\\r\\n\\t ]+"));
                 break;
         }
         // Removing whitespace
@@ -137,7 +138,7 @@ void Tokenizer::analyze() {
                 m_currentToken = new Keyword(Token::lir);
                 break;
             default:
-                myassert(false, "Arriving here implies programming error");
+                assert((false && "Arriving here implies programming error"));
                 break;
         }
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::affect)) {
@@ -175,16 +176,16 @@ void Tokenizer::analyze() {
                 m_currentToken = new SimpleOperator(Token::equ);
                 break;
             default:
-                myassert(false, "Arriving here implies programming error");
+                assert((false && "Arriving here implies programming error"));
                 break;
         }
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::id)) {
         m_currentTokenStr = matches[1];
-        m_currentToken = new Variable(m_currentTokenStr);
+        m_currentToken = new Variable(m_currentTokenStr, false);
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::number)) {
         m_currentTokenStr = matches[1];
         uint64_t value = std::stoull(m_currentTokenStr);
-        m_currentToken = new Number(value);
+        m_currentToken = new Number(value, false);
     } else {
         m_currentTokenStr = m_buffer[0];
     }

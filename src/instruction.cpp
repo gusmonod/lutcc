@@ -4,6 +4,7 @@
 
 #include <sstream>
 #include <string>
+#include <cassert>
 
 #include "./actions.h"
 #include "./errors.h"
@@ -17,7 +18,7 @@ Assignment::Assignment(const std::string varName,
                        const Expr * rValue)
 : m_varName(varName) {
     m_rValue = dynamic_cast<const Expr *>(rValue->newCopy());
-    myassert(m_rValue, "`m_rValue` must be pointing to a `Expr *`");
+    assert((m_rValue && "`m_rValue` must be pointing to a `Expr *`"));
 }
 
 /*virtual*/ void Assignment::execute(SymbolsTable * variables) const {
@@ -80,9 +81,11 @@ Read::Read(const std::string varName, std::istream & inStream,
 
     uint64_t value;
     std::string input;
+    m_outStream << "> ";
     getline(m_inStream, input);
-    while ((std::stringstream(input) >> value).fail()) {
-        m_outStream << "Error, please type an integer." << std::endl;
+
+    while ((std::stringstream(input) >> value).fail() || std::to_string(value) != input) {
+        m_outStream << "Error, please type an integer." << std::endl << "> ";
         getline(m_inStream, input);
     }
 
@@ -113,7 +116,7 @@ Read::Read(const std::string varName, std::istream & inStream,
 Write::Write(const Expr * rValue, std::ostream & outStream)
     : m_outStream(outStream) {
     m_rValue = dynamic_cast<const Expr *>(rValue->newCopy());
-    myassert(m_rValue, "`m_rValue` must be pointing to a `Expr *`");
+    assert((m_rValue && "`m_rValue` must be pointing to a `Expr *`"));
 }
 
 /*virtual*/ void Write::execute(SymbolsTable * variables) const {

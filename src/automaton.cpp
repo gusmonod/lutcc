@@ -5,6 +5,8 @@
 #include <stack>
 #include <set>
 #include <sstream>
+#include <iterator>
+#include <cassert>
 
 #include "./actions.h"
 #include "./transitions.h"
@@ -243,7 +245,20 @@ bool Automaton::analyze(Tokenizer *tokenizer) {
 
         if (this->error(sId, tId)) {
             // TODO(felipematias, yousra) add syntactic error handling
-            return false;
+			auto next = m_trans.find(sId);
+            assert((next != m_trans.end()
+                    && "There must be at least one transition from sId"));
+
+			std::ostringstream oss;
+			oss << "Syntactic error (" << tokenizer->line() << ':'
+				<< tokenizer->column() << ") ";
+			Token * t = new Token(next->second.begin()->first);
+			oss << '`' << *t << '`';
+            for (auto it : next->second) {
+				oss << " or `" << Token(it.first) << '`';
+			}
+			oss << " expected";
+			throw syntactic_error(oss.str());
         }
         if (m_trans[sId][tId]->doTransition(m_trans, *currentToken,
                                             &m_states, &m_tokens, &m_values)) {

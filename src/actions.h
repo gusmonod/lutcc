@@ -65,15 +65,15 @@ class ActionExpr : public Action {
 
 class ActionInstruction : public Action {
  protected:
-    explicit ActionInstruction(std::vector<const Instruction *> * ins)
+    explicit ActionInstruction(std::vector<Instruction *> * ins)
         : m_instructions(ins) { }
 
-    std::vector<const Instruction *> * m_instructions;
+    std::vector<Instruction *> * m_instructions;
 };
 
 class ActionAssign : public ActionInstruction {
  public:
-    explicit ActionAssign(std::vector<const Instruction *> * ins)
+    explicit ActionAssign(std::vector<Instruction *> * ins)
         : ActionInstruction(ins) { }
 
     virtual Token * doAction(const Token & currentToken,
@@ -83,7 +83,7 @@ class ActionAssign : public ActionInstruction {
 
 class ActionRead : public ActionInstruction {
  public:
-    explicit ActionRead(std::vector<const Instruction *> * ins)
+    explicit ActionRead(std::vector<Instruction *> * ins)
         : ActionInstruction(ins) { }
 
     virtual Token * doAction(const Token & currentToken,
@@ -94,7 +94,7 @@ class ActionRead : public ActionInstruction {
 
 class ActionWrite : public ActionInstruction {
  public:
-    explicit ActionWrite(std::vector<const Instruction *> * ins)
+    explicit ActionWrite(std::vector<Instruction *> * ins)
         : ActionInstruction(ins) { }
 
     virtual Token * doAction(const Token & currentToken,
