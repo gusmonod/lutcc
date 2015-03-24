@@ -13,15 +13,20 @@ class Variable;
 
 class Expr : public Token {
  public:
-    explicit Expr(Token::Id id) : Token(id) { }
+    explicit Expr(Token::Id id, bool inBrackets = false) : Token(id), m_inBrackets(inBrackets) { }
     virtual Token * newCopy() const = 0;
     virtual uint64_t eval(SymbolsTable * values, bool used = false) const = 0;
+
+    void setInBrackets(bool ib) {m_inBrackets = ib;}
+
+ protected:
+    bool m_inBrackets;
 };
 
 class Variable : public Expr {
  public:
-    Variable(Token::Id id, std::string name)
-        : Expr(id), m_name(name) { }
+    Variable(Token::Id id, std::string name, bool inBrackets = false)
+        : Expr(id, inBrackets), m_name(name) { }
     virtual Token * newCopy() const;
     virtual uint64_t eval(SymbolsTable * values, bool used = false) const;
 
@@ -35,7 +40,7 @@ class Variable : public Expr {
 
 class Number : public Expr {
  public:
-    Number(Token::Id id, uint64_t value) : Expr(id), m_value(value) { }
+    Number(Token::Id id, uint64_t value, bool inBrackets = false) : Expr(id, inBrackets), m_value(value) { }
     virtual Token * newCopy() const;
     virtual uint64_t eval(SymbolsTable * values, bool used = false) const;
 
@@ -51,7 +56,8 @@ class BinExpr : public Expr {
  public:
     explicit BinExpr(Token::Id id,
                      Expr * left = nullptr,
-                     Expr * right = nullptr);
+                     Expr * right = nullptr,
+                     bool inBrackets = false);
     ~BinExpr() { delete m_left; delete m_right; }
     virtual Token * newCopy() const = 0;
     virtual uint64_t eval(SymbolsTable * values, bool used = false) const = 0;
@@ -72,7 +78,8 @@ class BinExpr : public Expr {
 class AddExpr : public BinExpr {
  public:
     explicit AddExpr(Expr * left = nullptr,
-                     Expr * right = nullptr);
+                     Expr * right = nullptr,
+                     bool inBrackets = false);
     virtual Token * newCopy() const;
     virtual uint64_t eval(SymbolsTable * values, bool used = false) const;
 };
@@ -80,7 +87,8 @@ class AddExpr : public BinExpr {
 class SubExpr : public BinExpr {
  public:
     explicit SubExpr(Expr * left = nullptr,
-                     Expr * right = nullptr);
+                     Expr * right = nullptr,
+                     bool inBrackets = false);
     virtual Token * newCopy() const;
     virtual uint64_t eval(SymbolsTable * values, bool used = false) const;
 };
@@ -88,7 +96,8 @@ class SubExpr : public BinExpr {
 class MulExpr : public BinExpr {
  public:
     explicit MulExpr(Expr * left = nullptr,
-                     Expr * right = nullptr);
+                     Expr * right = nullptr,
+                     bool inBrackets = false);
     virtual Token * newCopy() const;
     virtual uint64_t eval(SymbolsTable * values, bool used = false) const;
 };
@@ -96,7 +105,8 @@ class MulExpr : public BinExpr {
 class DivExpr : public BinExpr {
  public:
     explicit DivExpr(Expr * left = nullptr,
-                     Expr * right = nullptr);
+                     Expr * right = nullptr,
+                     bool inBrackets = false);
     virtual Token * newCopy() const;
     virtual uint64_t eval(SymbolsTable * values, bool used = false) const;
 };

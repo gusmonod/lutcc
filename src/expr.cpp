@@ -10,7 +10,7 @@
 #include "./errors.h"
 
 /*virtual*/ Token * Variable::newCopy() const {
-    return new Variable(this->id(), m_name);
+    return new Variable(this->id(), m_name, m_inBrackets);
 }
 
 /*virtual*/ uint64_t Variable::eval(SymbolsTable * values, bool used) const {
@@ -25,11 +25,14 @@
 }
 
 /*virtual*/ std::ostream& Variable::print(std::ostream& stream) const {
-    return stream << this->m_name;
+    if(m_inBrackets) stream << '(';
+    stream << this->m_name;
+    if(m_inBrackets) stream << ')';
+    return stream;
 }
 
 /*virtual*/ Token * Number::newCopy() const {
-    return new Number(this->id(), m_value);
+    return new Number(this->id(), m_value, m_inBrackets);
 }
 
 /*virtual*/ uint64_t Number::eval(SymbolsTable * values,
@@ -38,11 +41,14 @@
 }
 
 /*virtual*/ std::ostream& Number::print(std::ostream& stream) const {
-    return stream << this->m_value;
+    if(m_inBrackets) stream << '(';
+    stream << this->m_value;
+    if(m_inBrackets) stream << ')';
+    return stream;
 }
 
-BinExpr::BinExpr(Token::Id id, Expr * left, Expr * right)
-    : Expr(id), m_left(left), m_right(right) { }
+BinExpr::BinExpr(Token::Id id, Expr * left, Expr * right, bool inBrackets)
+    : Expr(id, inBrackets), m_left(left), m_right(right) { }
 
 void BinExpr::left(Expr * left, bool shouldDelete) {
     if (shouldDelete) delete m_left;
@@ -56,53 +62,60 @@ void BinExpr::right(Expr * right, bool shouldDelete) {
 
 /*virtual*/ std::ostream& BinExpr::print(std::ostream& stream) const {
     // TODO(nautigsam, florianbouron) Add parens display
+    if(m_inBrackets) stream << '(';
     stream << *m_left;
     Token::print(stream);
-    return stream << *m_right;
+    stream << *m_right;
+    if(m_inBrackets) stream << ')';
+    return stream;
 }
 
-AddExpr::AddExpr(Expr * left, Expr * right)
-    : BinExpr(Token::Id::plu, left, right) { }
+AddExpr::AddExpr(Expr * left, Expr * right, bool inBrackets)
+    : BinExpr(Token::Id::plu, left, right, inBrackets) { }
 
 /*virtual*/ Token * AddExpr::newCopy() const {
     return new AddExpr(dynamic_cast<Expr *>(m_left->newCopy()),
-                        dynamic_cast<Expr *>(m_right->newCopy()));
+                        dynamic_cast<Expr *>(m_right->newCopy()),
+                        m_inBrackets);
 }
 
 /*virtual*/ uint64_t AddExpr::eval(SymbolsTable * values, bool used) const {
     return m_left->eval(values, used) + m_right->eval(values, used);
 }
 
-SubExpr::SubExpr(Expr * left, Expr * right)
-    : BinExpr(Token::Id::min, left, right) { }
+SubExpr::SubExpr(Expr * left, Expr * right, bool inBrackets)
+    : BinExpr(Token::Id::min, left, right, inBrackets) { }
 
 /*virtual*/ Token * SubExpr::newCopy() const {
     return new SubExpr(dynamic_cast<Expr *>(m_left->newCopy()),
-                        dynamic_cast<Expr *>(m_right->newCopy()));
+                        dynamic_cast<Expr *>(m_right->newCopy()),
+                        m_inBrackets);
 }
 
 /*virtual*/ uint64_t SubExpr::eval(SymbolsTable * values, bool used) const {
     return m_left->eval(values, used) - m_right->eval(values, used);
 }
 
-MulExpr::MulExpr(Expr * left, Expr * right)
-    : BinExpr(Token::Id::mul, left, right) { }
+MulExpr::MulExpr(Expr * left, Expr * right, bool inBrackets)
+    : BinExpr(Token::Id::mul, left, right, inBrackets) { }
 
 /*virtual*/ Token * MulExpr::newCopy() const {
     return new MulExpr(dynamic_cast<Expr *>(m_left->newCopy()),
-                        dynamic_cast<Expr *>(m_right->newCopy()));
+                        dynamic_cast<Expr *>(m_right->newCopy()),
+                        m_inBrackets);
 }
 
 /*virtual*/ uint64_t MulExpr::eval(SymbolsTable * values, bool used) const {
     return m_left->eval(values, used) * m_right->eval(values, used);
 }
 
-DivExpr::DivExpr(Expr * left, Expr * right)
-    : BinExpr(Token::Id::quo, left, right) { }
+DivExpr::DivExpr(Expr * left, Expr * right, bool inBrackets)
+    : BinExpr(Token::Id::quo, left, right, inBrackets) { }
 
 /*virtual*/ Token * DivExpr::newCopy() const {
     return new DivExpr(dynamic_cast<Expr *>(m_left->newCopy()),
-                        dynamic_cast<Expr *>(m_right->newCopy()));
+                        dynamic_cast<Expr *>(m_right->newCopy()),
+                        m_inBrackets);
 }
 
 /*virtual*/ uint64_t DivExpr::eval(SymbolsTable * values, bool used) const {
