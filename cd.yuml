@@ -13,13 +13,27 @@
 [Expr]^-[Number]
 
 [Expr]^-[BinExpr]
-[BinExpr]^-[MultExpr]
+[BinExpr]^-[MulExpr]
 [BinExpr]^-[AddExpr]
 [BinExpr]^-[SubExpr]
 [BinExpr]^-[DivExpr]
 [BinExpr]-left>[Expr]
 [BinExpr]-right>[Expr]
 
+[Action]^-[ActionExpr]
+[Action]^-[ActionInstruction]
+[Action]^-[ActionNewSym]
+[Action]^-[ActionParenthesisExpr]
+[Action]^-[ActionSimpleExpr]
+[ActionInstruction]^-[ActionAssign]
+[ActionInstruction]^-[ActionRead]
+[ActionInstruction]^-[ActionWrite]
+
+[Trans]^-[TransAccept]
+[Trans]^-[TransReduce]
+[Trans]^-[TransShift]
+
+[Symbol]
 
 [Instruction]^-[Assignment]
 [Instruction]^-[Read]
@@ -29,13 +43,3 @@
 [Read]-1>[Variable]
 [Assignment]-1>[Variable]
 [Assignment]-1>[Expr]
-
-
-[Declaration]^-[VarDeclaration]
-[Declaration]^-[ConstDeclaration]
-
-[Token]^-[Declaration]
-[Token]^-[Instruction]
-
-[Program]-*>[Declaration]
-[Program]-*>[Instruction]

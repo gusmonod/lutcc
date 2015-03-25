@@ -9,8 +9,6 @@
 #include "./token.h"
 #include "./symbols.h"
 
-class Variable;
-
 class Expr : public Token {
  public:
     explicit Expr(Token::Id id, bool inBrackets = false) : Token(id), m_inBrackets(inBrackets) { }
