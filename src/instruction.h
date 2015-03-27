@@ -24,7 +24,7 @@ class Instruction {
 class Assignment : public Instruction {
  public:
     Assignment(const std::string varName,
-               const Expr * rValue);
+               Expr * rValue);
 
     virtual void execute(SymbolsTable * variables) const;
     virtual void analyze(SymbolsTable * variables) const;
@@ -34,7 +34,7 @@ class Assignment : public Instruction {
     virtual std::ostream & print(std::ostream & o) const;  // NOLINT
 
     const std::string m_varName;
-    const Expr * m_rValue;
+    Expr * m_rValue;
 };
 
 class Read : public Instruction {
@@ -57,7 +57,7 @@ class Read : public Instruction {
 
 class Write : public Instruction {
  public:
-    explicit Write(const Expr * rValue,
+    explicit Write(Expr * rValue,
           std::ostream & outStream = std::cout);  // NOLINT
 
     virtual void execute(SymbolsTable * variables) const;
@@ -67,7 +67,7 @@ class Write : public Instruction {
  private:
     virtual std::ostream & print(std::ostream & o) const;  // NOLINT
 
-    const Expr * m_rValue;
+    Expr * m_rValue;
     std::ostream & m_outStream;
 };
 

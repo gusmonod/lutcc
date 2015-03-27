@@ -43,30 +43,30 @@ void print_ins(const std::vector<Instruction *> instructions) {
 }
 
 void print_terminal(Token::Id terminal, std::ostream & out = std::cerr) {
-    if (Token::END == terminal) {
-        out << "End of File";
-        return;
-    }
+    Token wrapped(terminal);
 
-    assert(terminal > Token::E);  // `terminal` must be a terminal token
+    assert(wrapped.isTerminal());  // must be a terminal token
 
-    if (Token::con <= terminal && terminal <= Token::lir) {
+    if (wrapped.isKeyword()) {
         out << "keyword `";
-    } else if (Token::aff <= terminal && terminal <= Token::quo) {
+    } else if (wrapped.isOperator()) {
         out << "operator `";
-    } else if (Token::com <= terminal && terminal <= Token::equ) {
+    } else if (wrapped.isSymbol()) {
         out << "symbol `";
-    } else if (Token::idv == terminal) {
+    } else if (wrapped.isVariable()) {
         out << "identifier";
-        return;
-    } else if (Token::num == terminal) {
+        return;  // no closing '`'
+    } else if (wrapped.isNumber()) {
         out << "number";
-        return;
+        return;  // no closing '`'
+    } else if(Token::END == terminal) {
+        out << "End of File";
+        return;  // no closing '`'
     } else {
         assert((false && "There is no other terminal Token"));
     }
 
-    out << Token(terminal) << '`';
+    out << wrapped << '`';
 }
 
 std::ostream& operator<<(std::ostream& os, const std::vector<Token::Id>& vec) {
@@ -155,7 +155,7 @@ int main(int argc, const char * argv[]) {
 
     const Token * currentToken = tokenizer.top();
     const Token * nextToken = nullptr;
-    while (!currentToken || Token::END != currentToken->id()) {
+    while (currentToken != &Tokenizer::END_OF_FILE) {
         if (!currentToken) {
             cerr << "Lexical error (" << tokenizer.line() << ':'
                  << tokenizer.column() << ") character `"
@@ -209,7 +209,14 @@ int main(int argc, const char * argv[]) {
         }
     }
 
+    try {
+        automaton.analyze(Tokenizer::END_OF_FILE, tokenizer);
+    } catch (const std::runtime_error & e) {
+        cerr << "Unexpected end of file" << endl;
+        return EXIT_FAILURE;
+    }
+
     doWithOptions(options, automaton.variables(), automaton.instructions());
 
-    return EXIT_SUCCESS;
+    return automaton.isAccepted() ? EXIT_SUCCESS : EXIT_FAILURE;
 }

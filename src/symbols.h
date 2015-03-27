@@ -8,7 +8,7 @@
 #include <cstdint>
 
 struct Symbol {
-    uint64_t value;
+    int64_t value;
     bool defined;
     bool constant;
     bool used;

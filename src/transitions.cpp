@@ -6,7 +6,6 @@
 #include <cstdlib>
 
 #include "./states.h"
-#include "./simpletoken.h"
 #include "./actions.h"
 
 const State::Id Trans::initState = State::E0;

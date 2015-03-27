@@ -8,11 +8,11 @@
 #include <cassert>
 
 #include "./token.h"
-#include "./simpletoken.h"
 #include "./expr.h"
 #include "./errors.h"
 #include "./options.h"
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 /*virtual*/ Token * ActionNewSym::doAction(const Token & currentToken,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
@@ -44,7 +44,7 @@
 
     if (variables->find(v->name()) != variables->end()) {
         std::ostringstream oss;
-        oss << "The variable `" << v->name() << "` was already declared";
+        oss << "The identifier `" << v->name() << "` was already declared";
         throw compile_error(oss.str());
     }
 
@@ -77,6 +77,7 @@
     return nullptr;  // Default behavior: create a new non terminal Token
 }
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 /*virtual*/ Token * ActionParenthesisExpr::doAction(const Token & currentToken,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
@@ -93,6 +94,7 @@
     return e;
 }
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 /*virtual*/ Token * ActionSimpleExpr::doAction(const Token & currentToken,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
@@ -104,24 +106,52 @@
     return e;
 }
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 /*virtual*/ Token * ActionExpr::doAction(const Token & currentToken,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
-    // Retrieving the 3 last Tokens to reduce them
-    Expr * right = dynamic_cast<Expr *>(tokens->top());
-    tokens->pop();
-    Token::Id opId = tokens->top()->id();
-    delete tokens->top();
-    tokens->pop();
-    Expr * left = dynamic_cast<Expr *>(tokens->top());
+    Token * top = tokens->top();
     tokens->pop();
 
-    assert((right && left &&
-            "There must be 2 `Expr` and an operator on the top of the stack"));
+    // If there is nothing to reduce:
+    if (!tokens->top()->isArithOperator()) return top;
+
+    // Removing all operands and operators, reversing the order
+    std::stack<Token *> reversed;
+    reversed.push(top);
+
+    Token * oper = nullptr;
+    do {
+        oper = tokens->top();
+        reversed.push(oper);
+        tokens->pop();
+
+        reversed.push(tokens->top());
+        tokens->pop();
+
+        top = tokens->top();
+    } while (top->isArithOperator()
+             && top->priority() == oper->priority());
 
     Expr * newExpr = nullptr;
+    while (!reversed.empty()) {
+        // Retrieving the first 3 Tokens (last 3 of reversed) to reduce them
+        Expr * left = dynamic_cast<Expr *>(reversed.top());
+        reversed.pop();
+        Token * op = reversed.top();
+        reversed.pop();
+        Expr * right = dynamic_cast<Expr *>(reversed.top());
+        reversed.pop();
 
-    switch (opId) {
+        assert((left && right && op->isArithOperator() &&
+                "There must be 2 `Expr` and 1 operator on top of the stack"));
+
+#ifdef DEBUG
+        std::cout << "DEBUG: " << *left << ' ' << *op << ' '
+                  << *right << " -> ";
+#endif
+
+        switch (op->id()) {
         case Token::plu:
             newExpr = this->optimize(new AddExpr(left, right), variables, 0);
             break;
@@ -134,24 +164,33 @@
         case Token::quo:
             newExpr = this->optimize(new DivExpr(left, right), variables, 1);
 
-            try {
-                if (right->eval(variables) == 0) {
-                    throw math_error("division by zero");
-                }
-            } catch (const std::runtime_error & e) { /* ignore error */ }
-
-            if (!newExpr) newExpr = new DivExpr(left, right);
+            if (right->eval(variables) == 0) {
+                throw math_error("division by zero");
+            }
             break;
         default:
             assert((false && "Only operators can be at this position"));
             break;
+        }
+
+        delete op;
+        op = nullptr;
+
+#ifdef DEBUG
+    std::cout << *newExpr << std::endl;
+#endif
+
+        // If there are still `Expr` to reduce
+        if (!reversed.empty()) {
+            reversed.push(newExpr);  // `newExpr` is the new `left`
+        }
     }
 
     return newExpr;
 }
 
 Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
-                            uint64_t neutralElement) const {
+                            int64_t neutralElement) const {
     if (!m_optimize) return toOptimize;  // No optimization wanted
 
     bool isInBrackets = toOptimize->isInBrackets();
@@ -159,9 +198,9 @@ Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
     Expr * left = toOptimize->left();
     Expr * right = toOptimize->right();
     try {
-        uint64_t result = left->eval(variables);
+        int64_t result = left->eval(variables);
 
-        if (neutralElement == result) {
+        if (neutralElement == result && toOptimize->id() != Token::min) {
             delete left;  // eval threw no exception: left has result
             return right;
         }
@@ -182,7 +221,7 @@ Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
         return new Number(result, isInBrackets);
     } catch (const std::runtime_error & e) { /* ignore error */ }
     try {
-        uint64_t result = right->eval(variables);
+        int64_t result = right->eval(variables);
         if (neutralElement == result) {
             delete right;
             return left;
@@ -195,6 +234,7 @@ Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
     return toOptimize;  // No optimization possible
 }
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 /*virtual*/ Token * ActionAssign::doAction(const Token & currentToken,
                           SymbolsTable * variables,
                           std::stack<Token *> * tokens) const {
@@ -220,6 +260,7 @@ Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
     return nullptr;  // Default behavior: create a new non terminal Token
 }
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 /*virtual*/ Token * ActionRead::doAction(const Token & currentToken,
                       SymbolsTable * variables,
                       std::stack<Token *> * tokens) const {
@@ -239,6 +280,7 @@ Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
     return nullptr;  // Default behavior: create a new non terminal Token
 }
 
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 /*virtual*/ Token * ActionWrite::doAction(const Token & currentToken,
                       SymbolsTable * variables,
                       std::stack<Token *> * tokens) const {

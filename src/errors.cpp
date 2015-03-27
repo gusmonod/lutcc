@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 const std::runtime_error undeclared_error(const std::string & name) {
-    return std::runtime_error("Undeclared variable `" + name + "`");
+    return std::runtime_error("Undeclared identifier `" + name + "`");
 }
 
 const std::runtime_error undefined_error(const std::string & name) {

@@ -1,0 +1,1 @@
+../lut -oe ../files/correct.lt > a < std.in; ../lut -e ../files/correct.lt > b < std.in; diff a b; rm a b

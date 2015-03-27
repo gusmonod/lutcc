@@ -7,7 +7,7 @@ OBJECTS=$(SRC:.cpp=.o)
 PROG=bin/lutcc
 
 CC=g++
-CC_FLAGS=-Wall -W -Wextra -std=c++11
+CC_FLAGS=-pedantic -Wall -W -Wextra -std=c++11
 TARGET ?= release
 
 ifeq ($(TARGET), release)

@@ -1,0 +1,20 @@
+var a, b, c, d;
+const c1 = 6, c2 = 5;
+
+a := c2 - c1;
+ecrire a;
+
+c := a + c2;
+ecrire c;
+
+c := 2 * c;
+ecrire c;
+
+c := 0 - c;
+ecrire c;
+
+d := a - c;
+ecrire d;
+
+b := a * d;
+ecrire b;

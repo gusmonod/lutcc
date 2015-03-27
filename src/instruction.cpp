@@ -15,9 +15,9 @@ std::ostream & operator<<(std::ostream & o, const Instruction & i) {
 }
 
 Assignment::Assignment(const std::string varName,
-                       const Expr * rValue)
+                       Expr * rValue)
 : m_varName(varName) {
-    m_rValue = dynamic_cast<const Expr *>(rValue->newCopy());
+    m_rValue = dynamic_cast<Expr *>(rValue->newCopy());
     assert((m_rValue && "`m_rValue` must be pointing to a `Expr *`"));
 }
 
@@ -51,19 +51,24 @@ Assignment::Assignment(const std::string varName,
 
 /*virtual*/ void Assignment::optimize(SymbolsTable * variables) {
     try {
-        m_rValue->eval(variables);
+        m_rValue = new Number(m_rValue->eval(variables), false);
+    } catch (std::runtime_error & e) { /* ignore errors */ }
 
+    try {
         // If the result can be found at compile-time, execute it:
         this->execute(variables);
+    } catch (std::runtime_error & e) { /* ignore error */ }
 
-        Expr * expr = const_cast<Expr *>(m_rValue);
-        BinExpr * toOptimize = dynamic_cast<BinExpr *>(expr);
+    try {
+        BinExpr * toOptimize = dynamic_cast<BinExpr *>(m_rValue);
 
         // Optimize rValue if possible
         if (toOptimize) {
             m_rValue = ActionExpr(true).optimize(toOptimize, variables, 0);
         }
     } catch (std::runtime_error & e) { /* ignore error */ }
+
+    m_rValue->inBrackets(false);  // If it is just a variable
 }
 
 /*virtual*/ std::ostream & Assignment::print(std::ostream & o) const {
@@ -79,7 +84,7 @@ Read::Read(const std::string varName, std::istream & inStream,
 
     auto symbol = variables->find(m_varName);
 
-    uint64_t value;
+    int64_t value;
     std::string input;
     m_outStream << "> ";
     getline(m_inStream, input);
@@ -114,16 +119,16 @@ Read::Read(const std::string varName, std::istream & inStream,
     return o << "lire " << m_varName << ';';
 }
 
-Write::Write(const Expr * rValue, std::ostream & outStream)
+Write::Write(Expr * rValue, std::ostream & outStream)
     : m_outStream(outStream) {
-    m_rValue = dynamic_cast<const Expr *>(rValue->newCopy());
+    m_rValue = dynamic_cast<Expr *>(rValue->newCopy());
     assert((m_rValue && "`m_rValue` must be pointing to a `Expr *`"));
 }
 
 /*virtual*/ void Write::execute(SymbolsTable * variables) const {
     this->analyze(variables);  // Marks the variable as "used"
 
-    uint64_t value;
+    int64_t value;
     value = m_rValue->eval(variables);
 
     m_outStream << value << std::endl;
@@ -144,14 +149,19 @@ Write::Write(const Expr * rValue, std::ostream & outStream)
 
 /*virtual*/ void Write::optimize(SymbolsTable * variables) {
     try {
-        Expr * expr = const_cast<Expr *>(m_rValue);
-        BinExpr * toOptimize = dynamic_cast<BinExpr *>(expr);
+        m_rValue = new Number(m_rValue->eval(variables), false);
+    } catch (std::runtime_error & e) { /* ignore errors */ }
+
+    try {
+        BinExpr * toOptimize = dynamic_cast<BinExpr *>(m_rValue);
 
         // Optimize rValue if possible
         if (toOptimize) {
             m_rValue = ActionExpr(true).optimize(toOptimize, variables, 0);
         }
     } catch (std::runtime_error & e) { /* ignore error */ }
+
+    m_rValue->inBrackets(false);  // If it is just a variable
 }
 
 /*virtual*/ std::ostream & Write::print(std::ostream & o) const {

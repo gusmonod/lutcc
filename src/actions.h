@@ -57,7 +57,7 @@ class ActionExpr : public Action {
                      std::stack<Token *> * tokens) const override;
 
     Expr * optimize(BinExpr * toOptimize, SymbolsTable * variables,
-                    uint64_t neutralElement) const;
+                    int64_t neutralElement) const;
 
  private:
     bool m_optimize;

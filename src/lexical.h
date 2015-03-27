@@ -56,10 +56,6 @@ class Tokenizer {
     int            m_line;
     int            m_column;
 
-#ifdef DEBUG
-    bool           m_logNewLine;
-#endif
-
     static const int BUFFER_SIZE;
 
     // Keywords regular expressions

@@ -14,7 +14,7 @@
     return new Variable(m_name, m_inBrackets);
 }
 
-/*virtual*/ uint64_t Variable::eval(SymbolsTable * values, bool used) const {
+/*virtual*/ int64_t Variable::eval(SymbolsTable * values, bool used) const {
     auto entry = values->find(m_name);
 
     if (entry == values->end()) throw undeclared_error(m_name);
@@ -36,7 +36,8 @@
     return new Number(m_value, m_inBrackets);
 }
 
-/*virtual*/ uint64_t Number::eval(SymbolsTable * values,
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+/*virtual*/ int64_t Number::eval(SymbolsTable * values,
                                   bool used) const {
     return m_value;
 }
@@ -80,7 +81,7 @@ AddExpr::AddExpr(Expr * left, Expr * right, bool inBrackets)
                         m_inBrackets);
 }
 
-/*virtual*/ uint64_t AddExpr::eval(SymbolsTable * values, bool used) const {
+/*virtual*/ int64_t AddExpr::eval(SymbolsTable * values, bool used) const {
     return m_left->eval(values, used) + m_right->eval(values, used);
 }
 
@@ -93,7 +94,7 @@ SubExpr::SubExpr(Expr * left, Expr * right, bool inBrackets)
                         m_inBrackets);
 }
 
-/*virtual*/ uint64_t SubExpr::eval(SymbolsTable * values, bool used) const {
+/*virtual*/ int64_t SubExpr::eval(SymbolsTable * values, bool used) const {
     return m_left->eval(values, used) - m_right->eval(values, used);
 }
 
@@ -106,7 +107,7 @@ MulExpr::MulExpr(Expr * left, Expr * right, bool inBrackets)
                         m_inBrackets);
 }
 
-/*virtual*/ uint64_t MulExpr::eval(SymbolsTable * values, bool used) const {
+/*virtual*/ int64_t MulExpr::eval(SymbolsTable * values, bool used) const {
     return m_left->eval(values, used) * m_right->eval(values, used);
 }
 
@@ -119,6 +120,6 @@ DivExpr::DivExpr(Expr * left, Expr * right, bool inBrackets)
                         m_inBrackets);
 }
 
-/*virtual*/ uint64_t DivExpr::eval(SymbolsTable * values, bool used) const {
+/*virtual*/ int64_t DivExpr::eval(SymbolsTable * values, bool used) const {
     return m_left->eval(values, used) / m_right->eval(values, used);
 }

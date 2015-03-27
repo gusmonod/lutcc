@@ -8,7 +8,6 @@
 
 #include "boost/regex.hpp"
 
-#include "./simpletoken.h"
 #include "./expr.h"
 #include "./errors.h"
 
@@ -33,10 +32,6 @@ Tokenizer::Tokenizer(std::istream * inStream, bool shift /* = true */)
     : m_inputStream(*inStream), m_currentToken(nullptr), m_shifted(shift) {
     m_line = 1;
     m_column = 1;
-
-#ifdef DEBUG
-    m_logNewLine = true;
-#endif
 
     if (shift) this->shift();
 }
@@ -126,54 +121,54 @@ void Tokenizer::analyze() {
 
         switch (m_currentTokenStr[0]) {
             case 'c':
-                m_currentToken = new Keyword(Token::con);
+                m_currentToken = new Token(Token::con);
                 break;
             case 'v':
-                m_currentToken = new Keyword(Token::var);
+                m_currentToken = new Token(Token::var);
                 break;
             case 'e':
-                m_currentToken = new Keyword(Token::ecr);
+                m_currentToken = new Token(Token::ecr);
                 break;
             case 'l':
-                m_currentToken = new Keyword(Token::lir);
+                m_currentToken = new Token(Token::lir);
                 break;
             default:
                 assert((false && "Arriving here implies programming error"));
                 break;
         }
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::affect)) {
-        m_currentToken = new SimpleOperator(Token::aff);
+        m_currentToken = new Token(Token::aff);
         m_currentTokenStr = matches[1];
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::operatorr)) {
         m_currentTokenStr = matches[1];
 
         switch (m_currentTokenStr[0]) {
             case '+':
-                m_currentToken = new SimpleOperator(Token::plu);
+                m_currentToken = new Token(Token::plu);
                 break;
             case '-':
-                m_currentToken = new SimpleOperator(Token::min);
+                m_currentToken = new Token(Token::min);
                 break;
             case '*':
-                m_currentToken = new SimpleOperator(Token::mul);
+                m_currentToken = new Token(Token::mul);
                 break;
             case '/':
-                m_currentToken = new SimpleOperator(Token::quo);
+                m_currentToken = new Token(Token::quo);
                 break;
             case '(':
-                m_currentToken = new SimpleOperator(Token::opp);
+                m_currentToken = new Token(Token::opp);
                 break;
             case ',':
-                m_currentToken = new SimpleOperator(Token::com);
+                m_currentToken = new Token(Token::com);
                 break;
             case ')':
-                m_currentToken = new SimpleOperator(Token::clo);
+                m_currentToken = new Token(Token::clo);
                 break;
             case ';':
-                m_currentToken = new SimpleOperator(Token::col);
+                m_currentToken = new Token(Token::col);
                 break;
             case '=':
-                m_currentToken = new SimpleOperator(Token::equ);
+                m_currentToken = new Token(Token::equ);
                 break;
             default:
                 assert((false && "Arriving here implies programming error"));
@@ -184,7 +179,7 @@ void Tokenizer::analyze() {
         m_currentToken = new Variable(m_currentTokenStr, false);
     } else if (regex_match(m_buffer.c_str(), matches, Tokenizer::number)) {
         m_currentTokenStr = matches[1];
-        uint64_t value = std::stoull(m_currentTokenStr);
+        int64_t value = std::stoull(m_currentTokenStr);
         m_currentToken = new Number(value, false);
     } else {
         m_currentTokenStr = m_buffer[0];
@@ -192,25 +187,18 @@ void Tokenizer::analyze() {
 
 #ifdef DEBUG
     if (m_currentToken) {
-        if (m_logNewLine) {
-            std::cout << "DEBUG Line " << m_line << ": ";
-            m_logNewLine = false;
-        }
+        std::cout << "DEBUG Line " << m_line << ": ";
 
         Token::Id tId = m_currentToken->id();
         if (Token::aff == tId || Token::equ == tId) std::cout << ' ';
 
         std::cout << *m_currentToken;
 
-        if (dynamic_cast<Keyword *>(m_currentToken)
-            || Token::aff == tId || Token::equ == tId) {
+        if (m_currentToken->isOperator() || Token::equ == tId) {
             std::cout << ' ';
         }
 
-        if (Token::col == tId) {
-            std::cout << std::endl;
-            m_logNewLine = true;
-        }
+        std::cout << std::endl;
     } else {
         std::cout << "DEBUG ERROR: " << m_currentTokenStr << std::endl;
     }

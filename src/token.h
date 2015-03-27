@@ -5,6 +5,7 @@
 
 #include <map>
 #include <string>
+#include <cassert>
 
 // Terminal symbols
 // ----------------
@@ -48,11 +49,16 @@ class Token {
  public:
     enum Id {
         END,  // End of file
+
         // Non-terminals (see above)
         A, P, Ld, Li, D, Lv, Lc, I, E,
+
         // Terminals
-        con, var, ecr, lir, aff, plu, min, mul, quo, opp, com, clo, col, equ,
-        idv, num
+        con, var, ecr, lir,  // keywords
+        idv, num,            // variables or numbers
+        plu, min, mul, quo,  // arithmetic operators
+        aff, opp, clo,       // other operators
+        com, col, equ        // other tokens (symbols)
     };
 
     explicit Token(Token::Id id) : m_id(id) { }
@@ -62,6 +68,28 @@ class Token {
     virtual Token * newCopy() const { return new Token(m_id); }
 
     Token::Id id() const { return m_id; }
+
+    bool isTerminal() const { return END == m_id || E < m_id; }
+
+    bool isKeyword() const { return con <= m_id && m_id <= lir; }
+
+    bool isVariable() const { return idv == m_id; }
+
+    bool isNumber() const { return num == m_id; }
+
+    bool isOperator() const { return plu <= m_id && m_id <= clo; }
+
+    bool isArithOperator() const { return plu <= m_id && m_id <= quo; }
+
+    int priority() const {
+        assert((this->isArithOperator()
+                && "Only arithmetic operators have priority"));
+
+        if (Token::plu == m_id || Token::min == m_id) return 1;
+        else return 2;
+    }
+
+    bool isSymbol() const { return com <= m_id && m_id <= equ; }
 
     friend std::ostream& operator<<(std::ostream& stream, const Token & token);
 

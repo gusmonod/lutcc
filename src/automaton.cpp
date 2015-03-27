@@ -72,19 +72,8 @@ Automaton::Automaton(bool optimize)
 
     // E3
     m_trans[State::E3] [Token::END] = new TransReduce(2, Token::P);
-    m_trans[State::E3] [Token::con] =  // TransShift(State::E2);
-    m_trans[State::E3] [Token::var] =  // TransShift(State::E2);
     m_trans[State::E3] [Token::aff] =  // TransShift(State::E2);
-    m_trans[State::E3] [Token::plu] =  // TransShift(State::E2);
-    m_trans[State::E3] [Token::min] =  // TransShift(State::E2);
-    m_trans[State::E3] [Token::mul] =  // TransShift(State::E2);
-    m_trans[State::E3] [Token::quo] =  // TransShift(State::E2);
-    m_trans[State::E3] [Token::opp] =  // TransShift(State::E2);
-    m_trans[State::E3] [Token::com] =  // TransShift(State::E2);
-    m_trans[State::E3] [Token::clo] =  // TransShift(State::E2);
-    m_trans[State::E3] [Token::col] =  // TransShift(State::E2);
-    m_trans[State::E3] [Token::equ] = new TransShift(State::E2);
-    m_trans[State::E3] [Token::num] = new TransReduce(2, Token::P);
+    m_trans[State::E3] [Token::col] = new TransShift(State::E2);
     m_trans[State::E3] [Token::I]   = new TransReduce(1, Token::Li);
 
     // E5
@@ -276,8 +265,8 @@ Automaton::Automaton(bool optimize)
 
     m_trans[State::E38][Token::idv] = new TransShift(State::E39);
 
-    m_trans[State::E39][Token::com] = new TransReduce(3, Token::Lv, false,
-                                            new ActionNewSym(false));
+    m_trans[State::E39][Token::com] =  // TransReduce(3, Token::Lv, false,
+                                       //   new ActionNewSym(false));
     m_trans[State::E39][Token::col] = new TransReduce(3, Token::Lv, false,
                                             new ActionNewSym(false));
 
@@ -287,7 +276,8 @@ Automaton::Automaton(bool optimize)
 
     m_trans[State::E43][Token::num] = new TransShift(State::E44);
 
-    m_trans[State::E44][Token::com] = new TransReduce(5, Token::Lc, false);
+    m_trans[State::E44][Token::com] =  // TransReduce(5, Token::Lc, false,
+                                       //   new ActionNewSym(true));
     m_trans[State::E44][Token::col] = new TransReduce(5, Token::Lc, false,
                                             new ActionNewSym(true));
 
@@ -345,7 +335,7 @@ std::vector<Token::Id> Automaton::expected(const Token & currentToken) const {
 
     // Looking for the next possible symbols
     for (auto next : m_trans.find(sId)->second) {
-        if (next.first > Token::E) {  // only for terminal symbols
+        if (Token(next.first).isTerminal()) {  // only for terminal symbols
             const Trans * t = next.second;
 
             // Looking for the next next (`nnext`) symbols

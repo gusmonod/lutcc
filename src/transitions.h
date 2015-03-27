@@ -43,6 +43,7 @@ class TransShift : public Trans {
 
     bool isShift() const override { return m_terminal; }
 
+    #pragma GCC diagnostic ignored "-Wunused-parameter"
     State::Id target(const Trans::Transitions & transitions,
                      std::stack<State::Id> states) const override
             { return m_target; }
@@ -64,9 +65,10 @@ class TransAccept : public Trans {
 
     bool isShift() const override { return false; }
 
+    #pragma GCC diagnostic ignored "-Wunused-parameter"
     State::Id target(const Trans::Transitions & transitions,
                      std::stack<State::Id> states) const override
-            { return State::E0; }
+            { return State::E3; }
 };
 
 class TransReduce : public Trans {
@@ -84,6 +86,7 @@ class TransReduce : public Trans {
 
     bool isShift() const override { return m_terminal; }
 
+    #pragma GCC diagnostic ignored "-Wunused-parameter"
     State::Id target(const Trans::Transitions & transitions,
                      std::stack<State::Id> states) const override;
 
