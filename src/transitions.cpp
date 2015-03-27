@@ -9,17 +9,17 @@
 #include "./simpletoken.h"
 #include "./actions.h"
 
-const State Trans::initState = State::E0;
+const State::Id Trans::initState = State::E0;
 
-TransShift::TransShift(State target, bool terminal /*= true*/)
+TransShift::TransShift(State::Id target, bool terminal /*= true*/)
     : m_target(target), m_terminal(terminal) { }
 
-/*virtual*/ bool TransShift::doTransition(
-                              const Trans::Transitions & transitions,
-                              const Token & currentToken,
-                              std::stack<State> * states,
-                              std::stack<Token *> * tokens,
-                              SymbolsTable * variables) const {
+/*override*/ bool TransShift::doTransition(
+                            const Trans::Transitions & transitions,
+                            const Token & currentToken,
+                            std::stack<State::Id> * states,
+                            std::stack<Token *> * tokens,
+                            SymbolsTable * variables) const {
     states->push(m_target);
     tokens->push(currentToken.newCopy());
 
@@ -29,12 +29,12 @@ TransShift::TransShift(State target, bool terminal /*= true*/)
 
 TransAccept::TransAccept() { }
 
-/*virtual*/ bool TransAccept::doTransition(
-                              const Trans::Transitions & transitions,
-                              const Token & currentToken,
-                              std::stack<State> * states,
-                              std::stack<Token *> * tokens,
-                              SymbolsTable * variables) const {
+/*override*/ bool TransAccept::doTransition(
+                            const Trans::Transitions & transitions,
+                            const Token & currentToken,
+                            std::stack<State::Id> * states,
+                            std::stack<Token *> * tokens,
+                            SymbolsTable * variables) const {
     // Ends the recursion, accepting
     return true;
 }
@@ -44,17 +44,17 @@ TransReduce::TransReduce(int nbToPop, Token::Id left,
     : m_nbToPop(nbToPop), m_left(left), m_terminal(terminal),
       m_reduceAction(reduceAction) { }
 
-/*virtual*/ TransReduce::~TransReduce() {
+/*override*/ TransReduce::~TransReduce() {
     delete m_reduceAction;
     m_reduceAction = nullptr;
 }
 
-/*virtual*/ bool TransReduce::doTransition(
-                              const Trans::Transitions & transitions,
-                              const Token & currentToken,
-                              std::stack<State> * states,
-                              std::stack<Token *> * tokens,
-                              SymbolsTable * variables) const {
+/*override*/ bool TransReduce::doTransition(
+                            const Trans::Transitions & transitions,
+                            const Token & currentToken,
+                            std::stack<State::Id> * states,
+                            std::stack<Token *> * tokens,
+                            SymbolsTable * variables) const {
     for (int i = 0; i < m_nbToPop; ++i) {
         states->pop();
     }
@@ -80,4 +80,15 @@ TransReduce::TransReduce(int nbToPop, Token::Id left,
     nextToken = nullptr;
 
     return r;
+}
+
+/*override*/ State::Id TransReduce::target(
+                            const Trans::Transitions & transitions,
+                            std::stack<State::Id> states) const {
+    for (int i = 0; i < m_nbToPop; ++i) {
+        states.pop();
+    }
+
+    return transitions.find(states.top())->second.find(m_left)
+            ->second->target(transitions, states);
 }

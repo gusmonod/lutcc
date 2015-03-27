@@ -36,14 +36,13 @@ class lexical_error : public recoverable_error {
 
 class syntactic_error : public recoverable_error {
  public:
-    explicit syntactic_error(const std::string &what,
-                             const std::vector<Token> & expected)
-        : recoverable_error(what), m_expected(expected) { }
-
-    const std::vector<Token> & expected() const { return m_expected; }
+    explicit syntactic_error(const char *what)
+            : recoverable_error(what) {}
+    explicit syntactic_error(const std::string &what)
+            : recoverable_error(what) {}
 
  private:
-    const std::vector<Token> & m_expected;
+    const std::vector<Token::Id> m_expected;
 };
 
 // Non-recoverable errors:

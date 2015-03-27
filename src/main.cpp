@@ -42,102 +42,174 @@ void print_ins(const std::vector<Instruction *> instructions) {
     }
 }
 
-bool doWithOptions(Automaton *accepter,
-                   const boost::program_options::variables_map &vm,
-                   Tokenizer *t) {
-    bool accepted = accepter->analyze(t);
-
-    SymbolsTable * variables = accepter->variables();
-    std::vector<Instruction *> *instructions = accepter->instructions();
-
-    if (vm.count("optim2")) {
-        for (auto instruction : *instructions) {
-            instruction->optimize(variables);
-        }
+void print_terminal(Token::Id terminal, std::ostream & out = std::cerr) {
+    if (Token::END == terminal) {
+        out << "End of File";
+        return;
     }
 
-    if (vm.count("print")) {
-        print_var(*variables);
-        print_ins(*instructions);
-    }
+    assert(terminal > Token::E);  // `terminal` must be a terminal token
 
-    if (vm.count("analyze")) {
-        for (auto instruction : *instructions) {
-            instruction->analyze(variables);
-        }
-        for (auto entry : *variables) {
-            if (!entry.second.defined) {
-                cerr << "Undefined variable `" << entry.first
-                << '`' << endl;
-            }
-            if (!entry.second.used) {
-                cerr << "Unused "
-                << (entry.second.constant ? "constant" :
-                    "variable") << " `" << entry.first
-                << '`' << endl;
-            }
-        }
-    }
-
-    if (vm.count("exec")) {
-        for (auto instruction : *instructions) {
-            instruction->execute(variables);
-        }
-    }
-
-#ifdef DEBUG
-    if (accepted) {
-        cout << "DEBUG: Accepted!!" << endl;
+    if (Token::con <= terminal && terminal <= Token::lir) {
+        out << "keyword `";
+    } else if (Token::aff <= terminal && terminal <= Token::quo) {
+        out << "operator `";
+    } else if (Token::com <= terminal && terminal <= Token::equ) {
+        out << "symbol `";
+    } else if (Token::idv == terminal) {
+        out << "identifier";
+        return;
+    } else if (Token::num == terminal) {
+        out << "number";
+        return;
     } else {
-        cout << "DEBUG: Not accepted" << endl;
+        assert((false && "There is no other terminal Token"));
     }
-#endif
 
-    return accepted;
+    out << Token(terminal) << '`';
 }
 
-std::ostream& operator<<(std::ostream& os, const std::vector<Token>& vec) {
+std::ostream& operator<<(std::ostream& os, const std::vector<Token::Id>& vec) {
     if (vec.size() < 1) return os;
 
     auto el = vec.begin();
-    os << *el;
+    os << '`' << *el << '`';
 
-    for (; el != vec.end(); ++el) {
-        os << " or " << *el;
+    for (++el; el != vec.end(); ++el) {
+        os << " or `" << *el << '`';
     }
 
     return os;
 }
 
-int main(int argc, const char * argv[]) {
-    boost::program_options::variables_map vm;
+void doWithOptions(const boost::program_options::variables_map & options,
+                   SymbolsTable * variables,
+                   std::vector<Instruction *> * instructions) {
+    if (options.count("optim2")) {
+        for (auto instruction : *instructions) {
+            instruction->optimize(variables);
+        }
+    }
 
-    int err = get_options_map(argc, argv, &vm);
+    if (options.count("print")) {
+        print_var(*variables);
+        print_ins(*instructions);
+    }
+
+    if (options.count("analyze")) {
+        for (auto instruction : *instructions) {
+            try {
+                instruction->analyze(variables);
+            } catch (const std::runtime_error & e) {
+                cerr << e.what() << endl;
+            }
+        }
+        for (auto entry : *variables) {
+            if (!entry.second.defined) {
+                cerr << "Undefined variable `" << entry.first
+                     << '`' << endl;
+            }
+            if (!entry.second.used) {
+                cerr << "Unused "
+                     << (entry.second.constant ? "constant" :
+                         "variable") << " `" << entry.first
+                     << '`' << endl;
+            }
+        }
+    }
+
+    if (options.count("exec")) {
+        for (auto instruction : *instructions) {
+            try {
+                instruction->execute(variables);
+            } catch (const std::runtime_error & e) {
+                cerr << e.what() << endl;
+            }
+        }
+    }
+}
+
+int main(int argc, const char * argv[]) {
+#ifdef DEBUG
+    for (int i = 0; i < argc - 1; ++i) {
+        cout << argv[i];
+    }
+    cout << argv[argc - 1] << endl;
+#endif
+
+    boost::program_options::variables_map options;
+
+    int err = get_options_map(argc, argv, &options);
     if (err) return err;
 
     std::ifstream file;
-    file.open(vm["lutin-file"].as<string>());
+    file.open(options["lutin-file"].as<string>());
     if (!file) {
-        cerr << "Could not open `" << vm["lutin-file"].as<string>() << '`'
-             << endl;
+        cerr << "Could not open `" << options["lutin-file"].as<string>()
+             << '`' << endl;
         return EXIT_FAILURE;
     }
 
-    Automaton accepter(vm.count("optim1") || vm.count("optim2"));
-    Tokenizer t(&file);
+    Automaton automaton(options.count("optim1") || options.count("optim2"));
+    Tokenizer tokenizer(&file);
 
-    bool tryAgain = true;
-    while (tryAgain) {
+    const Token * currentToken = tokenizer.top();
+    const Token * nextToken = nullptr;
+    while (!currentToken || Token::END != currentToken->id()) {
+        if (!currentToken) {
+            cerr << "Lexical error (" << tokenizer.line() << ':'
+                 << tokenizer.column() << ") character `"
+                 << tokenizer.topStr() << '`';
+
+            // Go to next token:
+            tokenizer.shift();
+            currentToken = tokenizer.top();
+
+            continue;  // and try again
+        }
+
         try {
-            tryAgain = !doWithOptions(&accepter, vm, &t);
+            bool isShift = automaton.analyze(*currentToken, tokenizer);
+
+            if (isShift) {
+                if (nextToken) {
+                    delete currentToken;
+                    currentToken = nextToken;
+                    nextToken = nullptr;
+                } else {
+                    tokenizer.shift();
+                    currentToken = tokenizer.top();
+                }
+            }
         } catch (const syntactic_error & e) {
-            cerr << e.what() << e.expected() << endl;
-            volatile int i = 0;
+            std::vector<Token::Id> expected(automaton.expected(*currentToken));
+
+            if (expected.size() < 1) continue;
+
+            const Token::Id expectedId = expected[0];
+
+            cerr << e.what() << ' ';
+            print_terminal(expectedId);
+            cerr << (expected.size() == 1 ? "" : " probably")
+                 << " expected";
+
+            if (Token::idv == expectedId || Token::num == expectedId) {
+                cerr << " (not recoverable)" << endl;
+                return EXIT_FAILURE;
+            } else {
+                // Inserting the expected token
+                nextToken = currentToken;
+                currentToken = new Token(expectedId);
+            }
+            cerr << endl;
         } catch (const recoverable_error & e) {
             cerr << e.what() << endl;
-            t.shift();  // shift and try again
-        } catch (const std::runtime_error & e) { tryAgain = false; }
+            tokenizer.shift();  // shift and try again
+            currentToken = tokenizer.top();
+        }
     }
+
+    doWithOptions(options, automaton.variables(), automaton.instructions());
 
     return EXIT_SUCCESS;
 }

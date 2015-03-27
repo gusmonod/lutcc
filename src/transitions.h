@@ -17,32 +17,38 @@ class Trans {
 
     virtual ~Trans() { }
 
-    static const State initState;  // E0
+    static const State::Id initState;  // E0
 
     virtual bool doTransition(const Trans::Transitions & transitions,
                               const Token & currentToken,
-                              std::stack<State> * states,
+                              std::stack<State::Id> * states,
                               std::stack<Token *> * tokens,
                               SymbolsTable * variables) const = 0;
 
     virtual bool isShift() const = 0;
+
+    virtual State::Id target(const Trans::Transitions & transitions,
+                             std::stack<State::Id> states) const = 0;
 };
 
 class TransShift : public Trans {
  public:
-    explicit TransShift(State target, bool terminal = true);
+    explicit TransShift(State::Id target, bool terminal = true);
 
-    virtual bool doTransition(const Trans::Transitions & transitions,
-                              const Token & currentToken,
-                              std::stack<State> * states,
-                              std::stack<Token *> * tokens,
-                              SymbolsTable * variables) const;
+    bool doTransition(const Trans::Transitions & transitions,
+                      const Token & currentToken,
+                      std::stack<State::Id> * states,
+                      std::stack<Token *> * tokens,
+                      SymbolsTable * variables) const override;
 
-    virtual bool isShift() const { return m_terminal; }
+    bool isShift() const override { return m_terminal; }
 
-    const State target() const { return m_target; }
+    State::Id target(const Trans::Transitions & transitions,
+                     std::stack<State::Id> states) const override
+            { return m_target; }
+
  private:
-    const State m_target;
+    const State::Id m_target;
     bool m_terminal;
 };
 
@@ -50,30 +56,38 @@ class TransAccept : public Trans {
  public:
     TransAccept();
 
-    virtual bool doTransition(const Trans::Transitions & transitions,
-                              const Token & currentToken,
-                              std::stack<State> * states,
-                              std::stack<Token *> * tokens,
-                              SymbolsTable * variables) const;
+    bool doTransition(const Trans::Transitions & transitions,
+                      const Token & currentToken,
+                      std::stack<State::Id> * states,
+                      std::stack<Token *> * tokens,
+                      SymbolsTable * variables) const override;
 
-    virtual bool isShift() const { return false; }
+    bool isShift() const override { return false; }
+
+    State::Id target(const Trans::Transitions & transitions,
+                     std::stack<State::Id> states) const override
+            { return State::E0; }
 };
 
 class TransReduce : public Trans {
  public:
     TransReduce(int nbToPop, Token::Id tokenId,
                 bool terminal = true, Action * reduceAction = nullptr);
-    virtual ~TransReduce();
 
-    virtual bool doTransition(const Trans::Transitions & transitions,
-                              const Token & currentToken,
-                              std::stack<State> * states,
-                              std::stack<Token *> * tokens,
-                              SymbolsTable * variables) const;
+    ~TransReduce() override;
 
-    virtual bool isShift() const { return m_terminal; }
+    bool doTransition(const Trans::Transitions & transitions,
+                      const Token & currentToken,
+                      std::stack<State::Id> * states,
+                      std::stack<Token *> * tokens,
+                      SymbolsTable * variables) const override;
 
- protected:
+    bool isShift() const override { return m_terminal; }
+
+    State::Id target(const Trans::Transitions & transitions,
+                     std::stack<State::Id> states) const override;
+
+ private:
     int m_nbToPop;
     Token::Id m_left;
     bool m_terminal;
