@@ -27,9 +27,9 @@ class ActionNewSym : public Action {
  public:
     explicit ActionNewSym(bool constant) : m_constant(constant) { }
 
-    virtual Token * doAction(const Token & currentToken,
-                             SymbolsTable * variables,
-                             std::stack<Token *> * tokens) const;
+    Token * doAction(const Token & currentToken,
+                     SymbolsTable * variables,
+                     std::stack<Token *> * tokens) const override;
 
  private:
     const bool m_constant;
@@ -37,24 +37,24 @@ class ActionNewSym : public Action {
 
 class ActionParenthesisExpr : public Action {
  public:
-     virtual Token * doAction(const Token & currentToken,
-                              SymbolsTable * variables,
-                              std::stack<Token *> * tokens) const;
+    Token * doAction(const Token & currentToken,
+                     SymbolsTable * variables,
+                     std::stack<Token *> * tokens) const override;
 };
 
 class ActionSimpleExpr : public Action {
  public:
-    virtual Token * doAction(const Token & currentToken,
-                             SymbolsTable * variables,
-                             std::stack<Token *> * tokens) const;
+    Token * doAction(const Token & currentToken,
+                     SymbolsTable * variables,
+                     std::stack<Token *> * tokens) const override;
 };
 
 class ActionExpr : public Action {
  public:
     explicit ActionExpr(bool optimize = false) : m_optimize(optimize) { }
-    virtual Token * doAction(const Token & currentToken,
-                             SymbolsTable * variables,
-                             std::stack<Token *> * tokens) const;
+    Token * doAction(const Token & currentToken,
+                     SymbolsTable * variables,
+                     std::stack<Token *> * tokens) const override;
 
     Expr * optimize(BinExpr * toOptimize, SymbolsTable * variables,
                     uint64_t neutralElement) const;
@@ -76,9 +76,9 @@ class ActionAssign : public ActionInstruction {
     explicit ActionAssign(std::vector<Instruction *> * ins)
         : ActionInstruction(ins) { }
 
-    virtual Token * doAction(const Token & currentToken,
-                             SymbolsTable * variables,
-                             std::stack<Token *> * tokens) const;
+    Token * doAction(const Token & currentToken,
+                     SymbolsTable * variables,
+                     std::stack<Token *> * tokens) const override;
 };
 
 class ActionRead : public ActionInstruction {
@@ -86,20 +86,19 @@ class ActionRead : public ActionInstruction {
     explicit ActionRead(std::vector<Instruction *> * ins)
         : ActionInstruction(ins) { }
 
-    virtual Token * doAction(const Token & currentToken,
-                             SymbolsTable * variables,
-                             std::stack<Token *> * tokens) const;
+    Token * doAction(const Token & currentToken,
+                     SymbolsTable * variables,
+                     std::stack<Token *> * tokens) const override;
 };
-
 
 class ActionWrite : public ActionInstruction {
  public:
     explicit ActionWrite(std::vector<Instruction *> * ins)
         : ActionInstruction(ins) { }
 
-    virtual Token * doAction(const Token & currentToken,
-                             SymbolsTable * variables,
-                             std::stack<Token *> * tokens) const;
+    Token * doAction(const Token & currentToken,
+                     SymbolsTable * variables,
+                     std::stack<Token *> * tokens) const override;
 };
 
 #endif  // SRC_ACTIONS_H_

@@ -20,21 +20,25 @@ class Automaton {
     explicit Automaton(const Trans::Transitions & trans);
 
     // Frees all Actions from the Transitions table
-    virtual ~Automaton();
+    ~Automaton();
 
-    bool analyze(Tokenizer *tokenizer);
+    bool analyze(const Token & toAnalyze, const Tokenizer & tokenizer);
+
+    bool isAccepted() const { return m_states.empty(); }
 
     SymbolsTable * variables() { return &m_values; }
+
+    std::vector<Instruction *> * instructions() { return &m_instructions; }
+
+    std::vector<Token::Id> expected(const Token & currentToken) const;
 
     // Returns true if the state or token given is not in the transitions table
     bool error(State::Id s, Token::Id t);
 
-    std::vector<Instruction *> * instructions() { return &m_instructions; }
-
  private:
     Trans::Transitions m_trans;
 
-    std::stack<State> m_states;
+    std::stack<State::Id> m_states;
     std::stack<Token *> m_tokens;
     std::vector<Instruction *> m_instructions;
 

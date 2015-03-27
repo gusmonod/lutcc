@@ -26,9 +26,9 @@
 }
 
 /*virtual*/ std::ostream& Variable::print(std::ostream& stream) const {
-    if(m_inBrackets) stream << '(';
+    if (m_inBrackets) stream << '(';
     stream << this->m_name;
-    if(m_inBrackets) stream << ')';
+    if (m_inBrackets) stream << ')';
     return stream;
 }
 
@@ -42,9 +42,9 @@
 }
 
 /*virtual*/ std::ostream& Number::print(std::ostream& stream) const {
-    if(m_inBrackets) stream << '(';
+    if (m_inBrackets) stream << '(';
     stream << this->m_value;
-    if(m_inBrackets) stream << ')';
+    if (m_inBrackets) stream << ')';
     return stream;
 }
 
@@ -63,11 +63,11 @@ void BinExpr::right(Expr * right, bool shouldDelete) {
 
 /*virtual*/ std::ostream& BinExpr::print(std::ostream& stream) const {
     // TODO(nautigsam, florianbouron) Add parens display
-    if(m_inBrackets) stream << '(';
+    if (m_inBrackets) stream << '(';
     stream << *m_left;
     Token::print(stream);
     stream << *m_right;
-    if(m_inBrackets) stream << ')';
+    if (m_inBrackets) stream << ')';
     return stream;
 }
 

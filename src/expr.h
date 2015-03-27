@@ -13,7 +13,8 @@ class Variable;
 
 class Expr : public Token {
  public:
-    explicit Expr(Token::Id id, bool inBrackets = false) : Token(id), m_inBrackets(inBrackets) { }
+    explicit Expr(Token::Id id, bool inBrackets = false)
+            : Token(id), m_inBrackets(inBrackets) { }
     virtual Token * newCopy() const = 0;
     virtual uint64_t eval(SymbolsTable * values, bool used = false) const = 0;
 

@@ -82,7 +82,7 @@
                           std::stack<Token *> * tokens) const {
     Expr * e = dynamic_cast<Expr *>(tokens->top());
     assert((e && "`e` must be pointing to a `Expr *`"));
-    
+
     e->inBrackets(true);
 
     tokens->pop();
