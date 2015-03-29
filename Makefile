@@ -13,7 +13,7 @@ TARGET ?= release
 ifeq ($(TARGET), release)
     CC_FLAGS +=-DNDEBUG
 else
-    CC_FLAGS +=-DDEBUG
+    CC_FLAGS +=-g -DDEBUG
 endif
 
 LD=g++
