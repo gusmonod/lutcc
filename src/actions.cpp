@@ -162,11 +162,10 @@
             newExpr = this->optimize(new MulExpr(left, right), variables, 1);
             break;
         case Token::quo:
-            newExpr = this->optimize(new DivExpr(left, right), variables, 1);
-
             if (right->eval(variables) == 0) {
                 throw math_error("division by zero");
             }
+            newExpr = this->optimize(new DivExpr(left, right), variables, 1);
             break;
         default:
             assert((false && "Only operators can be at this position"));
