@@ -22,6 +22,7 @@ Notes:
 
 + Declarations (`var` and `const`) **must** be done **before** any instruction.
 + `ecrire` means write to standard output, and `lire` means read from standard input.
-+ The language only supports **positive integers**
++ The language only supports **integers**
++ If a litteral is on the right-hand side of an assignment, it can't be negative
 + Constants **must** be initialized with a **positive integer litteral**
 + Variables **may not** be initialized
