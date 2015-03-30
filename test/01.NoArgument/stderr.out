@@ -10,4 +10,4 @@ Allowed options:
   -a [ --analyze ]      : Analyzes code and outputs error to stderr
   -e [ --exec ]         : Executes the given Lutin program
   -1 [ --optim1 ]       : Propagates constants and neutral elements
-  -o [ --optim2 ]       : Propagates variable with constant value
+  -o [ --optim2 ]       : Propagates variables with constant value
