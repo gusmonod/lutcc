@@ -184,9 +184,8 @@ int main(int argc, const char * argv[]) {
         } catch (const syntactic_error & e) {
             std::vector<Token::Id> expected(automaton.expected(*currentToken));
 
-            if (expected.size() < 1) continue;
-
-            const Token::Id expectedId = expected[0];
+            Token::Id expectedId = expected.size() < 1 ? Token::col :
+                    expected[0];
 
             cerr << e.what() << ' ';
             print_terminal(expectedId);

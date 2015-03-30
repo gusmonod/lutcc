@@ -22,11 +22,8 @@ Assignment::Assignment(const std::string varName,
 }
 
 /*virtual*/ void Assignment::execute(SymbolsTable * variables) const {
-    this->analyze(variables);  // Marks as defined and `m_rValue` as "used"
-
-    auto symbol = variables->find(m_varName);
-
-    symbol->second.value = m_rValue->eval(variables);
+    // Is the same as analyze
+    this->analyze(variables);
 }
 
 /*virtual*/ void Assignment::analyze(SymbolsTable * variables) const {
@@ -45,7 +42,9 @@ Assignment::Assignment(const std::string varName,
         throw e2;
     }
 
-    // Simulate assignment:
+    // Does the actual assigning, so as to check for
+    // undefined or math error
+    symbol->second.value = m_rValue->eval(variables);
     symbol->second.defined = true;
 }
 

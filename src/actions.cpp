@@ -164,9 +164,12 @@
         case Token::quo:
             newExpr = this->optimize(new DivExpr(left, right), variables, 1);
 
-            if (right->eval(variables) == 0) {
-                throw math_error("division by zero");
-            }
+            try {
+                if (0 == right->eval(variables)) {
+                    throw math_error("Division by zero");
+                }
+            } catch (const std::runtime_error & e) { /* ignore */ }
+
             break;
         default:
             assert((false && "Only operators can be at this position"));
@@ -200,7 +203,9 @@ Expr * ActionExpr::optimize(BinExpr * toOptimize, SymbolsTable * variables,
     try {
         int64_t result = left->eval(variables);
 
-        if (neutralElement == result && toOptimize->id() != Token::min) {
+        if (neutralElement == result
+                && toOptimize->id() != Token::min
+                && toOptimize->id() != Token::quo) {
             delete left;  // eval threw no exception: left has result
             return right;
         }

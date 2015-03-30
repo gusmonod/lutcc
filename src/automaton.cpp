@@ -19,6 +19,7 @@ Automaton::Automaton(bool optimize)
     : m_trans(), m_states(), m_tokens(), m_values() {
     m_states.push(Trans::initState);
 
+    Trans * shiftToE14 = new TransShift(State::E14);
     Trans * shiftToE15 = new TransShift(State::E15);
     Trans * shiftToE16 = new TransShift(State::E16);
 
@@ -72,8 +73,6 @@ Automaton::Automaton(bool optimize)
 
     // E3
     m_trans[State::E3] [Token::END] = new TransReduce(2, Token::P);
-    m_trans[State::E3] [Token::aff] =  // TransShift(State::E2);
-    m_trans[State::E3] [Token::col] = new TransShift(State::E2);
     m_trans[State::E3] [Token::I]   = new TransReduce(1, Token::Li);
 
     // E5
@@ -81,7 +80,7 @@ Automaton::Automaton(bool optimize)
 
     // E6
     m_trans[State::E6] [Token::E]   = new TransShift(State::E13, false);
-    m_trans[State::E6] [Token::opp] = new TransShift(State::E14);
+    m_trans[State::E6] [Token::opp] = shiftToE14;
     m_trans[State::E6] [Token::num] = shiftToE15;
     m_trans[State::E6] [Token::idv] = shiftToE16;
 
@@ -96,7 +95,7 @@ Automaton::Automaton(bool optimize)
 
     // E12
     m_trans[State::E12] [Token::E]  = new TransShift(State::E20, false);
-    m_trans[State::E12][Token::opp] = new TransShift(State::E14);
+    m_trans[State::E12][Token::opp] = shiftToE14;
     m_trans[State::E12][Token::num] = shiftToE15;
     m_trans[State::E12][Token::idv] = shiftToE16;
 
@@ -110,7 +109,7 @@ Automaton::Automaton(bool optimize)
 
     // E14
     m_trans[State::E14][Token::E]   = new TransShift(State::E26, false);
-    m_trans[State::E14][Token::opp] = new TransShift(State::E14);
+    m_trans[State::E14][Token::opp] = shiftToE14;
     m_trans[State::E14][Token::num] = shiftToE15;
     m_trans[State::E14][Token::idv] = shiftToE16;
 
@@ -170,25 +169,25 @@ Automaton::Automaton(bool optimize)
 
     // E22
     m_trans[State::E22][Token::E]   = new TransShift(State::E31, false);
-    m_trans[State::E22][Token::opp] = new TransShift(State::E14);
+    m_trans[State::E22][Token::opp] = shiftToE14;
     m_trans[State::E22][Token::num] = shiftToE15;
     m_trans[State::E22][Token::idv] = shiftToE16;
 
     // E23
     m_trans[State::E23][Token::E]   = new TransShift(State::E32, false);
-    m_trans[State::E23][Token::opp] = new TransShift(State::E14);
+    m_trans[State::E23][Token::opp] = shiftToE14;
     m_trans[State::E23][Token::num] = shiftToE15;
     m_trans[State::E23][Token::idv] = shiftToE16;
 
     // E24
     m_trans[State::E24][Token::E]   = new TransShift(State::E33, false);
-    m_trans[State::E24][Token::opp] = new TransShift(State::E14);
+    m_trans[State::E24][Token::opp] = shiftToE14;
     m_trans[State::E24][Token::num] = shiftToE15;
     m_trans[State::E24][Token::idv] = shiftToE16;
 
     // E25
     m_trans[State::E25][Token::E]   = new TransShift(State::E34, false);
-    m_trans[State::E25][Token::opp] = new TransShift(State::E14);
+    m_trans[State::E25][Token::opp] = shiftToE14;
     m_trans[State::E25][Token::num] = shiftToE15;
     m_trans[State::E25][Token::idv] = shiftToE16;
 
@@ -225,7 +224,7 @@ Automaton::Automaton(bool optimize)
                                             new ActionNewSym(false));
     m_trans[State::E29][Token::com] = new TransShift(State::E38);
 
-    // E31, E32, E33, E34
+    // E31 = E32, E33 = E34
     m_trans[State::E31][Token::plu] =  // TransShift(State::E22);
     m_trans[State::E32][Token::plu] = new TransShift(State::E22);
 
@@ -259,28 +258,36 @@ Automaton::Automaton(bool optimize)
     m_trans[State::E34][Token::clo] = new TransReduce(3, Token::E, false,
                                             new ActionExpr(optimize));
 
+    // E36
     m_trans[State::E36][Token::col] = new TransReduce(5, Token::D, true,
                                             new ActionNewSym(true));
     m_trans[State::E36][Token::com] = new TransShift(State::E41);
 
+    // E38
     m_trans[State::E38][Token::idv] = new TransShift(State::E39);
 
+    // E39
     m_trans[State::E39][Token::com] =  // TransReduce(3, Token::Lv, false,
                                        //   new ActionNewSym(false));
     m_trans[State::E39][Token::col] = new TransReduce(3, Token::Lv, false,
                                             new ActionNewSym(false));
 
+    // E41
     m_trans[State::E41][Token::idv] = new TransShift(State::E42);
 
+    // E42
     m_trans[State::E42][Token::equ] = new TransShift(State::E43);
 
+    // E43
     m_trans[State::E43][Token::num] = new TransShift(State::E44);
 
+    // E44
     m_trans[State::E44][Token::com] =  // TransReduce(5, Token::Lc, false,
                                        //   new ActionNewSym(true));
     m_trans[State::E44][Token::col] = new TransReduce(5, Token::Lc, false,
                                             new ActionNewSym(true));
 
+    // E45
     m_trans[State::E45][Token::num] = new TransShift(State::E28);
 }
 
