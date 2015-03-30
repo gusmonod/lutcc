@@ -169,7 +169,6 @@
                     throw math_error("Division by zero");
                 }
             } catch (const std::runtime_error & e) { /* ignore */ }
-
             break;
         default:
             assert((false && "Only operators can be at this position"));

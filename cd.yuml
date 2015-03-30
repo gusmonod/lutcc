@@ -1,45 +1,96 @@
-[State|String name | Virtual Transition(Automaton a. Token t)]
-[Token]
-[Tokenizer|Token Shift()]
+[note:-;private;;+;public;;~~;pure virtual function]
 
-[Automaton|start()]->1[Tokenizer],
-[Automaton]-statesStack *>[State],
-[Automaton]-tokensStack * >[Token]
+[State]
+[Symbol]
 
-[Token]^-[SimpleOperator]
-[Token]^-[Expr|double eval(Variables)]
-[Token]^-[Keyword]
+// ============== BEGIN Token inheritance ==============
+[Token|-TokenId m_id|+Token * newCopy();+bool isTerminal();+bool isKeyword();+bool isVariable();+bool isNumber();+bool isOperator();+bool isArithOperator();+int priority();+bool isSymbol()]
+[Expr|-bool m_inBrackets|~Token * newCopy()~;~int64_t eval()~]
+[Variable|-std::string m_name|+Token * newCopy();+int64_t eval()]
+[Number|-int64_t m_value|+Token * newCopy();+int64_t eval()]
+[BinExpr|~Token * newCopy()~;~int64_t eval()~]
+[AddExpr|+Token * newCopy();+int64_t eval()]
+[SubExpr|+Token * newCopy();+int64_t eval()]
+[MulExpr|+Token * newCopy();+int64_t eval()]
+[DivExpr|+Token * newCopy();+int64_t eval()]
+
+[Token]^-[Expr]
 [Expr]^-[Variable]
 [Expr]^-[Number]
-
 [Expr]^-[BinExpr]
-[BinExpr]^-[MulExpr]
 [BinExpr]^-[AddExpr]
 [BinExpr]^-[SubExpr]
+[BinExpr]^-[MulExpr]
 [BinExpr]^-[DivExpr]
-[BinExpr]-left>[Expr]
-[BinExpr]-right>[Expr]
+[BinExpr]-m_left 1>[Expr]
+[BinExpr]-m_right 1>[Expr]
+// ============== END Token inheritance ==============
 
-[Action]^-[ActionExpr]
-[Action]^-[ActionInstruction]
-[Action]^-[ActionNewSym]
-[Action]^-[ActionParenthesisExpr]
-[Action]^-[ActionSimpleExpr]
-[ActionInstruction]^-[ActionAssign]
-[ActionInstruction]^-[ActionRead]
-[ActionInstruction]^-[ActionWrite]
 
+// ============== BEGIN Tokenizer ==============
+[Tokenizer|-std::istream m_inputStream;-std::string m_buffer;-int m_line;-int m_column|+bool has_next();+Token * top();+void shift()]
+
+[Tokenizer]-m_currentToken 1>[Token]
+// ============== END Tokenizer ==============
+
+
+// ============== BEGIN Transitions inheritance ==============
+[Trans|~bool doTransition()~;~bool isShift()~]
+[TransShift|-bool m_terminal|+bool doTransition();+bool isShift()]
+[TransAccept|+bool doTransition();+bool isShift()]
+[TransReduce|-int m_nbToPop;-Token::Id m_left;-bool m_terminal|+bool doTransition();+bool isShift()]
+
+[Trans]-target 1>[State]
+[Trans]^-[TransShift]
 [Trans]^-[TransAccept]
 [Trans]^-[TransReduce]
-[Trans]^-[TransShift]
+[TransReduce]-m_reduceAction 1>[Action]
+// ============== END Transitions inheritance ==============
 
-[Symbol]
+
+// ============== BEGIN Automaton ==============
+[Automaton|+bool analyze();+TokenIdVector expected()]
+
+[Automaton]-m_states *>[State]
+[Automaton]-m_tokens *>[Token]
+[Automaton]-m_instructions *>[Instruction]
+[Automaton]-m_trans *>[Trans]
+[Automaton]-m_values *>[Symbol]
+// ============== END Automaton ==============
+
+
+// ============== BEGIN Instruction inheritance ==============
+[Instruction|~void execute()~;~void analyze()~;~void optimize()~]
+[Assignment|-std::string m_varName|+void execute();+void analyze();+void optimize()]
+[Read|-std::string m_varName|+void execute();+void analyze();+void optimize()]
+[Write|+void execute();+void analyze();+void optimize()]
 
 [Instruction]^-[Assignment]
 [Instruction]^-[Read]
 [Instruction]^-[Write]
+[Assignment]-m_rValue 1>[Expr]
+[Write]-m_rValue 1>[Expr]
+// ============== END Instruction inheritance ==============
 
-[Write]-1>[Expr]
-[Read]-1>[Variable]
-[Assignment]-1>[Variable]
-[Assignment]-1>[Expr]
+
+// ============== BEGIN Action inheritance ==============
+[Action|~Token * doAction()~]
+[ActionNewSym|-bool m_constant|+Token * doAction()]
+[ActionParenthesisExpr|+Token * doAction()]
+[ActionSimpleExpr|+Token * doAction()]
+[ActionExpr|-bool m_optimize|+Token * doAction();+Expr * optimize()]
+[ActionInstruction]
+[ActionAssign|+Token * doAction()]
+[ActionRead|+Token * doAction()]
+[ActionWrite|+Token * doAction()]
+
+[Action]^-[ActionNewSym]
+[Action]^-[ActionParenthesisExpr]
+[Action]^-[ActionSimpleExpr]
+[Action]^-[ActionExpr]
+[Action]^-[ActionInstruction]
+[ActionInstruction]^-[ActionAssign]
+[ActionInstruction]^-[ActionRead]
+[ActionInstruction]^-[ActionWrite]
+[ActionInstruction]-m_instructions *>[Instruction]
+// ============== END Action inheritance ==============
