@@ -1,7 +1,9 @@
 lutcc
 =====
 
-Lutin compiler. Complete description of the language in [`grammar.md`](./grammar.md).
+This project is to write a LALR parser for a toy language (Lutin), **without**
+using a tokenizer or parser tool (such as Lex, YACC or GNU Bison), but instead
+building the entire parser using only a regex parsing tool, and standard C++.
 
 Example lutin code
 ------------------
@@ -16,6 +18,15 @@ Example lutin code
 	ecrire x;
 
 This program declares one variable and two constants, writes `110` to the standard output, affects a value to `x` which is then written, and finally, it writes the user input on the standard output.
+
+Complete description of the language's grammar can be found in [`grammar.md`](./grammar.md), and the project architecture in [`architecture.md`](./architecture.md)
+
+Automaton implementation
+------------------------
+
+The automaton implemented was written specifically for this project by our team:
+
+![Automaton image](./automaton.png)
 
 Notes:
 ------
